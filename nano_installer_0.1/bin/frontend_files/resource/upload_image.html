@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Upload Media Image</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col m6 push-m2" id="main-panel">
+              <div class="row">
+                  <div class="input-field col m4">
+                      <input id="image_name" placeholder="input image name" type="text" class="validate" name="name" required>
+                      <label for="image_name">Image Name</label>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="input-field col m8">
+                      <textarea id="description" placeholder="descript this image" class="materialize-textarea" required></textarea>
+                      <label for="description">Description</label>
+                  </div>
+              </div>
+              <div class="row">
+                <div class="col m2">
+                  <label>Tags</label>
+                </div>
+              </div>
+              <div class="row">
+                  <div class="col m8">
+                    <div class="row">
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="linux"/>
+                          <span>Linux</span>
+                        </label>
+                      </div>
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="windows"/>
+                          <span>Windows</span>
+                        </label>
+                      </div>
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="centos"/>
+                          <span>CentOS</span>
+                        </label>
+                      </div>
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="ubuntu"/>
+                          <span>Ubuntu</span>
+                        </label>
+                      </div>
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="64bit"/>
+                          <span>64Bit</span>
+                        </label>
+                      </div>
+                      <div class="col m3">
+                        <label>
+                          <input type="checkbox" value="32bit"/>
+                          <span>32Bit</span>
+                        </label>
+                      </div>
+
+                    </div>
+                  </div>
+              </div>
+              <div class="row">
+                <div class="col m2">
+                  <label>Image File</label>
+                </div>
+              </div>
+              <div class="row">
+                <form action="" method="post" enctype="multipart/form-data" id="upload_form">
+                  <div class="file-field input-field col m12">
+                    <div class="row">
+                      <div class="file-path-wrapper col m10">
+                        <input class="file-path validate" type="text" placeholder="choose upload file" required>
+                      </div>
+                      <div class="waves-effect waves-light blue-grey lighten-2 btn-small col m2">
+                        <span>select
+                        </span>
+                        <input type="file" name="image">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
+                        class="material-icons left">chevron_left</i>Back</a>
+            </div>
+            <div class="col m2 right" id="button">
+                <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="uploadImage()">Upload
+                    <i class="material-icons right">file_upload</i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/jquery.form.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script>
+M.AutoInit();
+
+function uploadImage(){
+  var imageName = $('#image_name').val();
+  if (!imageName){
+    M.toast({html: 'invalid image name'});
+    return;
+  }
+  var imageDescription = $('#description').val();
+  if (!imageDescription){
+    M.toast({html: 'input image description'});
+    return;
+  }
+
+  var tags = new Array();
+  $(':checkbox:checked').each(function(){
+    tags.push($(this).val());
+  });
+  createImage(imageName, imageDescription, tags);
+}
+
+function releaseImage(id){
+  $.ajax({
+      url:'/media_images/' + id,
+      type: "DELETE",
+      success: function (result) {
+          if (0 != result['error_code']) {
+              M.toast({html: 'release image fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          M.toast({html: 'media image "' + id + '" released'})
+          setTimeout(refresh, 1500);
+      }
+  });
+}
+
+function createImage(name, description, tags){
+  var request = new Object();
+  request.name = name;
+  request.description = description;
+  request.owner = "admin";
+  request.group = "manager";
+  request.tags = tags;
+  $.post(
+    '/media_images/',
+    JSON.stringify(request),
+    function(result){
+      if (0 != result['error_code']) {
+          M.toast({html: 'create media image fail: ' + result['message'], outDuration: 600});
+          return;
+      }
+      var imageId = result['data']['id'];
+      startTransport(name, description, tags, imageId);
+    },
+    "json"
+  )
+}
+
+function startTransport(name, description, tags, imageId){
+  var form = $('#upload_form');
+  form.attr('action', '/media_image_files/' + imageId);
+  form.ajaxForm({
+    beforeSend: function(){
+      $('#button').empty();
+      $('#main-panel').empty();
+      var table = $('<table>').addClass('striped');
+      table.append(
+        $('<tr>').append(
+          $('<td>').text('Name')
+        ).append(
+          $('<td>').text(name)
+        )
+      ).append(
+        $('<tr>').append(
+          $('<td>').text('Description')
+        ).append(
+          $('<td>').text(description)
+        )
+      ).append(
+        $('<tr>').append(
+          $('<td>').text('Tags')
+        ).append(
+          $('<td>').text(tags.join('/'))
+        )
+      ).append(
+        $('<tr>').append(
+          $('<td>').text('ID')
+        ).append(
+          $('<td>').text(imageId)
+        )
+      ).append(
+        $('<tr>').append(
+          $('<td>').text('Result')
+        ).append(
+          $('<td>').attr('id', 'operate_result').append(
+            $('<div>').addClass('center').append(
+              $('<span>').text('Uploading... 0%').attr('id', 'progress-info')
+            )
+          ).append(
+            $('<div>').addClass('progress').append(
+              $('<div>').addClass('determinate').width('0%').attr('id', 'progress-bar')
+            )
+          )
+        )
+      );
+      $('#main-panel').append(table);
+    },
+    uploadProgress: function(event, position, total, percentComplete) {
+      var progress = percentComplete + '%';
+      $('#progress-bar').width(progress);
+      $('#progress-info').text('Creating... ' + progress);
+    },
+    success: function() {
+      $('#operate_result').text('success');
+      $('#button').append(
+        $('<a>').attr('href', '/medias.html').append(
+          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text('Finish').prepend(
+            $('<i>').addClass('material-icons').text('check')
+          )
+        )
+      );
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+      releaseImage(imageId);
+      $('#operate_result').text(errorThrown);
+    }
+  });
+  form.submit();
+}
+
+</script>
+</body>
+</html>

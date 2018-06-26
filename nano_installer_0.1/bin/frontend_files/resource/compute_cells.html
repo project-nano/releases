@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Compute Cells</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <nav class="clean">
+            <div class="nav-wrapper">
+                <div class="col s12" id="breadcrumb-path">
+                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m3">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="add_button"><i class="material-icons left">add</i>Add Cell</a>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="cell_list">
+    </div>
+    <div class="modal" id="modal_confirm">
+        <div class="modal-content">
+            <h4>Remove Confirm</h4>
+            <p id="confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link">Yes</a>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/js/materialize.min.js"></script>
+<script>
+    var poolName;
+
+    M.AutoInit();
+
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    function refresh(){
+      location.reload();
+    }
+
+    function outputMessage(message){
+      $('#cell_list').append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function loadCells(){
+      $.getJSON(
+        '/compute_pool_cells/' + poolName,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            outputMessage('no compute cell available');
+            return;
+          }
+          var container = $('<div>').addClass('row');
+          var table = $('<table>').append(
+            $('<thead>').append(
+              $('<tr>').append(
+                $('<td>').text('Cell')
+              ).append(
+                $('<td>').text('Address')
+              ).append(
+                $('<td>').text('Alive')
+              ).append(
+                $('<td>').text('Status')
+              ).append($('<td>'))
+            )
+          );
+          result['data'].forEach((cell) => {
+            var content = $('<tr>');
+            content.append(
+              $('<td>').text(cell['name'])
+            ).append(
+              $('<td>').text(cell['address'])
+            );
+            //alive
+            if (cell['alive']){
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','Online').text('wifi')
+                )
+              );
+            }else{
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','Offline').text('signal_wifi_off')
+                )
+              );
+            }
+            var operators = $('<td>');
+            //Status
+            if (cell['enabled']){
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','enabled').text('check')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip','Disable').append(
+                    $('<i>').addClass('material-icons').text('do_not_disturb')
+                  )
+              );
+            }else{
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','disabled').text('do_not_disturb')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip','Enable').append(
+                    $('<i>').addClass('material-icons').text('check')
+                  )
+              );
+            }
+            operators.append(
+              $('<a>').attr('href', '/instance_list.html?pool=' + poolName + '&cell=' +cell['name']).addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Instances').append(
+                  $('<i>').addClass('material-icons').text('cloud_queue')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Remove').attr('onclick', 'confirmDelete("'+ cell['name'] +'")').append(
+                  $('<i>').addClass('material-icons').text('delete')
+                )
+            );
+            content.append(operators);
+            container.append(
+              table.append(content)
+            );
+          });
+          $('#cell_list').append(container);
+          M.Tooltip.init($('.tooltipped'));
+        }
+      );
+    }
+
+    function confirmDelete(name){
+      $('#confirm_content').text('Are you sure to remove compute cell ' + name);
+      $('#confirm_link').attr('onclick', 'removeCell("' + name + '")');
+      var instance = M.Modal.getInstance($('.modal'));
+      instance.open();
+    }
+
+    function removeCell(name) {
+      $.ajax({
+       url:'/compute_pool_cells/' + poolName + '/'+ name,
+       type: "DELETE",
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete cell fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'compute cell "' + name + '" removed'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    function modifyCell(id) {
+        M.toast({html: 'todo: mofidy cell ' + id});
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      var params = parseQueryString();
+      if (!params.has('pool')){
+        M.toast({html: 'must specify pool name'})
+        return;
+      }
+      poolName = params.get('pool');
+      $('#breadcrumb-path').append(
+        $('<a>').addClass('breadcrumb').text(poolName).attr('href','#')
+      );
+      $('#add_button').attr('href', '/add_cell.html?pool=' + poolName);
+      loadCells();
+    });
+
+</script>
+</body>
+</html>

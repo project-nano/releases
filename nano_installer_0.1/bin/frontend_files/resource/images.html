@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="/css/materialize.min.css" media="screen,projection"/>
+    <title>Disk Images</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col m4">
+                <a href="build_image.html" class="waves-effect waves-light blue-grey lighten-2 btn"><i class="material-icons left">build</i>Build</a>
+            </div>
+            <div class="col m2 push-m4">
+                <div class="input-field">
+                    <select>
+                        <option value="" disabled selected>Filter by Group</option>
+                        <option value="manager">manager</option>
+                        <option value="user">user</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col m2 push-m4">
+                <div class="input-field">
+                    <select>
+                        <option value="" disabled selected>Filter by Tag</option>
+                        <option value="linux">linux</option>
+                        <option value="windows">windows</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section" id="images_list">
+    </div>
+    <div class="modal" id="modal_config">
+        <div class="modal-content">
+            <h4>Delete Confirm</h4>
+            <p id="confirm_content">Are you sure to delete image 123456</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link">Yes</a>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="/js/materialize.min.js"></script>
+<script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    M.AutoInit();
+
+    var filterGroup;
+    var filterTag;
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return true;
+      }
+      var values = queryString.split("&");
+      var params = new Map();
+      values.forEach((value) => {
+        var p = value.split('=');
+        params.set(p[0], p[1]);
+      });
+      if (0 == params.length){
+        return true;
+      }
+      if (params.has('group')){
+        filterGroup = params.get('group');
+      }
+      if (params.has('tags')){
+        filterTag = params.get('tags');
+      }
+      return true;
+    }
+
+    function outputMessage(message){
+      $('#images_list').append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function refresh(){
+      location.reload();
+    }
+
+    function loadImages(){
+      var url = '/disk_image_search/';
+      if (filterGroup && filterTag){
+        url += '?group=' + filterGroup + '&tags=' + filterTag;
+      }else if (filterGroup){
+        url += '?group=' + filterGroup;
+      }else if (filterTag){
+        url += '?tags=' + filterTag;
+      }
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            outputMessage('no disk images available');
+            return;
+          }
+          var container = $('<div>').addClass('row');
+
+          result['data'].forEach((image) =>{
+            var content = $('<div>').addClass('card-content');
+            var tags = $('<div>');
+            image['tags'].forEach((tag) =>{
+              tags.append($('<div>').addClass('chip').text(tag));
+            });
+            var imageSize = image['size'];
+            var sizeString;
+            if (imageSize > (1 << 30)){
+              sizeString = Math.floor(imageSize*100 / (1 << 30)) / 100 + ' GiB';
+            }else{
+              sizeString = Math.floor(imageSize*100 / (1 << 20)) / 100 + ' MiB';
+            }
+            content.append(
+              $('<span>').addClass('card-title').text(image['name'])
+            ).append(
+              $('<p>').append(image['description'] + '<br>').append(
+                $('<strong>').text('Size').append(': ' + sizeString + '<br>')
+              ).append(tags)
+            );
+            var actions = $('<div>').addClass('card-action').append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
+                attr('data-tooltip', 'Delete Image').attr('onclick', 'confirmDelete("' + image['name'] + '", "' + image['id'] +'")').append(
+                  $('<i>').addClass('material-icons').text('delete')
+                )
+            ).append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
+                attr('data-tooltip', 'Modify Image').attr('onclick', 'modifyImage("' + image['id'] +'")').append(
+                  $('<i>').addClass('material-icons').text('mode_edit')
+                )
+            );
+            container.append(
+              $('<div>').addClass('col m6').append(
+                $('<div>').addClass('card').append(content).append(actions)
+              )
+            );
+          });
+          $('#images_list').append(container);
+        }
+      );
+    }
+    function confirmDelete(name, id){
+      $('#confirm_content').text('Are you sure to delete image ' + name);
+      $('#confirm_link').attr('onclick', 'deleteImage("' + name + '","'+ id +'")');
+      var instance = M.Modal.getInstance($('.modal'));
+      instance.open();
+    }
+    function deleteImage(name, id) {
+      $.ajax({
+       url:'/disk_images/' + id,
+       type: "DELETE",
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete image fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'disk image "' + name + '" deleted'})
+           setTimeout(refresh, 1500);
+       }
+      });
+    }
+
+    function modifyImage(id) {
+        M.toast({html: 'todo: mofidy image ' + id});
+    }
+
+    $(function(){
+       M.Modal.init($('.modal'));
+      parseQueryString();
+      loadImages();
+    });
+</script>
+</body>
+</html>

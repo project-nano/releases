@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Control Instance</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+
+<body>
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo" id="instance_name">Instance Name</a>
+            <ul id="nav-mobile" class="right">
+              <li><a href="#" id="keyboard_btn"><i class="material-icons">keyboard</i></a></li>
+              <li><a href="#" id="copy_btn"><i class="material-icons">content_copy</i></a></li>
+              <li><a href="#" id="shutdown_btn"><i class="material-icons">power_settings_new</i></a></li>
+              <li><a href="#" id="reboot_btn"><i class="material-icons">rotate_right</i></a></li>
+              <li><a href="#" id="reset_btn"><i class="material-icons">refresh</i></a></li>
+                <!-- <li><a href="#"><i class="material-icons right dropdown-trigger" data-target="operators_menu">list</i></a></li> -->
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+  <div class="section">
+    <div class="row">
+      <div class="col m12" id="novnc">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="module">
+  import RFB from './js/novnc/core/rfb.js';
+
+  function parseQueryString(){
+    var url = window.location.search;
+    var queryParams = new Map();
+    var queryString = url.substring( url.indexOf('?') + 1 );
+    if (0 === queryString.length){
+      return queryParams;
+    }
+    var values = queryString.split("&");
+    values.forEach((value) => {
+      var p = value.split('=');
+      queryParams.set(p[0], p[1]);
+    });
+    return queryParams;
+  }
+
+  function openChannel(id){
+    $.post(
+      '/monitor_channels/',
+      JSON.stringify({
+          "guest": id
+      }),
+      function(result){
+        if (0 != result['error_code']) {
+            M.toast({html: 'create channel fail:' + result['message']});
+            return;
+        }
+        var channel = result['data']['id'];
+        var secret = result['data']['password'];
+        establishChannel(channel, secret);
+      },
+      "json"
+    );
+  }
+
+  var rfb;
+  function establishChannel(channel, password){
+    var options = new Object();
+    options.credentials = {"password": password};
+    var url = "ws://" + window.location.hostname;
+    if (window.location.port){
+      url += ":" + window.location.port;
+    }
+    url += "/monitor_channels/" + channel;
+
+    var canvas = document.getElementById('novnc');
+    rfb = new RFB(canvas, url, options);
+  }
+
+  function updateInstanceInfo(id){
+    $.getJSON(
+      "/guests/" + id,
+      function(result){
+        if (0 != result['error_code']) {
+            M.toast({html: 'get instance info fail:' + result['message']});
+            return;
+        }
+        var instanceName = result['data']['name'];
+        var instanceID = result['data']['id'];
+        $('#instance_name').text(instanceName);
+        $('#shutdown_btn').bind("click", function(){
+          stopInstance(instanceName, instanceID);
+        });
+        $('#reboot_btn').bind("click", function(){
+          restartInstance(instanceName, instanceID);
+        });
+        $('#reset_btn').bind("click", function(){
+          resetInstance(instanceName, instanceID);
+        });
+      }
+    );
+  }
+
+  function restartInstance(name, id) {
+      $.ajax({
+          url:'/instances/' + id,
+          type: "DELETE",
+          data:JSON.stringify({
+              "reboot": true,
+              "force": false
+          }),
+          dataType: "json",
+          success: function (result) {
+              if (0 != result['error_code']) {
+                  M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
+                  return;
+              }
+              M.toast({html: 'instance "' + name + '" restarted'});;
+          }
+      });
+  }
+  function resetInstance(name, id) {
+      $.ajax({
+          url:'/instances/' + id,
+          type: "DELETE",
+          data:JSON.stringify({
+              "reboot": true,
+              "force": true,
+          }),
+          dataType: "json",
+          success: function (result) {
+              if (0 != result['error_code']) {
+                  M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
+                  return;
+              }
+              M.toast({html: 'instance "' + name + '" reset'});
+          }
+      });
+  }
+
+  function stopInstance(name, id) {
+      $.ajax({
+       url:'/instances/' + id,
+       type: "DELETE",
+       data:JSON.stringify({
+           "reboot": false,
+           "force": false
+       }),
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
+               return;
+           }
+           M.toast({html: 'instance "' + name + '" stopped'});
+       }
+      });
+  }
+
+  $(function(){
+
+    var params = parseQueryString();
+    if (!params.has('instance')){
+      M.toast({html: 'must specify instance'});
+      return;
+    }
+    var instanceID = params.get('instance');
+    updateInstanceInfo(instanceID);
+    openChannel(instanceID);
+
+    $('#keyboard_btn').bind("click", function(){
+      rfb.sendCtrlAltDel();
+    });
+    $('#copy_btn').bind("click", function(){
+      M.toast({html: "copy Clipboard need implement"});
+    });
+
+  });
+</script>
+</body>
+</html>
