@@ -30,7 +30,7 @@
 
 你可以在单台服务器上安装所有Nano服务作为All in One环境，也可以平滑扩展到大规模集群。
 
-详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考在两台x86服务器安装Nano平台的演示[视频](https://www.nanos.cloud/zh-cn/demo.html)
+详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考 [视频:三分钟搭建你的私有云](https://www.nanos.cloud/zh-cn/demo.html) 的全流程展示
 
 
 
@@ -122,4 +122,5 @@ $./frontend start
 
 感谢了解并使用Nano。
 
-详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考在两台x86服务器安装Nano平台的演示[视频](https://www.nanos.cloud/zh-cn/demo.html)
+详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考 [视频:三分钟搭建你的私有云](https://www.nanos.cloud/zh-cn/demo.html) 的全流程展示
+
