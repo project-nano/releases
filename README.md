@@ -4,7 +4,7 @@
 
 ## Introduce
 
-​    ***Nano*** is a Free, easy-to-use light-weighted Cloud platform (IaaS), regardless of All in One's experimental environment, or a large-scale cluster of tens of thousands of nodes, can be easily managed by yourself. Complete REST API, all-opened page code, to fulfill all of your development needs from OEM to business operations.
+***Nano*** is a Free, easy-to-use light-weighted Cloud platform (IaaS), regardless of All in One's experimental environment, or a large-scale cluster of tens of thousands of nodes, can be easily managed by yourself. Complete REST API, all-opened page code, to fulfill all of your development needs from OEM to business operations.
 
 
 
@@ -34,7 +34,10 @@
 
 You can set up all Nano services in a single server, then scale to cluster with hundreds of server.
 
+
 Please visit [Wiki](https://github.com/project-nano/releases/wiki/home_en) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
+
+
 
 Available in current version(v 0.1): 
 
@@ -86,7 +89,7 @@ Input "0,1,2" to install all modules in the current server. *No need to change p
 
 
 
-**step 2**.start all services.
+**step 2。** start all services.
 
 All modules installed at '/opt/nano/' in default. Start module manually, or configure to startup with the system. ***Must start Core module first***.
 
@@ -103,7 +106,7 @@ When front-end module successfully started, it will give you a listen address li
 
 
 
-**step 3.**manage via front-end web portal.
+**step 3.** manage via front-end web portal.
 
 Open Nano portal in your browser, initial compute pool and create your first instance.
 
