@@ -4,7 +4,7 @@
 
 ## Introduce
 
-***Nano*** is a Free, easy-to-use light-weighted Cloud platform (IaaS), regardless of All in One's experimental environment, or a large-scale cluster of tens of thousands of nodes, can be easily managed by yourself. Complete REST API, all-opened page code, to fulfill all of your development needs from OEM to business operations.
+***Nano*** is a Free, easy-to-use light-weighted Cloud platform (IaaS), regardless of All in One's experimental environment, or a large-scale cluster of tens of thousands of nodes can be easily managed by yourself. Complete REST API, all-opened page code, to fulfill all of your development needs from OEM to business operations.
 
 
 
@@ -89,7 +89,7 @@ Input "0,1,2" to install all modules in the current server. *No need to change p
 
 
 
-**step 2。** start all services.
+**step 2.** start all services.
 
 All modules installed at '/opt/nano/' in default. Start module manually, or configure to startup with the system. ***Must start Core module first***.
 
