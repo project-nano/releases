@@ -35,7 +35,7 @@
 You can set up all Nano services in a single server, then scale to cluster with hundreds of server.
 
 
-Please visit [Wiki](https://github.com/project-nano/releases/wiki/home_en) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
+Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
 
 
 
@@ -123,7 +123,7 @@ You can get all manage work done via the web portal.
 
 Thanks for watching and using Nano.
 
-Please visit [Wiki](https://github.com/project-nano/releases/wiki/home_en) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
+Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
 
 
 
