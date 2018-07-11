@@ -1,12 +1,10 @@
-# Project Nano
+Visit [English Version](README.md)
 
-[English Version](README.md)
-
-## 简介
+## 介绍
 
   ***Nano*** 是一个免费、易用的轻量级云平台(IaaS)，无论All in One的实验环境，还是上万节点的大规模集群，都可一手轻松掌控；完整的REST API，全开放的页面代码，满足您从OEM到上线运营的全方位开发需求。
 
-**与其他产品的主要区别**
+## 优点
 
 - **简单**。极致简洁，易于理解，无需学习，所见即所得
 - **健壮**。状态实时监控，异常自动处理，资源平滑扩容，服务时刻可用
@@ -26,12 +24,11 @@
 - ***轻装上阵***: 从单台服务器开始体验，随需应变，灵活调整，轻易扩展到上万物理节点
 - ***开发人员友好***: 齐备的RESTful接口，完整的页面源码和丰富的开发文档，一切皆为开发人员准备
 
-
+## 用途
 
 你可以在单台服务器上安装所有Nano服务作为All in One环境，也可以平滑扩展到大规模集群。
 
 详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考 [视频:三分钟搭建你的私有云](https://www.nanos.cloud/zh-cn/demo.html) 的全流程展示
-
 
 
 目前版本(v 0.1)可用功能:
@@ -49,7 +46,6 @@
 6. 光盘镜像：上传ISO光盘文件，在云主机启动时加载（主要用于安装操作系统）。
 
 7. 完整可工作的Web前端及REST接口。
-
    
 
 后续功能计划:
@@ -122,7 +118,14 @@ $./frontend start
 
 通过Web门户你可以完成所有的管理工作。
 
-感谢了解并使用Nano。
+## 社区支持
 
-详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考 [视频:三分钟搭建你的私有云](https://www.nanos.cloud/zh-cn/demo.html) 的全流程展示
+官方网站 [nanos.cloud](https://nanos.cloud/zh-cn/)
 
+维基百科 [https://github.com/project-nano/releases/wiki](https://github.com/project-nano/releases/wiki)
+
+QQ群 Nano Cloud(819161083)
+
+Gitter讨论组 [https://gitter.im/project-nano](https://gitter.im/project-nano)
+
+如需更多帮助，请联系support@nanos.cloud
