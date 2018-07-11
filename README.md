@@ -120,7 +120,7 @@ You can get all manage work done via the web portal.
 
 Official Site: [nanos.cloud](https://nanos.cloud/en-us/)
 
-Wiki: [Wiki](https://github.com/project-nano/releases/wiki/English)
+Wiki: [github.com/project-nano/releases/wiki/English](https://github.com/project-nano/releases/wiki/English)
 
 Gitter: [project-nano](https://gitter.im/project-nano)
 
