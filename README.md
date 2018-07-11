@@ -1,14 +1,12 @@
-# Project Nano
+查看 [中文版本](README_cn.md)
 
-[中文版本](README_cn.md)
-
-## Introduce
+## What is Nano
 
 ***Nano*** is a Free, easy-to-use light-weighted Cloud platform (IaaS), regardless of All in One's experimental environment, or a large-scale cluster of tens of thousands of nodes can be easily managed by yourself. Complete REST API, all-opened page code, to fulfill all of your development needs from OEM to business operations.
 
 
 
-**Why is Nano different?**
+## Why Nano?
 
 - **Simple**.Simple to learn and easy to use, what you see is what you get.
 - **Robust**.Dynamic status monitor, automated exception handling, seamless resource scale-out, keep service available at any time.
@@ -30,13 +28,11 @@
 - ***Easy to scale***. Start from a single server, flexible adjustment on demand, easily extended to tens of thousands of physical nodes.
 - ***Developer friendly***. Complete RESTful interface, full page source code and rich development documentation, everything is ready for developers
 
-
+## What can Nano do
 
 You can set up all Nano services in a single server, then scale to cluster with hundreds of server.
 
-
 Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
-
 
 
 Available in current version(v 0.1): 
@@ -48,7 +44,6 @@ Available in current version(v 0.1):
 5. Disk images: build a disk image from an installed instance. create instances cloned from disk images.
 6. Media images: upload ISO image, load it when starting an instance, like inserting media into the physical server.
 7. A fully functional web front-end backing with RESTful API support
-
 
 
 Coming soon:
@@ -121,13 +116,12 @@ After successfully creating your first instance, you can upload an ISO file to i
 
 You can get all manage work done via the web portal.
 
-Thanks for watching and using Nano.
+## Community
 
-Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
+Official Site: [nanos.cloud](https://nanos.cloud/en-us/)
 
+Wiki: [Wiki](https://github.com/project-nano/releases/wiki/English)
 
+Gitter: [project-nano](https://gitter.im/project-nano)
 
-
-
-
-
+If you need any further help, contact us via support@nanos.cloud.
