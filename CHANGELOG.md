@@ -20,4 +20,4 @@
 
 - gracefully disconnect when module stop
 
-
+- bug fixed: random MAC not properly generated
