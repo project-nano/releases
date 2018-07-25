@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Instance List</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+      <div class="row">
+        <div class="input-field col m2">
+          <select name="pool" id="pool-options" onchange="onFilterPoolChanged()">
+            <option value="" disabled selected>Filter by Pool</option>
+          </select>
+        </div>
+        <div class="input-field col m3">
+          <select name="cell" id="cell-options" onchange="onFilterCellChanged()">
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m3">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i>Create Instance</a>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="instance_list">
+    </div>
+    <div class="modal" id="delete_modal">
+        <div class="modal-content">
+            <h4>Delete Confirm</h4>
+            <p id="delete_confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="delete_confirm_link">Yes</a>
+        </div>
+    </div>
+    <div class="modal" id="media_modal">
+        <!--hide model -->
+        <div class="modal-content">
+            <h4>Start guest with media</h4>
+            <div class="row">
+              <div class="input-field col m4">
+                  <select name="media" id="media_options">
+                  </select>
+                  <label>Choose Media</label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="media_confirm_link">Yes</a>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script>
+    var poolName;
+    var cellName;
+
+    M.AutoInit();
+
+    function refresh(){
+      location.reload();
+    }
+
+    function outputMessage(message){
+      $('#instance_list').empty().append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function loadInstances(poolName, cellName){
+      var url = "/guest_search/?pool=" + poolName;
+      if ('' != cellName){
+        url += "&cell=" + cellName;
+      }
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            outputMessage('no instance available');
+            return;
+          }
+          var container = $('<div>').addClass('row');
+          var table = $('<table>').append(
+            $('<thead>').append(
+              $('<tr>').append(
+                $('<td>').text('Name')
+              ).append(
+                $('<td>').text('Cores')
+              ).append(
+                $('<td>').text('Memory')
+              ).append(
+                $('<td>').text('Disk')
+              ).append(
+                $('<td>').text('Running')
+              ).append(
+                $('<td>').text('AutoStart')
+              ).append($('<td>'))
+            )
+          );
+          var MiB = 1 << 20;
+          var GiB = 1 << 30;
+          result['data'].forEach((instance) => {
+            var instanceID = instance['id'];
+            var instanceName = instance['name'];
+            var content = $('<tr>');
+            content.append(
+              $('<td>').text(instanceName)
+            ).append(
+              $('<td>').text(instance['cores'])
+            );
+            if (instance['memory'] > GiB){
+              //gb
+              content.append(
+                $('<td>').text(Math.floor(instance['memory'] * 100 / GiB) / 100 + ' GiB')
+              );
+            }else{
+              content.append(
+                $('<td>').text(Math.floor(instance['memory'] * 100 / MiB) / 100 + ' MiB')
+              )
+            }
+            //disk
+            var disks = new Array();
+            instance['disks'].forEach((size) => {
+              disks.push(Math.floor(size * 100 / GiB) / 100);
+            });
+            content.append(
+              $('<td>').text(disks.join(' / ') + ' GiB')
+            )
+
+            var operators = $('<td>');
+            //Status
+            if (instance['running']){
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','running').text('play_arrow')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', 'instance_control.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Control').attr('target', '_blank').append(
+                    $('<i>').addClass('material-icons').text('desktop_windows')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Stop').attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('power_settings_new')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Force Stop').attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('power')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Reboot').attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('rotate_right')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Force Reboot').attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('refresh')
+                  )
+              );
+            }else{
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','stopped').text('stop')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Start').attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('play_arrow')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Start with Media').attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
+                    $('<i>').addClass('material-icons').text('play_circle_outline')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').attr('onclick', 'confirmDelete("' + instanceName + '","' + instanceID + '")').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Delete').append(
+                    $('<i>').addClass('material-icons').text('delete')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', 'build_image.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','Build Disk Image').append(
+                    $('<i>').addClass('material-icons').text('cloud_upload')
+                  )
+              );
+            }
+
+            //auto_start
+            if (instance['auto_start']){
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','enabled').text('all_inclusive')
+                )
+              );
+            }else{
+              content.append($('<td>'));
+            }
+            var monitorUrl = "monitor_instance_status.html?pool=" + poolName + '&instance=' + instanceID;
+            if (cellName){
+              monitorUrl += "&cell=" + cellName;
+            }
+            operators.append(
+              $('<a>').attr('href', monitorUrl).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Monitor').append(
+                  $('<i>').addClass('material-icons').text('show_chart')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Modify').append(
+                  $('<i>').addClass('material-icons').text('build')
+                )
+            );
+            content.append(operators);
+            container.append(
+              table.append(content)
+            );
+          });
+          $('#instance_list').empty().append(container);
+          M.Tooltip.init($('.tooltipped'));
+        }
+      );
+    }
+
+    function startInstance(name, id) {
+        $.post('/instances/' + id,
+        JSON.stringify({}),
+        function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'start instance fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'instance "' + name + '" started'})
+            setTimeout(refresh, 2000);
+        },
+        "json");
+    }
+    function stopInstance(name, id) {
+        $.ajax({
+         url:'/instances/' + id,
+         type: "DELETE",
+         data:JSON.stringify({
+             "reboot": false,
+             "force": false
+         }),
+         dataType: "json",
+         success: function (result) {
+             if (0 != result['error_code']) {
+                 M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
+                 return;
+             }
+             M.toast({html: 'instance "' + name + '" stopped'})
+             setTimeout(refresh, 3000);
+         }
+        });
+    }
+
+    function forceStopInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": false,
+                "force": true
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'force stop instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" force stopped'})
+                setTimeout(refresh, 2000);
+            }
+        });
+    }
+
+    function restartInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": true,
+                "force": false
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" restarted'})
+                setTimeout(refresh, 1500);
+            }
+        });
+    }
+    function resetInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": true,
+                "force": true,
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" reset'})
+                setTimeout(refresh, 1500);
+            }
+        });
+    }
+
+    function selectMedia(name, id){
+      $('#media_confirm_link').attr('onclick', 'startWithMedia("' + name + '", "' + id +'")');
+      $.getJSON(
+        '/media_images/',
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          $('#media_options').empty();
+          result['data'].forEach((media)=>{
+            $('#media_options').append(
+              $('<option>').attr('value', media['id']).text(media['name'])
+            );
+          });
+          M.FormSelect.init($('#media_options'));
+          var instance = M.Modal.getInstance($('#media_modal'));
+          instance.open();
+        }
+      )
+
+    }
+
+    function startWithMedia(name, id){
+      var media = $('#media_options').val();
+      var mediaName = $('#media_options').text();
+      $.post(
+        '/instances/' + id,
+        JSON.stringify({
+          "from_media": true,
+          "source": media
+        }),
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'start instance fail: ' + result['message'], outDuration: 1000});
+              return;
+          }
+          M.toast({html: 'instance "' + name + '" started with media ' + mediaName});
+          setTimeout(refresh, 3000);
+        },
+        "json"
+      );
+    }
+
+    function confirmDelete(name, id){
+      $('#delete_confirm_content').text('Are you sure to delete guest ' + name);
+      $('#delete_confirm_link').attr('onclick', 'deleteGuest("' + name + '", "' + id +'")');
+      var instance = M.Modal.getInstance($('#delete_modal'));
+      instance.open();
+    }
+
+    function deleteGuest(name, id) {
+      $.ajax({
+       url:'/guests/' + id,
+       type: "DELETE",
+       dataType: "json",
+       data:JSON.stringify({
+           "force": false
+       }),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete guest fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'guest "' + name + '" deleted'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    function modifyGuest(name, id) {
+        M.toast({html: 'todo: mofidy cell ' + id});
+    }
+
+    function loadPools(){
+      $.getJSON(
+        '/compute_pools/',
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            outputMessage('no compute pool available');
+            return;
+          }
+          result['data'].forEach((pool) =>{
+            var name = pool['name'];
+            $('#pool-options').append(
+              $('<option>').attr('value', name).text(name)
+            );
+          });
+          M.FormSelect.init($('#pool-options'));
+        });
+    }
+
+    function loadCells(poolName){
+      $.getJSON(
+        '/compute_pool_cells/' + poolName,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            M.toast({html: 'no cells in pool ' + poolName});
+            return;
+          }
+
+          $('#cell-options').empty().append(
+            $('<option>').attr('value', '').text('Filter by Cell')
+          );
+          result['data'].forEach((cell) =>{
+            var name = cell['name'];
+            $('#cell-options').append(
+              $('<option>').attr('value', name).text(name)
+            );
+          });
+          M.FormSelect.init($('#cell-options'));
+        });
+    }
+
+    function onFilterPoolChanged(){
+      var poolName = $('#pool-options').val();
+      if ('' == poolName){
+        return;
+      }
+      loadCells(poolName);
+      loadInstances(poolName, "");
+    }
+
+    function onFilterCellChanged(){
+      var cellName = $('#cell-options').val();
+      var poolName = $('#pool-options').val();
+      loadInstances(poolName, cellName);
+    }
+
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      loadPools();
+      var createURL = "create_instance.html";
+      var params = parseQueryString();
+      var poolName, cellName;
+      if (params.has('pool')){
+        poolName = params.get('pool');
+        $("#pool-options").val(poolName);
+        loadCells(poolName);
+        createURL += "?pool=" + poolName;
+      }
+
+      if (params.has('cell')){
+        cellName = params.get('cell');
+        $("#cell-options").val(cellName);
+        createURL += "&cell=" + cellName;
+      }
+
+      $('#create_button').attr('href', createURL);
+
+      if (poolName && cellName){
+        loadInstances(poolName, cellName);
+      }else if (poolName){
+        loadInstances(poolName, "");
+      }else{
+        outputMessage('please select filter pool');
+      }
+    });
+
+</script>
+</body>
+</html>

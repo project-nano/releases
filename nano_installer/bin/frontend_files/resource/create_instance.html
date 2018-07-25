@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Create Instance</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col m10 push-m2" id="create-panel">
+                <form id='create_form'>
+                    <button hidden type="submit" id="submit_button"></button>
+                    <div class="row">
+                        <div class="input-field col m4">
+                            <i class="material-icons prefix">create</i>
+                            <input id="instance_name" type="text" class="validate" name="name" required>
+                            <label for="instance_name">Instance Name</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col m3">
+                            <i class="material-icons prefix">blur_on</i>
+                            <select name="pool" id="pool-options">
+                            </select>
+                            <label>Compute Pool</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m1">
+                                <label>Cores</label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="cores" type="radio" checked value="1"/>
+                                    <span>1</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="cores" type="radio" value="2"/>
+                                    <span>2</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="cores" type="radio" value="4"/>
+                                    <span>4</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="cores" type="radio" value="8"/>
+                                    <span>8</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m1">
+                                <label>Memory</label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="memory" type="radio" value="536870912"/>
+                                    <span>512M</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="memory" type="radio" checked value="1073741824"/>
+                                    <span>1G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="memory" type="radio" value="2147483648"/>
+                                    <span>2G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="memory" type="radio" value="4294967296"/>
+                                    <span>4G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="memory" type="radio" value="8589934592"/>
+                                    <span>8G</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m1">
+                                <label>System</label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="system" type="radio" checked value="linux"/>
+                                    <span>Linux</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="system" type="radio" value="windows"/>
+                                    <span>Windows</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m1">
+                                <label>System Disk</label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="system_disk" type="radio" value="5368709120" checked/>
+                                    <span>5G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="system_disk" type="radio" value="10737418240"/>
+                                    <span>10G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="system_disk" type="radio" value="21474836480"/>
+                                    <span>20G</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col m3 push-m1">
+                            <i class="material-icons prefix">laptop_chromebook</i>
+                            <select name="from_image" id="image-options">
+                                <option value="">Blank System</option>
+                            </select>
+                            <label>System Image</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m1">
+                                <label>Data Disk</label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="data_disk" type="radio" value="0"/>
+                                    <span>None</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="data_disk" type="radio" checked value="1073741824"/>
+                                    <span>1G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="data_disk" type="radio" value="2147483648"/>
+                                    <span>2G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="data_disk" type="radio" value="4294967296"/>
+                                    <span>4G</span>
+                                </label>
+                            </div>
+                            <div class="col m1">
+                                <label>
+                                    <input class="with-gap" name="data_disk" type="radio" value="8589934592"/>
+                                    <span>8G</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m1">
+                            <label>AutoStart</label>
+                        </div>
+                        <div class="switch">
+                            <label>
+                                Disabled
+                                <input type="checkbox" checked="checked" name="auto_start" value="true" id="auto_start">
+                                <span class="lever"></span>
+                                Enabled
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal" id="confirm_modal">
+                        <!--hide model -->
+                        <div class="modal-content">
+                            <h4>Confirm Create Instance</h4>
+                            <p>Create new instance using following configures</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+                            <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="submitConfig()">Yes</a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
+                        class="material-icons left">chevron_left</i>Back</a>
+            </div>
+            <div class="col m2 right" id="button">
+                <button class="waves-effect waves-light blue-grey lighten-2 btn modal-trigger"
+                        data-target="confirm_modal">Create
+                    <i class="material-icons right">add</i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script>
+M.AutoInit();
+
+function loadOptions(){
+  $.getJSON("/compute_pools/", function(result){
+    if (0 != result['error_code']) {
+        M.toast({html: 'query compute pools fail:' + result['message']});
+        return;
+    }
+    result['data'].forEach((pool) =>{
+      $('#pool-options').append(
+        $('<option>').attr('value', pool['name']).text(pool['name'])
+      )
+    });
+    M.FormSelect.init($('#pool-options'));
+  });
+  var IMAGE_GROUP = "manager";
+  $.getJSON("/disk_image_search?group=" + IMAGE_GROUP, function(result){
+    if (0 != result['error_code']) {
+        M.toast({html: 'query disk images fail:' + result['message']});
+        return;
+    }
+    if (0 == result['data'].length){
+        $('#image-options').attr('disabled', 'disabled');
+        return;
+    }
+    result['data'].forEach((image) =>{
+      $('#image-options').append(
+        $('<option>').attr('value', image['id']).text(image['name'])
+      )
+    });
+    M.FormSelect.init($('#image-options'));
+  });
+}
+
+function initialForm(){
+  loadOptions();
+  M.Modal.init($('.modal'), {});
+}
+
+function finishCreate(){
+  $('#create-result').text('success');
+  var finishPage;
+  if (originURL){
+    finishPage = "instance_list.html";
+  }else{
+    finishPage = 'instances.html';
+  }
+  if (poolName){
+    finishPage += "?pool=" + poolName;
+  }
+  if (cellName){
+    finishPage += "&cell=" + cellName;
+  }
+  $('#button').append(
+    $('<a>').attr('href', finishPage).append(
+      $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text('Finish').prepend(
+        $('<i>').addClass('material-icons').text('check')
+      )
+    )
+  );
+}
+
+var monitorInstanceID;
+
+function checkResult(){
+  $.ajax({
+    url: '/guests/' + monitorInstanceID,
+    method: "GET",
+    dataType: "json",
+    statusCode:{
+      201: function(result){
+        var progress = result['data']['progress'] + '%';
+        $('#progress-bar').width(progress);
+        $('#progress-info').text('Creating... ' + progress);
+        setTimeout(checkResult, 1000);
+      },
+      200: function(result){
+        if (0 != result['error_code']) {
+          $('#create-result').text(result['message']);
+          //fail
+          return;
+        }
+        finishCreate();
+      }
+    }
+  });
+}
+
+function monitorCreateProgress(id){
+  $.ajax({
+    url: '/guests/' + id,
+    method: "GET",
+    dataType: "json",
+    statusCode:{
+      201: function(result){
+        var progress = result['data']['progress'] + '%';
+        //in progress
+        $('#create-result').append(
+          $('<div>').addClass('center').append(
+            $('<span>').text('Creating... ' + progress).attr('id', 'progress-info')
+          )
+        ).append(
+          $('<div>').addClass('progress').append(
+            $('<div>').addClass('determinate').width(progress).attr('id', 'progress-bar')
+          )
+        );
+        //start interval check
+        monitorInstanceID = id;
+        setTimeout(checkResult, 2000);
+      },
+      200: function(result){
+        if (0 != result['error_code']) {
+          $('#create-result').text(result['message']);
+          //fail
+          return;
+        }
+        finishCreate();
+      }
+    }
+  });
+}
+
+
+
+function createGuest(request){
+  //update form
+  $('#button').empty();
+  $('#create-panel').empty().removeClass('m10').addClass('m6');
+  var disks = new Array();
+  request.disks.forEach((size) => {
+    disks.push(size / ( 1 << 30));
+  });
+
+  var table = $('<table>').addClass('striped');
+  table.append(
+    $('<tr>').append(
+      $('<td>').text('Name')
+    ).append(
+      $('<td>').text(request.name)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('Pool')
+    ).append(
+      $('<td>').text(request.pool)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('Cores')
+    ).append(
+      $('<td>').text(request.cores)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('Memory')
+    ).append(
+      $('<td>').text((request.memory >> 20) + ' MiB')
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('Disks')
+    ).append(
+      $('<td>').text(disks.join(' / ') + ' GiB')
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('System')
+    ).append(
+      $('<td>').text(request.system)
+    )
+  );
+  if (request.from_image){
+    table.append(
+      $('<tr>').append(
+        $('<td>').text('Image')
+      ).append(
+        $('<td>').text(request.from_image)
+      )
+    );
+  }
+  if (request.auto_start){
+    table.append(
+      $('<tr>').append(
+        $('<td>').text('AutoStart')
+      ).append(
+        $('<td>').text('Enabled')
+      )
+    );
+  }else{
+    table.append(
+      $('<tr>').append(
+        $('<td>').text('AutoStart')
+      ).append(
+        $('<td>').text('Disabled')
+      )
+    );
+  }
+  table.append(
+    $('<tr>').append(
+      $('<td>').text('ID')
+    ).append(
+      $('<td>').attr('id', 'guest-id')
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text('Result')
+    ).append(
+      $('<td>').attr('id', 'create-result')
+    )
+  );
+  $('#create-panel').append(table);
+  M.AutoInit();
+
+  //begin create
+  $.ajax({
+    url: '/guests/',
+    method: "POST",
+    dataType: "json",
+    data: JSON.stringify(request),
+    statusCode: {
+      200:function(result){
+        if (0 != result['error_code']) {
+          $('#create-result').text(result['message']);
+          return;
+        }
+        //success
+        var instanceID = result['data']['id'];
+        $('#guest-id').text(instanceID);
+        finishCreate();
+      },
+      202:function(result){
+        //accept
+        if (0 != result['error_code']) {
+          $('#create-result').text(result['message']);
+          return;
+        }
+        var instanceID = result['data']['id'];
+        $('#guest-id').text(instanceID);
+        //further result
+        monitorCreateProgress(instanceID);
+      },
+    }
+  });
+}
+
+function submitConfig() {
+    if (!$('#create_form')[0].checkValidity()) {
+        $('#submit_button').click();
+        return
+    }
+    var request = new Object();
+    request.name = $('#instance_name').val();
+    request.owner = 'admin';
+    request.group = 'manager';
+    request.pool = $('#pool-options').val();
+    request.cores = Number($('input[name=cores]:checked').val());
+    request.memory = Number($('input[name=memory]:checked').val());
+    request.system = $('input[name=system]:checked').val();
+    request.disks = new Array();
+    request.disks.push(Number($('input[name=system_disk]:checked').val()));
+    var sourceImage = $('#image-options').val();
+
+    if ('' != sourceImage){
+      request.from_image = sourceImage;
+    }
+    var dataDisk = Number($('input[name=data_disk]:checked').val());
+    if (0 != dataDisk){
+      request.disks.push(dataDisk);
+    }
+    if ($('#auto_start').prop("checked")){
+      request.auto_start = true;
+    }else{
+      request.auto_start = false;
+    }
+    createGuest(request);
+}
+
+var originURL, poolName, cellName;
+
+function parseQueryString(){
+  var url = window.location.search;
+  var queryParams = new Map();
+  var queryString = url.substring( url.indexOf('?') + 1 );
+  if (0 === queryString.length){
+    return queryParams;
+  }
+  var values = queryString.split("&");
+  values.forEach((value) => {
+    var p = value.split('=');
+    queryParams.set(p[0], p[1]);
+  });
+  return queryParams;
+}
+
+$(function(){
+  var params = parseQueryString();
+  if (params.has('origin')){
+    originURL = params.get('origin');
+  }
+  if (params.has('pool')){
+    poolName = params.get('pool');
+  }
+  if (params.has('cell')){
+    cellName = params.get('cell');
+  }
+
+  initialForm();
+});
+
+
+</script>
+</body>
+</html>

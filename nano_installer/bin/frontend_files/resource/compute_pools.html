@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Compute Pools</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <nav class="clean">
+            <div class="nav-wrapper">
+                <div class="col s12">
+                    <a href="#" class="breadcrumb">Compute Pools</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m3">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn"><i class="material-icons left">add</i>Create</a>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="pool_list">
+    </div>
+    <div class="modal" id="modal_confirm">
+        <div class="modal-content">
+            <h4>Delete Confirm</h4>
+            <p id="confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link">Yes</a>
+        </div>
+    </div>
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/js/materialize.min.js"></script>
+<script>
+    M.AutoInit();
+    function refresh(){
+      location.reload();
+    }
+
+    function outputMessage(message){
+      $('#pool_list').append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function loadPools(){
+      $.getJSON(
+        '/compute_pools/',
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          if (0 == result['data'].length){
+            outputMessage('no compute pool available');
+            return;
+          }
+          var container = $('<div>').addClass('row');
+          var table = $('<table>').append(
+            $('<thead>').append(
+              $('<tr>').append(
+                $('<td>').text('Compute Pool').prepend(
+                  $('<i>').addClass('material-icons blue-gray-text darken-2').text('blur_on')
+                )
+              ).append(
+                $('<td>').text('Cells').prepend(
+                  $('<i>').addClass('material-icons blue-gray-text darken-2').text('view_quilt')
+                )
+              ).append(
+                $('<td>').text('Network').prepend(
+                  $('<i>').addClass('material-icons blue-gray-text darken-2').text('share')
+                )
+              ).append(
+                $('<td>').text('Storage').prepend(
+                  $('<i>').addClass('material-icons blue-gray-text darken-2').text('storage')
+                )
+              ).append(
+                $('<td>').text('Status')
+              ).append($('<td>'))
+            )
+          );
+          result['data'].forEach((pool) => {
+            var content = $('<tr>');
+            content.append(
+              $('<td>').text(pool['name'])
+            ).append(
+              $('<td>').text(pool['cells'])
+            ).append(
+              $('<td>').text(pool['network'])
+            ).append(
+              $('<td>').text(pool['strorage'])
+            );
+            var operators = $('<td>');
+            //Status
+            if (pool['enabled']){
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','enabled').text('check')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip','Disable').append(
+                    $('<i>').addClass('material-icons').text('do_not_disturb')
+                  )
+              );
+            }else{
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip','disabled').text('do_not_disturb')
+                )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip','Enable').append(
+                    $('<i>').addClass('material-icons').text('check')
+                  )
+              );
+            }
+            operators.append(
+              $('<a>').attr('href', '/compute_cells.html?pool=' + pool['name']).addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Cells').append(
+                  $('<i>').addClass('material-icons').text('view_quilt')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '/instance_list.html?pool=' + pool['name']).addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Instances').append(
+                  $('<i>').addClass('material-icons').text('cloud_queue')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Modify').append(
+                  $('<i>').addClass('material-icons').text('build')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip','Delete').attr('onclick', 'confirmDelete("'+ pool['name'] +'")').append(
+                  $('<i>').addClass('material-icons').text('delete')
+                )
+            );
+            content.append(operators);
+            container.append(
+              table.append(content)
+            );
+          });
+          $('#pool_list').append(container);
+          M.Tooltip.init($('.tooltipped'));
+        }
+      );
+    }
+
+    function confirmDelete(name){
+      $('#confirm_content').text('Are you sure to delete compute pool ' + name);
+      $('#confirm_link').attr('onclick', 'deletePool("' + name + '")');
+      var instance = M.Modal.getInstance($('.modal'));
+      instance.open();
+    }
+
+    function deletePool(name) {
+      $.ajax({
+       url:'/compute_pools/' + name,
+       type: "DELETE",
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete pool fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'compute pool "' + name + '" deleted'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    function modifyPool(id) {
+        M.toast({html: 'todo: mofidy pool ' + id});
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      loadPools();
+    });
+
+</script>
+</body>
+</html>
