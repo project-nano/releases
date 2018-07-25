@@ -506,6 +506,9 @@
       $('#create_button').attr('href',  createURL);
 
       loadInstances();
+
+      //auto reload every 10 seconds
+      setInterval(refresh, 10*1000);
     });
 
 </script>

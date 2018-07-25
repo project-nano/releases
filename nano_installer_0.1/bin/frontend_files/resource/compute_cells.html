@@ -264,6 +264,8 @@
       );
       $('#add_button').attr('href', '/add_cell.html?pool=' + poolName);
       loadCells();
+      //auto reload every 10 seconds
+      setInterval(refresh, 10*1000);
     });
 
 </script>

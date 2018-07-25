@@ -35,6 +35,7 @@
         <div class="row">
             <div class="col m4">
                 <a href="build_image.html" class="waves-effect waves-light blue-grey lighten-2 btn"><i class="material-icons left">build</i>Build</a>
+                <a href="upload_disk.html" class="waves-effect waves-light blue-grey lighten-2 btn"><i class="material-icons left">file_upload</i>Upload</a>
             </div>
             <div class="col m2 push-m4">
                 <div class="input-field">
@@ -179,6 +180,11 @@
                 attr('data-tooltip', 'Modify Image').attr('onclick', 'modifyImage("' + image['id'] +'")').append(
                   $('<i>').addClass('material-icons').text('mode_edit')
                 )
+            ).append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
+                attr('data-tooltip', 'Download Image').attr('onclick', 'downloadImage("' + image['id'] +'")').append(
+                  $('<i>').addClass('material-icons').text('file_download')
+                )
             );
             container.append(
               $('<div>').addClass('col m6').append(
@@ -210,6 +216,10 @@
            setTimeout(refresh, 1500);
        }
       });
+    }
+
+    function downloadImage(id) {
+        window.location.href = '/disk_image_files/'+id;
     }
 
     function modifyImage(id) {

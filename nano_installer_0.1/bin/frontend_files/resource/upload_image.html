@@ -38,7 +38,7 @@
               <div class="row">
                   <div class="input-field col m4">
                       <input id="image_name" placeholder="input image name" type="text" class="validate" name="name" required>
-                      <label for="image_name">Image Name</label>
+                      <label for="image_name">Media Image Name</label>
                   </div>
               </div>
               <div class="row">
@@ -259,7 +259,7 @@ function startTransport(name, description, tags, imageId){
     uploadProgress: function(event, position, total, percentComplete) {
       var progress = percentComplete + '%';
       $('#progress-bar').width(progress);
-      $('#progress-info').text('Creating... ' + progress);
+      $('#progress-info').text('Uploading... ' + progress);
     },
     success: function() {
       $('#operate_result').text('success');
