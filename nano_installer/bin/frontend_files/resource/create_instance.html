@@ -429,7 +429,7 @@ function createGuest(request){
     $('<tr>').append(
       $('<td>').text('Memory')
     ).append(
-      $('<td>').text((request.memory >> 20) + ' MiB')
+      $('<td>').text((request.memory / ( 1 << 20 ) ) + ' MiB')
     )
   ).append(
     $('<tr>').append(

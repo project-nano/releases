@@ -289,8 +289,10 @@
               content.append($('<td>'));
             }
             var monitorUrl = "monitor_instance_status.html?pool=" + poolName + '&instance=' + instanceID;
+            var detailURL = "instance_detail.html?pool=" + poolName + '&instance=' + instanceID;
             if (cellName){
               monitorUrl += "&cell=" + cellName;
+              detailURL += "&cell=" + cellName;
             }
             operators.append(
               $('<a>').attr('href', monitorUrl).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
@@ -298,8 +300,10 @@
                   $('<i>').addClass('material-icons').text('show_chart')
                 )
             );
+
+
             operators.append(
-              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+              $('<a>').attr('href', detailURL).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
                 attr('data-tooltip','Modify').append(
                   $('<i>').addClass('material-icons').text('build')
                 )

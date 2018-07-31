@@ -1,5 +1,38 @@
 # Change Log
 
+## [0.2.1] - 2018-07-31
+
+### Core 0.2.1
+
+- Modify Cores/Memory/Disk Size
+
+- Shrink guest volume
+
+- Set/Get user password
+
+- Add "system" property in guest
+
+- Fixed: a newly uploaded disk image cannot use in cloning
+
+### Cell 0.2.1
+
+- Modify Cores/Memory/Disk Size
+
+- Shrink guest volume
+
+- Set/Get user password
+
+- Add "system" property in guest
+
+### FrontEnd 0.2.1
+
+- Doc: Modify core/memory/disk size, shrink disk, set/get password
+
+- Forward Request: Modify core/memory/disk size, shrink disk, set/get password
+
+- Add guest modify page: instance_detail.html
+
+
 ## [0.1.3] - 2018-07-25
 
 ### Core 0.1.3

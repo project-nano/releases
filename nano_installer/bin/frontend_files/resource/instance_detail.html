@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Instance List</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <nav class="clean">
+            <div class="nav-wrapper">
+                <div class="col s12" id="breadcrumb-path">
+                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+      <div class="row">
+        <div class="col m6 push-m2 s12">
+          <div class="row">
+            <p>
+              <h3 class="flow-text">Instance Detail</h3>
+            </p>
+          </div>
+          <div class="row">
+            <table class="striped">
+              <tbody id="detail">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
+                        class="material-icons left">chevron_left</i>Back</a>
+            </div>
+        </div>
+    </div>
+    <!-- modal -->
+    <div class="modal" id="modal_core">
+      <div class="modal-content">
+          <h4>Change Guest Cores</h4>
+          <div class="row">
+            <div class="col m4 s12">
+              Current Cores: <span id="current_core"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="new_core">Change to</label>
+              <input type="text" id="new_core">
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="changeCores()">Yes</a>
+      </div>
+    </div>
+    <!-- modify memory -->
+    <div class="modal" id="modal_memory">
+      <div class="modal-content">
+          <h4>Change Guest Memory</h4>
+          <div class="row">
+            <div class="col m4 s12">
+              Current Memory: <span id="current_memory"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="new_memory">Change to (MiB)</label>
+              <input type="text" id="new_memory">
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="changeMemory()">Yes</a>
+      </div>
+    </div>
+    <!-- modify password -->
+    <div class="modal" id="modal_password">
+      <div class="modal-content">
+          <h4>Change Password</h4>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="new_user">Admin Name</label>
+              <input type="text" id="new_user">
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="new_password">Password( generate a new one when blank )</label>
+              <input type="text" id="new_password">
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="changePassword()">Yes</a>
+      </div>
+    </div>
+    <!-- extend disk -->
+    <div class="modal" id="modal_disk">
+      <div class="modal-content">
+          <h4>Extend Disk</h4>
+          <div class="row">
+            <div class="col m4 s12">
+              Current disk size: <span id="current_disk"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="new_disk">Extend to (GiB)</label>
+              <input type="text" id="new_disk">
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" id='extend_confirm'>Yes</a>
+      </div>
+    </div>
+    <!-- shrink disk -->
+    <div class="modal" id="modal_shrink">
+      <div class="modal-content">
+          <h4>Shrink Disk</h4>
+          <p>
+            <span type="flow-text">
+              Do you want to shrink this volume to save more disk space? It may take a long time.
+            </span>
+          </p>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" id='shrink_confirm'>Yes</a>
+      </div>
+    </div>
+
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/js/materialize.min.js"></script>
+<script>
+    var poolName;
+    var cellName;
+    var instanceID;
+    var ins;
+    var MiB = 1 << 20;
+    var GiB = 1 << 30;
+
+    M.AutoInit();
+
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    function refresh(){
+      location.reload();
+    }
+
+    function outputMessage(message){
+      $('#instance_list').append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function loadInstance(){
+      var url = "/guests/" + instanceID;
+
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          var container = $('#detail');
+          container.empty();
+
+          ins = result['data'];
+          var cores = Number(ins['cores']);
+          $('#current_core').text(cores);
+
+          var memory = Number(ins['memory']);
+          var memoryDisplayed = (memory / MiB) + ' MiB';
+          $('#current_memory').text(memoryDisplayed);
+          var autoStart;
+          if (ins['auto_start']){
+            autoStart = $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+              attr('data-tooltip','enabled').text('all_inclusive');
+          }
+          var isRunning = ins['running'];
+          var internalAddress = "unavailable";
+          if (ins.hasOwnProperty('internal') && ins['internal'].hasOwnProperty('network_address') ){
+            internalAddress = ins['internal']['network_address'];
+          }
+          var externalAddress = "unavailable";
+          if (ins.hasOwnProperty('external') && ins['external'].hasOwnProperty('network_address')){
+            externalAddress = ins['external']['network_address'];
+          }
+          var coreOperater = $('<td>');
+          var memoryOperater = $('<td>');
+          var passwordOperater = $('<td>').append(
+            $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showPassword()')
+            .attr('data-tooltip','Display').append(
+                $('<i>').addClass('material-icons').text('remove_red_eye')
+            )
+          );
+          var lockICON = $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').append(
+              $('<i>').addClass('material-icons').text('lock_outline')
+          );
+          if (isRunning){
+            coreOperater.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            memoryOperater.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            passwordOperater.append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showModifyPassword()')
+              .attr('data-tooltip','Change').append(
+                  $('<i>').addClass('material-icons').text('build')
+              )
+            );
+          }else{
+            coreOperater.append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalCore()')
+                .attr('data-position', 'top').attr('data-tooltip','Change').append(
+                  $('<i>').addClass('material-icons').text('build')
+              )
+            );
+            memoryOperater.append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalMemory()')
+                .attr('data-position', 'top').attr('data-tooltip','Change').append(
+                  $('<i>').addClass('material-icons').text('build')
+              )
+            );
+            passwordOperater.append(lockICON.clone().attr('data-tooltip','Disabled when stopped'));
+          }
+          container.append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Name")
+              )
+            ).append(
+              $('<td>').text(ins['name'])
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("ID")
+              )
+            ).append(
+              $('<td>').text(instanceID)
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Cores")
+              )
+            ).append(
+              $('<td>').attr('id', 'text_core').text(cores)
+            ).append(
+              coreOperater
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Memory")
+              )
+            ).append(
+              $('<td>').attr('id', 'text_memory').text(memoryDisplayed)
+            ).append(
+              memoryOperater
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("AutoStart")
+              )
+            ).append(
+              $('<td>').append(
+                autoStart
+              )
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Password")
+              )
+            ).append(
+              $('<td>').attr('id', 'text_password').text("************")
+            ).append(
+              passwordOperater
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("System")
+              )
+            ).append(
+              $('<td>').text(ins['system'])
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Internal Address")
+              )
+            ).append(
+              $('<td>').text(internalAddress)
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("External Address")
+              )
+            ).append(
+              $('<td>').text(externalAddress)
+            ).append(
+              $('<td>')
+            )
+          );
+          var index = 0;
+          var diskName;
+          ins['disks'].forEach((diskSize) =>{
+            if (0 == index){
+              diskName = 'System Disk';
+            }else{
+              diskName = 'Data Disk ' + index;
+            }
+            var operators = $('<td>');
+            if (isRunning){
+              operators.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            }else{
+              operators.append(
+                $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showExtendDisk(' + index + ')').
+                attr('data-tooltip','Extend Disk').append(
+                    $('<i>').addClass('material-icons').text('zoom_out_map')
+                )).append(
+                $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showShrinkDisk(' + index + ')').
+                attr('data-tooltip','Shrink Disk').append(
+                    $('<i>').addClass('material-icons').text('system_update_alt')
+                ));
+            }
+            container.append(
+              $('<tr>').append(
+                $('<td>').append(
+                  $('<b>').text(diskName)
+                )
+              ).append(
+                $('<td>').text( Math.floor( diskSize * 100 / GiB) / 100 + ' GiB').attr('id', 'text_disk_' + index)
+              ).append(
+                operators
+              )
+            );
+
+            index++;
+          });
+          M.Tooltip.init($('.tooltipped'));
+        }
+      );
+    }
+
+    function showModalCore(){
+      var instance = M.Modal.getInstance($('#modal_core'));
+      instance.open();
+    }
+
+    function changeCores(){
+      var newCores = Number($('#new_core').val());
+      $('#new_core').val('');
+      if (!Number.isInteger(newCores)){
+        M.toast({html: 'invalid core number'});
+        return
+      }
+      var request = new Object();
+      request.cores = newCores;
+      $.ajax({
+        url: '/guest/' + instanceID + '/cores',
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'modify core fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'cores of guest modified'});
+            $('#text_core').text(newCores);
+            $('#current_core').text(newCores);
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request modify guest core fail: ' + error, outDuration: 600});
+        }
+      });
+    }
+
+    function showModalMemory(){
+      var instance = M.Modal.getInstance($('#modal_memory'));
+      instance.open();
+    }
+
+    function changeMemory(){
+      var newMemory = Number($('#new_memory').val());
+      $('#new_memory').val('');
+      if (!Number.isInteger(newMemory)){
+        M.toast({html: 'invalid memory size'});
+        return
+      }
+      var memoryInBytes = newMemory * MiB;
+      var request = new Object();
+      request.memory = memoryInBytes;
+      $.ajax({
+        url: '/guest/' + instanceID + '/memory',
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'modify memory fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'memory of guest modified'});
+            var memoryDisplayed = newMemory + ' MiB'
+            $('#text_memory').text(memoryDisplayed);
+            $('#current_memory').text(memoryDisplayed);
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request modify memory fail: ' + error, outDuration: 600});
+        }
+      });
+    }
+
+    function showExtendDisk(index){
+      var currentSize = ins['disks'][index];
+      $('#current_disk').text( Math.floor(currentSize * 100 / GiB) / 100 + ' GiB');
+      $('#extend_confirm').attr('onclick', 'extendDisk('+ index +')');
+      var instance = M.Modal.getInstance($('#modal_disk'));
+      instance.open();
+    }
+
+    function extendDisk(index){
+      var currentSize = ins['disks'][index];
+      var newDisk = Number($('#new_disk').val());
+      $('#new_disk').val('');
+      if (!Number.isInteger(newDisk)){
+        M.toast({html: 'invalid disk size'});
+        return
+      }
+      var diskInBytes = newDisk * GiB;
+      if (diskInBytes <= currentSize){
+        M.toast({html: 'must larger than current disk'});
+        return
+      }
+      var request = new Object();
+      request.size = diskInBytes;
+      $.ajax({
+        url: '/guest/' + instanceID + '/disks/resize/' + index,
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'modify disk size fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'disk size modified'});
+            var diskDisplayed = newDisk + ' GiB';
+            ins['disks'][index] = diskInBytes;
+            $('#text_disk_' + index).text(diskDisplayed);
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request modify disk size fail: ' + error, outDuration: 600});
+        }
+      });
+    }
+
+    function showShrinkDisk(index){
+      var currentSize = ins['disks'][index];
+      $('#shrink_confirm').attr('onclick', 'shrinkDisk('+ index +')');
+      var instance = M.Modal.getInstance($('#modal_shrink'));
+      instance.open();
+    }
+
+    function shrinkDisk(index){
+      var request = new Object();
+      $.ajax({
+        url: '/guest/' + instanceID + '/disks/shrink/' + index,
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'shrink volume fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'volume sharnk finished'});
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request shrink volume fail: ' + error, outDuration: 600});
+        }
+      });
+    }
+
+    function showPassword(){
+      var url = '/guest/' + instanceID + '/auth';
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch password fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          var auth = result['data'];
+          var user = "", password = "";
+          if (auth.hasOwnProperty('user')){
+            user = auth['user'];
+          }
+          if (auth.hasOwnProperty('password')){
+            password = auth['password'];
+          }
+          $('#text_password').text(user + ' : ' + password);
+        }
+      );
+    }
+
+    function showModifyPassword(){
+      var url = '/guest/' + instanceID + '/auth';
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch password fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          var auth = result['data'];
+          if (auth.hasOwnProperty('user')){
+            var user = auth['user'];
+            $('#new_user').val(user);
+            M.updateTextFields();
+          }
+          var instance = M.Modal.getInstance($('#modal_password'));
+          instance.open();
+        }
+      );
+    }
+
+    function changePassword(){
+      var user = $('#new_user').val();
+      if ('' == user){
+        M.toast({html: 'must specify admin name'});
+        return;
+      }
+      var password = "";
+      if ('' != $('#new_password').val()){
+        password = $('#new_password').val();
+      }
+
+      var request = new Object();
+      request.user = user;
+      request.password = password;
+      $.ajax({
+        url: '/guest/' + instanceID + '/auth',
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'change password fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'password modified'});
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request change password fail: ' + error, outDuration: 600});
+        }
+      });
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      var params = parseQueryString();
+      if (!params.has('pool')){
+        M.toast({html: 'must specify pool name'})
+        return;
+      }
+      if (!params.has('instance')){
+        M.toast({html: 'must specify instance'})
+        return;
+      }
+      poolName = params.get('pool');
+      $('#breadcrumb-path').append(
+        $('<a>').addClass('breadcrumb').text(poolName).attr('href','instance_list.html?pool=' + poolName)
+      );
+      if (params.has('cell')){
+        cellName = params.get('cell');
+        $('#breadcrumb-path').append(
+          $('<a>').addClass('breadcrumb').text(cellName).attr('href', 'instance_list.html?pool=' + poolName + '&cell=' + cellName)
+        );
+      }
+
+      instanceID = params.get('instance');
+      $('#breadcrumb-path').append(
+        $('<a>').addClass('breadcrumb').text(instanceID)
+      );
+
+      loadInstance();
+
+    });
+
+</script>
+</body>
+</html>
