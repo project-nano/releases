@@ -116,9 +116,9 @@ $./frontend start
 
 3. "compute pool" => "cells", 确保有Cell节点处于在线状态。
 
-4. "compute pool" => "create instance", 设置云主机实例参数并进行创建。
+4. "compute pool" => "create instance", 设置云主机实例参数并在"System Image"中选择已上传的镜像进行克隆。
 
-5. "compute pool" => "instances", 启动实例，并通过集成Web管理终端对云主机进行监控。
+5. "compute pool" => "instances", 启动实例，并通过集成Web管理终端对云主机进行监控，登录系统检查磁盘、网络等是否工作正常。
 
 
 当成功创建你的第一个空白云主机之后，你可以上传一个ISO文件，为你的云主机安装操作系统；或者开始通过磁盘镜像构建你的云主机模板，为批量克隆云主机做准备；或者添加新的物理节点，扩展你的可用资源。
