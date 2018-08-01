@@ -74,7 +74,7 @@ Visit [English Version](README.md)
 
 
 
-**第一步.** 下载并安装所有模块。
+**第一步. 下载并安装所有模块。**
 
 ```
 $wget https://github.com/project-nano/releases/releases/download/v0.1/nano_installer_0.1.tar.gz
@@ -87,7 +87,7 @@ $./installer
 
 
 
-**第二步.** 启动所有服务。
+**第二步. 启动所有服务。**
 
 所有模块默认安装在'/opt/nano/'路径下。模块可以手动启动，也可以自行配置随系统启动。***Core模块必须第一个启动。***
 
@@ -104,15 +104,21 @@ $./frontend start
 
 
 
-**第三步.** 通过Web门户管理平台
+**第三步. 通过Web门户管理平台**
 
-在浏览器中打开Nano管理门户，初始化计算资源池并创建你的第一个云主机实例。
+在浏览器中打开Nano管理门户，初始化计算资源池并创建你的第一个云主机实例。为了节约安装时间，请从 [此处](https://nanos.cloud/zh-cn/download.html) 下载预制镜像并上传到Nano平台直接从镜像克隆云主机。
 
-1. "compute pool" => "add cell", 从列表中选择未加入资源池的资源节点(Cell)，添加成功并返回资源池。
-2. "compute pool" => "cells", 确保有Cell节点处于在线状态。
-3. "compute pool" => "create instance", 设置云主机实例参数并进行创建。
-4. "compute pool" => "instances", 启动实例，并通过集成Web管理终端对云主机进行监控。
+稍后您也可以通过上传ISO从零开始构建你的专属镜像。
 
+1. "images"=>"upload"，将准备好的预制镜像上传镜像，等待使用。
+
+2. "compute pool" => "add cell", 从列表中选择未加入资源池的资源节点(Cell)，添加成功并返回资源池。
+
+3. "compute pool" => "cells", 确保有Cell节点处于在线状态。
+
+4. "compute pool" => "create instance", 设置云主机实例参数并进行创建。
+
+5. "compute pool" => "instances", 启动实例，并通过集成Web管理终端对云主机进行监控。
 
 
 当成功创建你的第一个空白云主机之后，你可以上传一个ISO文件，为你的云主机安装操作系统；或者开始通过磁盘镜像构建你的云主机模板，为批量克隆云主机做准备；或者添加新的物理节点，扩展你的可用资源。
@@ -124,6 +130,8 @@ $./frontend start
 官方网站 [nanos.cloud](https://nanos.cloud/zh-cn/)
 
 维基百科 [https://github.com/project-nano/releases/wiki](https://github.com/project-nano/releases/wiki)
+
+官方论坛 [nanocloud.boards.net](http://nanocloud.boards.net/)
 
 QQ群 Nano Cloud(819161083)
 
