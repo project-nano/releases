@@ -71,7 +71,7 @@ Follow below instructions building a single server Nano platform.
 
 
 
-**step 1.** download and install all modules.
+**step 1. download and install all modules.**
 
 ```
 $wget https://github.com/project-nano/releases/releases/download/v0.1/nano_installer_0.1.tar.gz
@@ -84,7 +84,7 @@ Input "0,1,2" to install all modules in the current server. *No need to change p
 
 
 
-**step 2.** start all services.
+**step 2. start all services.**
 
 All modules installed at '/opt/nano/' in default. Start module manually, or configure to startup with the system. ***Must start Core module first***.
 
@@ -101,15 +101,17 @@ When front-end module successfully started, it will give you a listen address li
 
 
 
-**step 3.** manage via front-end web portal.
+**step 3. manage via front-end web portal.**
 
-Open Nano portal in your browser, initial compute pool and create your first instance.
+Open Nano portal in your browser, initial compute pool and create your first instance. Download a prebuild disk image from [here](https://nanos.cloud/en-us/download.html), and upload to Nano to save installing time.
 
 1. "compute pool" => "add cell", choose unallocated cell from list, add and return to compute pool.
-2. "compute pool" => "cells", make sure cell status in online.
-3. "compute pool" => "create instance", choose specifications and create your first instance.
-4. "compute pool" => "instances", try start instance, monitor via integrated remote control page.
 
+2. "compute pool" => "cells", make sure cell status in online.
+
+3. "compute pool" => "create instance",  choose specifications and select uploaded image in "System Image" menu, clone your first instance.
+
+4. "compute pool" => "instances", try start instance, monitor via integrated remote control page.Check if everything is OK.
 
 
 After successfully creating your first instance, you can upload an ISO file to install the operating system on your virtual machine; or build a template using the disk image,  prepare for batch cloning instances; or add new physical nodes to expand your available resources. 
@@ -121,6 +123,8 @@ You can get all manage work done via the web portal.
 Official Site: [nanos.cloud](https://nanos.cloud/en-us/)
 
 Wiki: [github.com/project-nano/releases/wiki/English](https://github.com/project-nano/releases/wiki/English)
+
+Forum: [nanocloud.boards.net](http://nanocloud.boards.net/)
 
 Gitter: [project-nano](https://gitter.im/project-nano)
 
