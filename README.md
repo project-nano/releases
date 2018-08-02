@@ -35,23 +35,23 @@ You can set up all Nano services in a single server, then scale to cluster with 
 Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for more details, or watch this [video: "build your private cloud in 3 minutes"](https://www.nanos.cloud/en-us/demo.html) for demonstrating.
 
 
-Available in current version(v 0.1): 
+Available in current version(v 0.2.1): 
 
-1. Core/Cell/Front-End modules with the installer.
-2. Cluster management: system monitor, module start/stop/check (manually) 
-3. Compute pool management: add/remove resource nodes (Cell module), resource usage monitor
-4. Instance management: create/delete/start/stop/monitor instance, remote control via integrated web page.
-5. Disk images: build a disk image from an installed instance. create instances cloned from disk images.
-6. Media images: upload ISO image, load it when starting an instance, like inserting media into the physical server.
-7. A fully functional web front-end backing with RESTful API support
-
+1.Web portal that can complete all management functions, built-in secure cloud host remote management page
+2.Cluster management: system monitor, module start/stop/check (manually)
+3.Compute pool management: add/remove resource nodes (Cell module), resource usage monitor
+4.Instance management: create/delete/start/stop/monitor instance, modify configure, reset password.
+5.Volume management: extend / shrink instance disk
+6.Disk images: upload and download the disk image directly. create instances cloned from disk images.
+7.Media images: upload ISO image, load it when starting an instance, like inserting media into the physical server.
+8.Rich RESTful API support for integrating and customizing
 
 Coming soon:
 
-- Instance: Operation system controls like reset password / set hostname/ disk shrink. Modify configure.
+- Storage: Shared storage backend support.
 - Network: VPC
-- Storage: Shared storage backend support. Disk images upload/download. Multiple local-paths support.
 - Snapshot: Create/resume snapshot.
+- Guest: cloud-init and windows optimization
 
 
 
@@ -74,9 +74,9 @@ Follow below instructions building a single server Nano platform.
 **step 1. download and install all modules.**
 
 ```
-$wget https://github.com/project-nano/releases/releases/download/v0.1/nano_installer_0.1.tar.gz
-$tar zxfv nano_installer_0.1.tar.gz
-$cd nano_installer_0.1
+$wget https://github.com/project-nano/releases/releases/download/v0.2.1/nano_installer_0.2.1.tar.gz
+$tar zxfv nano_installer_0.2.1.tar.gz
+$cd nano_installer
 $./installer
 ```
 
