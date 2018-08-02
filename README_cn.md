@@ -31,28 +31,30 @@ Visit [English Version](README.md)
 详情请参考[Wiki](https://github.com/project-nano/releases/wiki/home)，或者参考 [视频:三分钟搭建你的私有云](https://www.nanos.cloud/zh-cn/demo.html) 的全流程展示
 
 
-目前版本(v 0.1)可用功能:
+目前版本(v 0.2)可用功能:
 
-1. Core/Cell/Front-End模块及安装程序.
+1.可以完成所有管理功能的Web门户，内置安全的云主机远程管理页面
 
-2. 集群管理：系统监控，模块起停/状态检查(需要手动执行)
+2.集群管理：系统监控，模块起停/状态检查
 
-3. 计算资源池管理：添加、删除资源节点(Cell模块)，资源用量监控
+3.计算资源池管理：添加、删除资源节点(Cell模块)，资源用量监控
 
-4. 云主机管理：创建、删除、启停云主机，监控资源状态，Web端集成远程管理。
+4.云主机管理：创建、删除、启停云主机，监控资源状态，修改资源配置，重置云主机密码
 
-5. 磁盘镜像：通过云主机构建模板镜像，通过镜像批量快速克隆云主机。
+5.云主机磁盘卷管理：磁盘扩容、容量压缩
 
-6. 光盘镜像：上传ISO光盘文件，在云主机启动时加载（主要用于安装操作系统）。
+6.磁盘镜像：通过云主机构建模板镜像，通过镜像批量快速克隆云主机，支持直接上传预制镜像和下载现有镜像，用于快速构建新平台
 
-7. 完整可工作的Web前端及REST接口。
+7.光盘镜像：上传ISO光盘文件，在云主机启动时加载（主要用于安装操作系统）。
+
+8.完整的REST接口可用于集成现有系统或者自定制开发
    
 
 后续功能计划:
 
-- 云主机：虚拟机操作系统管理，包含密码重置、主机名设置、磁盘收缩等。
+- 存储: 支持共享文件系统作为存储后端。
 - 网络: VPC
-- 存储: 支持共享存储后端。磁盘镜像上传下载（用于快速构建新平台）。支持多本地存储路径（多路本地磁盘均衡负载）。
+- 云主机优化：Cloud-init及Windows虚拟机优化
 - 快照：创建及恢复快照。
 
 
@@ -77,9 +79,9 @@ Visit [English Version](README.md)
 **第一步. 下载并安装所有模块。**
 
 ```
-$wget https://github.com/project-nano/releases/releases/download/v0.1/nano_installer_0.1.tar.gz
-$tar zxfv nano_installer_0.1.tar.gz
-$cd nano_installer_0.1
+$wget https://github.com/project-nano/releases/releases/download/v0.2.1/nano_installer_0.2.1.tar.gz
+$tar zxfv nano_installer_0.2.1.tar.gz
+$cd nano_installer
 $./installer
 ```
 
