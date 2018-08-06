@@ -1,5 +1,31 @@
 # Change Log
 
+## [0.2.2] - 2018-8-6
+
+### Core 0.2.2
+
+- Stable sorted result of instance/image/cell/pool list
+
+### Cell 0.2.2
+
+- Enable KVM instead of TCG of QEMU, boost performance when VT-x/AMD-v enabled
+
+- Using the IDE system disk if the system of an instance is "windows".
+
+- Don't save NetworkAddress of Instance
+
+- Avoid response channel block after timeout event invoked
+
+- Fixed: panic when try to notify the Resize/Shrink tasks
+
+### FrontEnd resource
+
+- Add auto fresh switch in cell/instance list
+
+### Installer 0.1.3
+
+- modify user/group in /etc/libvirt/qemu.conf before start service
+
 ## [0.2.1] - 2018-07-31
 
 ### Core 0.2.1

@@ -60,6 +60,17 @@
             <div class="col m3">
                 <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i>Create Instance</a>
             </div>
+            <div class="col m3 push-m6">
+                <span>Auto Refresh</span>
+                  <div class="switch">
+                      <label>
+                          Off
+                          <input type="checkbox" checked onclick="onAutoFreshSwitched()" id="cb_autofresh">
+                          <span class="lever"></span>
+                          On
+                      </label>
+                  </div>
+            </div>
         </div>
     </div>
     <div class="section" id="instance_list">
@@ -484,6 +495,20 @@
         M.toast({html: 'todo: mofidy cell ' + id});
     }
 
+    var intervalID;
+
+    function onAutoFreshSwitched(){
+      var autoFresh = $('#cb_autofresh').prop( "checked");
+      if (autoFresh){
+        intervalID = setInterval(refresh, 10*1000);
+        M.toast({html: "Auto Fresh Enabled"});
+      }else{
+        clearInterval(intervalID);
+        intervalID = undefined;
+        M.toast({html: "Auto Fresh Disabled"});
+      }      
+    }
+
     $(function(){
       M.Modal.init($('.modal'));
       var params = parseQueryString();
@@ -512,7 +537,7 @@
       loadInstances();
 
       //auto reload every 10 seconds
-      setInterval(refresh, 10*1000);
+      intervalID = setInterval(refresh, 10*1000);
     });
 
 </script>
