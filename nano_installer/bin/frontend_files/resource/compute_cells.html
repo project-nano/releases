@@ -123,7 +123,7 @@
     }
 
     function refresh(){
-      location.reload();
+      loadCells();
     }
 
     function outputMessage(message){
@@ -229,7 +229,7 @@
               table.append(content)
             );
           });
-          $('#cell_list').append(container);
+          $('#cell_list').empty().append(container);
           M.Tooltip.init($('.tooltipped'));
         }
       );
@@ -263,11 +263,12 @@
     }
 
     var intervalID;
+    var refreshInterval = 5*1000;
 
     function onAutoFreshSwitched(){
       var autoFresh = $('#cb_autofresh').prop( "checked");
       if (autoFresh){
-        intervalID = setInterval(refresh, 10*1000);
+        intervalID = setInterval(refresh, refreshInterval);
         M.toast({html: "Auto Fresh Enabled"});
       }else{
         clearInterval(intervalID);
@@ -289,8 +290,7 @@
       );
       $('#add_button').attr('href', '/add_cell.html?pool=' + poolName);
       loadCells();
-      //auto reload every 10 seconds
-      intervalID = setInterval(refresh, 10*1000);
+      intervalID = setInterval(refresh, refreshInterval);
     });
 
 </script>

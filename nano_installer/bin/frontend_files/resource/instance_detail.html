@@ -264,6 +264,20 @@
               attr('data-tooltip','enabled').text('all_inclusive');
           }
           var isRunning = ins['running'];
+          var monitorAddress;
+          if (ins.hasOwnProperty('internal') && ins['internal'].hasOwnProperty('display_address') ){
+            var protocol;
+            if (ins['display_protocol']){
+              protocol = ins['display_protocol'];
+            }else{
+              protocol = "vnc";
+            }
+            monitorAddress = protocol + "://" + ins['internal']['display_address'];
+          }
+          var monitorOperator = $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showMonitorPassword()')
+            .attr('data-tooltip','Display').append(
+              $('<i>').addClass('material-icons').text('remove_red_eye')
+          );
           var internalAddress = "unavailable";
           if (ins.hasOwnProperty('internal') && ins['internal'].hasOwnProperty('network_address') ){
             internalAddress = ins['internal']['network_address'];
@@ -272,9 +286,9 @@
           if (ins.hasOwnProperty('external') && ins['external'].hasOwnProperty('network_address')){
             externalAddress = ins['external']['network_address'];
           }
-          var coreOperater = $('<td>');
-          var memoryOperater = $('<td>');
-          var passwordOperater = $('<td>').append(
+          var coreOperator = $('<td>');
+          var memoryOperator = $('<td>');
+          var passwordOperator = $('<td>').append(
             $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showPassword()')
             .attr('data-tooltip','Display').append(
                 $('<i>').addClass('material-icons').text('remove_red_eye')
@@ -284,28 +298,28 @@
               $('<i>').addClass('material-icons').text('lock_outline')
           );
           if (isRunning){
-            coreOperater.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
-            memoryOperater.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
-            passwordOperater.append(
+            coreOperator.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            memoryOperator.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            passwordOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showModifyPassword()')
               .attr('data-tooltip','Change').append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
           }else{
-            coreOperater.append(
+            coreOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalCore()')
                 .attr('data-position', 'top').attr('data-tooltip','Change').append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
-            memoryOperater.append(
+            memoryOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalMemory()')
                 .attr('data-position', 'top').attr('data-tooltip','Change').append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
-            passwordOperater.append(lockICON.clone().attr('data-tooltip','Disabled when stopped'));
+            passwordOperator.append(lockICON.clone().attr('data-tooltip','Disabled when stopped'));
           }
           container.append(
             $('<tr>').append(
@@ -335,7 +349,7 @@
             ).append(
               $('<td>').attr('id', 'text_core').text(cores)
             ).append(
-              coreOperater
+              coreOperator
             )
           ).append(
             $('<tr>').append(
@@ -345,19 +359,7 @@
             ).append(
               $('<td>').attr('id', 'text_memory').text(memoryDisplayed)
             ).append(
-              memoryOperater
-            )
-          ).append(
-            $('<tr>').append(
-              $('<td>').append(
-                $('<b>').text("AutoStart")
-              )
-            ).append(
-              $('<td>').append(
-                autoStart
-              )
-            ).append(
-              $('<td>')
+              memoryOperator
             )
           ).append(
             $('<tr>').append(
@@ -367,39 +369,35 @@
             ).append(
               $('<td>').attr('id', 'text_password').text("************")
             ).append(
-              passwordOperater
-            )
-          ).append(
-            $('<tr>').append(
-              $('<td>').append(
-                $('<b>').text("System")
-              )
-            ).append(
-              $('<td>').text(ins['system'])
-            ).append(
-              $('<td>')
-            )
-          ).append(
-            $('<tr>').append(
-              $('<td>').append(
-                $('<b>').text("Internal Address")
-              )
-            ).append(
-              $('<td>').text(internalAddress)
-            ).append(
-              $('<td>')
-            )
-          ).append(
-            $('<tr>').append(
-              $('<td>').append(
-                $('<b>').text("External Address")
-              )
-            ).append(
-              $('<td>').text(externalAddress)
-            ).append(
-              $('<td>')
+              passwordOperator
             )
           );
+          //monitor
+          if (monitorAddress){
+            container.append(
+              $('<tr>').append(
+                $('<td>').append(
+                  $('<b>').text("Monitor Address")
+                )
+              ).append(
+                $('<td>').text(monitorAddress)
+              ).append(
+                $('<td>')
+              )
+            ).append(
+              $('<tr>').append(
+                $('<td>').append(
+                  $('<b>').text("Monitor Password")
+                )
+              ).append(
+                $('<td>').attr('id', 'text_monitor_secret').text("************")
+              ).append(
+                $('<td>').append(
+                  monitorOperator
+                )
+              )
+            );
+          }
           var index = 0;
           var diskName;
           ins['disks'].forEach((diskSize) =>{
@@ -436,6 +434,72 @@
 
             index++;
           });
+
+          //container
+          container.append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Internal Address")
+              )
+            ).append(
+              $('<td>').text(internalAddress)
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("External Address")
+              )
+            ).append(
+              $('<td>').text(externalAddress)
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("System")
+              )
+            ).append(
+              $('<td>').text(ins['system'])
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("AutoStart")
+              )
+            ).append(
+              $('<td>').append(
+                autoStart
+              )
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Pool")
+              )
+            ).append(
+              $('<td>').text(ins['pool'])
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text("Cell")
+              )
+            ).append(
+              $('<td>').text(ins['cell'])
+            ).append(
+              $('<td>')
+            )
+          );
+
           M.Tooltip.init($('.tooltipped'));
         }
       );
@@ -600,6 +664,24 @@
             password = auth['password'];
           }
           $('#text_password').text(user + ' : ' + password);
+        }
+      );
+    }
+    function showMonitorPassword(){
+      var url = '/guests/' + instanceID;
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch password fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          var auth = result['data'];
+          var password = "";
+          if (auth.hasOwnProperty('monitor_secret')){
+            password = auth['monitor_secret'];
+          }
+          $('#text_monitor_secret').text( password);
         }
       );
     }

@@ -54,7 +54,7 @@
                     </div>
                     <div class="row">
                         <div class="input-field">
-                            <div class="col m1">
+                            <div class="col m2">
                                 <label>Cores</label>
                             </div>
                             <div class="col m1">
@@ -85,7 +85,7 @@
                     </div>
                     <div class="row">
                         <div class="input-field">
-                            <div class="col m1">
+                            <div class="col m2">
                                 <label>Memory</label>
                             </div>
                             <div class="col m1">
@@ -122,18 +122,18 @@
                     </div>
                     <div class="row">
                         <div class="input-field">
-                            <div class="col m1">
+                            <div class="col m2">
                                 <label>System</label>
                             </div>
                             <div class="col m1">
                                 <label>
-                                    <input class="with-gap" name="system" type="radio" checked value="linux"/>
+                                    <input class="with-gap" name="system" type="radio" checked value="linux" onclick="onSystemChanged()"/>
                                     <span>Linux</span>
                                 </label>
                             </div>
                             <div class="col m1">
                                 <label>
-                                    <input class="with-gap" name="system" type="radio" value="windows"/>
+                                    <input class="with-gap" name="system" type="radio" value="windows" onclick="onSystemChanged()"/>
                                     <span>Windows</span>
                                 </label>
                             </div>
@@ -141,7 +141,7 @@
                     </div>
                     <div class="row">
                         <div class="input-field">
-                            <div class="col m1">
+                            <div class="col m2">
                                 <label>System Disk</label>
                             </div>
                             <div class="col m1">
@@ -165,17 +165,17 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col m3 push-m1">
+                        <div class="input-field col m3 push-m2">
                             <i class="material-icons prefix">laptop_chromebook</i>
-                            <select name="from_image" id="image-options">
+                            <select name="from_image" id="image-options" onchange="onImageChanged()">
                                 <option value="">Blank System</option>
                             </select>
                             <label>System Image</label>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" id="data-input">
                         <div class="input-field">
-                            <div class="col m1">
+                            <div class="col m2">
                                 <label>Data Disk</label>
                             </div>
                             <div class="col m1">
@@ -211,7 +211,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col m1">
+                        <div class="col m2">
                             <label>AutoStart</label>
                         </div>
                         <div class="switch">
@@ -518,6 +518,131 @@ function createGuest(request){
   });
 }
 
+var selectedImage = "";
+
+function onSystemChanged(){
+  var currentSystem = $('input[name=system]:checked').val();
+  if ('linux' != currentSystem){
+    //only linux allowed
+    detachGuestOptions();
+    return;
+  }
+  //linux
+  var currentImage = $('#image-options').val();
+  if (currentImage){
+    attachGuestOptions();
+  }else{
+    detachGuestOptions();
+  }
+
+}
+
+function onImageChanged(){
+  var currentSystem = $('input[name=system]:checked').val();
+  if ('linux' != currentSystem){
+    //only linux allowed
+    selectedImage = $('#image-options').val();
+    return;
+  }
+  var currentImage = $('#image-options').val();
+  if (currentImage != selectedImage){
+    if ("" == currentImage && "" !=selectedImage){
+      detachGuestOptions();
+    }else if ("" != currentImage && "" ==selectedImage){
+      attachGuestOptions();
+    }
+    selectedImage = currentImage;
+  }
+}
+
+function attachGuestOptions(){
+  var version = $("<div>").addClass('row').attr('id', 'version-input').append(
+    $('<div>').addClass('input-field').append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').text('System Version')
+      )
+    ).append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').append(
+          $('<input>').attr('id', 'system-version').attr('type', 'radio').addClass('with-gap')
+          .attr('value', 'centos7').attr('checked','checked')
+        ).append(
+          $('<span>').text('CentOS 7 or later')
+        )
+      )
+    )
+  );
+  var modules = $("<div>").addClass('row').attr('id', 'module-input').append(
+    $('<div>').addClass('input-field').append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').text('Installed Modules')
+      )
+    ).append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').append(
+          $('<input>').attr('type', 'checkbox').attr('name', 'installed_modules').attr('value', 'qemu').addClass('filled-in')
+        ).append(
+          $('<span>').text('QEMU')
+        )
+      )
+    ).append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').append(
+          $('<input>').attr('type', 'checkbox').attr('name', 'installed_modules').attr('onchange', 'onCIModuleChanged()')
+          .attr('id', 'module-cloud-init').attr('value', 'cloud-init').addClass('filled-in')
+        ).append(
+          $('<span>').text('Cloud-Init')
+        )
+      )
+    )
+  );
+  $("#data-input").before(version);
+  $("#data-input").before(modules);
+}
+
+function detachGuestOptions(){
+  $('#version-input').remove();
+  $('#module-input').remove();
+  detachCIOptions();
+}
+
+function onCIModuleChanged(){
+  if ($('#module-cloud-init').is(':checked')){
+    attachCIOptions();
+  }else{
+    detachCIOptions();
+  }
+}
+
+function attachCIOptions(){
+  var ci = $("<div>").addClass('row').attr('id', 'ci-input').append(
+    $('<div>').addClass('input-field').append(
+      $('<div>').addClass('col m2').append(
+        $('<label>').text('Cloud-Init')
+      )
+    ).append(
+      $('<div>').addClass('col m3').append(
+        $('<label>').attr('for', 'auth-user').text('Admin Name')
+      ).append(
+        $('<input>').attr('placeholder', 'root').attr('type', 'text').attr('id', 'auth-user')
+      ).append(
+        $('<label>').attr('for', 'auth-secret').text('Admin Password')
+      ).append(
+        $('<input>').attr('placeholder', 'leave blank to generate').attr('type', 'password').attr('id', 'auth-secret')
+      ).append(
+        $('<label>').attr('for', 'data-path').text('Data Path')
+      ).append(
+        $('<input>').attr('disabled', 'disabled').attr('type', 'text').attr('id', 'data-path').attr('value', '/opt/data')
+      )
+    )
+  );
+  $("#data-input").before(ci);
+}
+
+function detachCIOptions(){
+  $('#ci-input').remove();
+}
+
 function submitConfig() {
     if (!$('#create_form')[0].checkValidity()) {
         $('#submit_button').click();
@@ -534,9 +659,25 @@ function submitConfig() {
     request.disks = new Array();
     request.disks.push(Number($('input[name=system_disk]:checked').val()));
     var sourceImage = $('#image-options').val();
-
     if ('' != sourceImage){
       request.from_image = sourceImage;
+      //check version
+      var systemVersion = $('#system-version').val();
+      if (systemVersion){
+        request.system_version = systemVersion;
+        request.modules = new Array();
+        $('input[name=installed_modules]:checked').each(function(){
+          request.modules.push($(this).val());
+        });
+        if ($('#module-cloud-init').is(':checked')){
+          //Cloud-init enabled
+          var ciConfig = new Object();
+          ciConfig.admin_name = $('#auth-user').val();
+          ciConfig.admin_secret = $('#auth-secret').val();
+          ciConfig.data_path = $('#data-path').val();
+          request.cloud_init = ciConfig;
+        }
+      }
     }
     var dataDisk = Number($('input[name=data_disk]:checked').val());
     if (0 != dataDisk){
@@ -547,6 +688,11 @@ function submitConfig() {
     }else{
       request.auto_start = false;
     }
+    // M.toast({
+    //   html: JSON.stringify(request),
+    //   outDuration: 3000
+    // });
+    // return;
     createGuest(request);
 }
 

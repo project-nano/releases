@@ -1,5 +1,41 @@
 # Change Log
 
+## [0.2.3] - 2018-8-17
+
+### Core 0.2.3
+
+- Support initialize guest after created using Cloud-Init in NoCloudMode
+
+- Enable guest system version/modules configure
+
+- Enable change admin password/create new admin/auto resize&mount disk when ci module enabled (cloud-init cloud-utils required in guest)
+
+- Qualify instance/user/group/image name (only '0~9a~Z-' allowed)
+
+### Cell 0.2.3
+
+- Support initialize guest after created using Cloud-Init in NoCloudMode
+
+- Enable guest system version/modules configure
+
+- Enable change admin password/create new admin/auto resize&mount disk when ci module enabled (cloud-init cloud-utils required in guest)
+
+- Add listen port TCP: {cellIP}:25469 for Cloud-Init initiator
+
+
+### FrontEnd pages
+
+- Support choose installed module when cloning from an image
+
+- Enable change admin password/ create new admin/ disk auto resize/ data disk mount when Cloud-Init module installed
+
+- Add auto fresh in instances.html
+
+- Optimize instances/cells auto refresh, interval reduced to 5 seconds
+
+- Fixed: multiple image names displayed when starting with media
+
+
 ## [0.2.2] - 2018-8-6
 
 ### Core 0.2.2

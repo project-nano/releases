@@ -53,7 +53,7 @@
           </select>
         </div>
         <div class="input-field col m3">
-          <select name="cell" id="cell-options" onchange="onFilterCellChanged()">
+          <select name="cell" id="cell-options" onchange="reloadInstances()">
           </select>
         </div>
       </div>
@@ -63,6 +63,17 @@
         <div class="row">
             <div class="col m3">
                 <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i>Create Instance</a>
+            </div>
+            <div class="col m3 push-m6">
+                <span>Auto Refresh</span>
+                  <div class="switch">
+                      <label>
+                          Off
+                          <input type="checkbox" checked onclick="onAutoFreshSwitched()" id="cb_autofresh">
+                          <span class="lever"></span>
+                          On
+                      </label>
+                  </div>
             </div>
         </div>
     </div>
@@ -119,7 +130,7 @@
     M.AutoInit();
 
     function refresh(){
-      location.reload();
+      reloadInstances();
     }
 
     function outputMessage(message){
@@ -142,8 +153,14 @@
             outputMessage(result['message']);
             return;
           }
+          if (!result['data']){
+            outputMessage('no instance available');
+            $('#instance_list').empty();
+            return
+          }
           if (0 == result['data'].length){
             outputMessage('no instance available');
+            $('#instance_list').empty();
             return;
           }
           var container = $('<div>').addClass('row');
@@ -152,15 +169,17 @@
               $('<tr>').append(
                 $('<td>').text('Name')
               ).append(
+                $('<td>').text('Cell')
+              ).append(
+                $('<td>').text('Address')
+              ).append(
                 $('<td>').text('Cores')
               ).append(
                 $('<td>').text('Memory')
               ).append(
                 $('<td>').text('Disk')
               ).append(
-                $('<td>').text('Running')
-              ).append(
-                $('<td>').text('AutoStart')
+                $('<td>').text('Status')
               ).append($('<td>'))
             )
           );
@@ -173,6 +192,17 @@
             content.append(
               $('<td>').text(instanceName)
             ).append(
+              $('<td>').text(instance['cell'])
+            );
+            if (instance['internal'] && instance['internal']['network_address']){
+              content.append(
+                $('<td>').text(instance['internal']['network_address'])
+              );
+            }else{
+              content.append($('<td>'));
+            }
+
+            content.append(
               $('<td>').text(instance['cores'])
             );
             if (instance['memory'] > GiB){
@@ -195,13 +225,12 @@
             )
 
             var operators = $('<td>');
+            var status = $('<td>');
             //Status
             if (instance['running']){
-              content.append(
-                $('<td>').append(
-                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','running').text('play_arrow')
-                )
+              status.append(
+                $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','running').text('play_arrow')
               );
               operators.append(
                 $('<a>').attr('href', 'instance_control.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
@@ -234,11 +263,9 @@
                   )
               );
             }else{
-              content.append(
-                $('<td>').append(
+              status.append(
                   $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
                     attr('data-tooltip','stopped').text('stop')
-                )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
@@ -268,15 +295,12 @@
 
             //auto_start
             if (instance['auto_start']){
-              content.append(
-                $('<td>').append(
+              status.append(
                   $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
                     attr('data-tooltip','enabled').text('all_inclusive')
-                )
-              );
-            }else{
-              content.append($('<td>'));
+                );
             }
+            content.append(status);
             var monitorUrl = "monitor_instance_status.html?pool=" + poolName + '&instance=' + instanceID;
             var detailURL = "instance_detail.html?pool=" + poolName + '&instance=' + instanceID;
             if (cellName){
@@ -291,8 +315,8 @@
             );
             operators.append(
               $('<a>').attr('href', detailURL).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Modify').append(
-                  $('<i>').addClass('material-icons').text('build')
+                attr('data-tooltip','Details').append(
+                  $('<i>').addClass('material-icons').text('settings')
                 )
             );
             content.append(operators);
@@ -423,7 +447,7 @@
 
     function startWithMedia(name, id){
       var media = $('#media_options').val();
-      var mediaName = $('#media_options').text();
+      var mediaName = $('#media_options :selected').text();
       $.post(
         '/instances/' + id,
         JSON.stringify({
@@ -529,7 +553,7 @@
       loadInstances(poolName, "");
     }
 
-    function onFilterCellChanged(){
+    function reloadInstances(){
       var cellName = $('#cell-options').val();
       var poolName = $('#pool-options').val();
       loadInstances(poolName, cellName);
@@ -548,6 +572,21 @@
         queryParams.set(p[0], p[1]);
       });
       return queryParams;
+    }
+
+    var intervalID;
+    var refreshInterval = 5*1000;
+
+    function onAutoFreshSwitched(){
+      var autoFresh = $('#cb_autofresh').prop( "checked");
+      if (autoFresh){
+        intervalID = setInterval(refresh, refreshInterval);
+        M.toast({html: "Auto Fresh Enabled"});
+      }else{
+        clearInterval(intervalID);
+        intervalID = undefined;
+        M.toast({html: "Auto Fresh Disabled"});
+      }
     }
 
     $(function(){
@@ -578,6 +617,9 @@
       }else{
         outputMessage('please select filter pool');
       }
+
+      //enable auto fresh in default
+      intervalID = setInterval(refresh, refreshInterval);
     });
 
 </script>
