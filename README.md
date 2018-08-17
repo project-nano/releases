@@ -38,12 +38,19 @@ Please visit [Wiki](https://github.com/project-nano/releases/wiki/English) for m
 Available in current version(v 0.2.1): 
 
 1.Web portal that can complete all management functions, built-in secure cloud host remote management page
+
 2.Cluster management: system monitor, module start/stop/check (manually)
+
 3.Compute pool management: add/remove resource nodes (Cell module), resource usage monitor
+
 4.Instance management: create/delete/start/stop/monitor instance, modify configure, reset password.
+
 5.Volume management: extend / shrink instance disk
+
 6.Disk images: upload and download the disk image directly. create instances cloned from disk images.
+
 7.Media images: upload ISO image, load it when starting an instance, like inserting media into the physical server.
+
 8.Rich RESTful API support for integrating and customizing
 
 Coming soon:
