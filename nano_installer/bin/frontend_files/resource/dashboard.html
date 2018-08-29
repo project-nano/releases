@@ -231,14 +231,19 @@
     });
     //cpu canvas
     var cpuChart = new Chart($("#cpu_canvas"), {
-        type: "line",
+        type: "bar",
         data: {
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
               label: "cores usage",
-              fill: "start",
-              backgroundColor: '#c8e6c9',
+              stack: 'Stack 0',
+              backgroundColor: '#66bb6a',
+            },
+            {
+              label: "cores available",
+              stack: 'Stack 0',
+              backgroundColor: '#e8f5e9',
             }
           ]
         },
@@ -248,25 +253,29 @@
           },
           scales: {
   					xAxes: [{
-  						display: true,
-  						scaleLabel: {
-  							display: true,
-  							labelString: 'Past Seconds'
-  						}
-  					}]
+              display: false
+  					}],
+            yAxes: [{
+                stacked: true
+            }]
   				}
         }
     });
     //memory canvas
     var memoryChart = new Chart( $("#memory_canvas"), {
-        type: "line",
+        type: "bar",
         data: {
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
               label: "memory usage(GB)",
-              fill: "start",
-              backgroundColor: '#bbdefb',
+              stack: 'Stack 0',
+              backgroundColor: '#42a5f5',
+            },
+            {
+              label: "memory available(GB)",
+              stack: 'Stack 0',
+              backgroundColor: '#e3f2fd',
             }
           ]
         },
@@ -276,12 +285,11 @@
           },
           scales: {
   					xAxes: [{
-  						display: true,
-  						scaleLabel: {
-  							display: true,
-  							labelString: 'Past Seconds'
-  						}
-  					}]
+              display: false
+  					}],
+            yAxes: [{
+                stacked: true
+            }]
   				}
         }
     });
@@ -339,6 +347,7 @@
       diskChart.data.datasets[0].data = [0, 0];
       for(var i = 0; i < 6;i++){
         cpuChart.data.datasets[0].data.push(0);
+        cpuChart.data.datasets[1].data.push(0);
       }
       cpuChart.options.scales.yAxes[0].ticks = {
           min: 0,
@@ -347,6 +356,7 @@
       };
       for(var i = 0; i < 6;i++){
         memoryChart.data.datasets[0].data.push(0);
+        memoryChart.data.datasets[1].data.push(0);
       }
       memoryChart.options.scales.yAxes[0].ticks = {
           min: 0,
@@ -391,15 +401,20 @@
         //cpu
         cpuChart.data.datasets[0].data.shift();
         cpuChart.data.datasets[0].data.push(Math.floor(status['cpu_usage'] * status['max_cpu'] )/100);
+        cpuChart.data.datasets[1].data.shift();
+        cpuChart.data.datasets[1].data.push(Math.floor(( 100 - status['cpu_usage']) * status['max_cpu'])/100);
         cpuChart.options.scales.yAxes[0].ticks = {
             max: status['max_cpu'],
             stepSize: status['max_cpu'] / 4
         };
         var used_memory = Math.floor((status['max_memory'] - status['available_memory']) * 100 / gib) / 100;
         var max_memory = Math.round(status['max_memory']  / gib) ;
+        var available_memory = Math.floor(status['available_memory'] * 100 / gib) / 100;
         //memory
         memoryChart.data.datasets[0].data.shift();
         memoryChart.data.datasets[0].data.push(used_memory);
+        memoryChart.data.datasets[1].data.shift();
+        memoryChart.data.datasets[1].data.push(available_memory);
         memoryChart.options.scales.yAxes[0].ticks = {
             max: max_memory,
             stepSize: max_memory / 4

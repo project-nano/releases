@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Instance Snapshots</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="blue-grey ">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">Nano</a>
+            <ul id="nav-mobile" class="right">
+                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
+                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
+                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
+                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
+                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="section">
+        <nav class="clean">
+            <div class="nav-wrapper">
+                <div class="col s12" id="breadcrumb-path">
+                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+      <div class="row">
+        <div class="col m8 push-m2 s12">
+          <div class="row">
+            <div class="col m3">
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="showCreateSnapshot()"><i class="material-icons left">photo_camera</i>Take Snapshot</a>
+            </div>
+
+          </div>
+          <div class="divider"></div>
+          <div class="row" id="snapshots-tree">
+          </div>
+          <div class="row">
+            <div class="col s12 m10 push-m1" id="selected-content">
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
+                        class="material-icons left">chevron_left</i>Back</a>
+            </div>
+        </div>
+    </div>
+    <!-- modal -->
+    <div class="modal" id="modal-create">
+      <div class="modal-content">
+          <h4>Create New Snapshot</h4>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="snapshot-name">Snapshot Name</label>
+              <input type="text" id="snapshot-name">
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col m4 s12">
+              <label for="snapshot-description">Description</label>
+              <textarea id="snapshot-description" class="materialize-textarea"></textarea>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="createSnapshot()">Confirm</a>
+      </div>
+    </div>
+
+    <!-- shrink disk -->
+    <div class="modal" id="modal-confirm">
+      <div class="modal-content">
+          <h4 id="confirm-title"></h4>
+          <p>
+            <span type="flow-text" id="confirm-content">
+            </span>
+          </p>
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" id='confirm-link'>Yes</a>
+      </div>
+    </div>
+
+</div>
+<footer class="page-footer  blue-grey darken-3">
+    <div class="container">
+        <!-- <div class="col s6 m2">
+          <h4>Help</h4>
+        </div> -->
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2018 Copyright Project Nano. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="/js/materialize.min.js"></script>
+<script>
+    var poolName;
+    var cellName;
+    var instanceID;
+    var ins;
+
+    M.AutoInit();
+
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    function refresh(){
+      loadSnapshots();
+    }
+
+    function outputMessage(message){
+      $('#snapshots-tree').empty();
+      $('#snapshots-tree').append(
+        $('<div>').addClass('center').append(
+          $('<span>').text(message)
+        )
+      );
+    }
+
+    function loadSnapshots(){
+      var url = "/instances/" + instanceID + '/snapshots/';
+
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          var data = result['data'];
+          if (!data){
+            outputMessage("no snapshots available");
+            return;
+          }
+
+          var snapshots = new Map();
+          Object.keys(data).forEach((key) =>{
+            snapshots.set(key, data[key]);
+          });
+
+          if (0 == snapshots.length){
+            outputMessage("no snapshots available");
+            return;
+          }
+
+
+          var rootName = "";
+          var currentSnapshot = "";
+          var inheritMap = new Map();
+          // build inheritMap
+          snapshots.forEach((snapshot, name) =>{
+            if (snapshot.hasOwnProperty('is_root')&&snapshot['is_root']){
+              rootName = name;
+            }
+            if (snapshot.hasOwnProperty('is_current')&&snapshot['is_current']){
+              currentSnapshot = name;
+            }
+            if (snapshot.hasOwnProperty('backing')){
+              var backing = snapshot['backing'];
+              if (inheritMap.has(backing)){
+                inheritMap.get(backing).push(name);
+              }else{
+                inheritMap.set(backing, [name]);
+              }
+            }
+          });
+          //build tree
+          if ("" == rootName){
+            outputMessage("can not find root snapshot");
+            return;
+          }
+          var root = new Object();
+          root.name = rootName;
+          if (rootName == currentSnapshot){
+            root.is_current = true;
+          }
+          if (inheritMap.has(rootName)){
+            root.childs = buildChildData(rootName, inheritMap, currentSnapshot);
+          }
+
+          //build root
+          var container = $('#snapshots-tree');
+          container.empty();
+          var cellContent = $('<div>').addClass('row').append(
+            $('<div>').addClass('col m6').append(
+              $('<label>').append(
+                $('<input>').addClass('with-gap').attr('type', 'radio').attr('href', '#')
+                  .attr('onclick', 'selectSnapshot("'+ root.name +'")')
+                  .attr('name', 'snapshot').attr('value', root.name)
+              ).append(
+                $('<span>').text(root.name)
+              )
+            )
+          );
+          if (root.is_current){
+            cellContent.append(
+              $('<div>').addClass('col m1').append(
+                $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip','current snapshot').text('pets')
+              )
+            );
+          }
+          container.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('col m4').append(
+                cellContent
+              )
+            )
+          );
+          extendTreeNode(root, container, 0);
+          selectSnapshot(currentSnapshot);
+          $('input:radio[value="' + currentSnapshot +'"]').prop('checked', true);
+          M.Tooltip.init($('.tooltipped'));
+        }
+      );
+    }
+
+    function buildChildData(nodeName, map, current){
+      var result = [];
+      var childList = map.get(nodeName);
+      childList.forEach((childName) => {
+        var child = new Object();
+        child.name = childName;
+        if (current == childName){
+          child.is_current = true;
+        }
+        if (map.has(childName)){
+          child.childs = buildChildData(childName, map, current);
+        }
+        result.push(child);
+      });
+      return result;
+    }
+
+    function extendTreeNode(node, container, level){
+      var childLevel = level + 1;
+      if (!node.hasOwnProperty('childs')){
+        return;
+      }
+      node['childs'] .forEach((childNode) =>{
+        var childName = childNode['name'];
+        var cellContent = $('<div>').addClass('row').append(
+          $('<div>').addClass('col m1').append(
+            $('<i>').addClass('material-icons').text('subdirectory_arrow_right')
+          )
+        ).append(
+          $('<div>').addClass('col m6').append(
+            $('<label>').append(
+              $('<input>').addClass('with-gap').attr('type', 'radio').attr('href', '#')
+                .attr('onclick', 'selectSnapshot("'+ childName +'")')
+                .attr('name', 'snapshot').attr('value', childName)
+            ).append(
+              $('<span>').text(childName)
+            )
+          )
+        );
+        if (childNode.is_current){
+          cellContent.append(
+            $('<div>').addClass('col m1').append(
+              $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','current snapshot').text('pets')
+            )
+          );
+        }
+        container.append(
+          $('<div>').addClass('row').append(
+            $('<div>').addClass('col m4 push-m' + childLevel).append(
+              cellContent
+            )
+          )
+        );
+        if (childNode.hasOwnProperty('childs')){
+            extendTreeNode(childNode, container, childLevel);
+        }
+      });
+    }
+
+
+    //create
+    function showCreateSnapshot(name){
+      var instance = M.Modal.getInstance($('#modal-create'));
+      instance.open();
+    }
+
+    function createSnapshot(){
+      var name = $('#snapshot-name').val();
+      var description = $('#snapshot-description').val();
+      if (!name){
+        M.toast({html: 'must specify snapshot name'});
+        return;
+      }
+      $('#snapshot-name').val('');
+      $('#snapshot-description').val('');
+      $.ajax({
+       url: '/instances/' + instanceID + '/snapshots/',
+       type: "POST",
+       dataType: "json",
+       data:JSON.stringify({
+           "name": name,
+           "description": description
+       }),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'create snapshot fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'snapshot "' + name + '" created'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    //restore
+    function confirmRestore(name){
+      $('#confirm-link').attr('onclick', 'restoreSnapshot(\''+ name +'\')');
+      $('#confirm-title').text('Restore Snapshot');
+      $('#confirm-content').text('Are you sure to revert to snapshot "' + name + '" ?');
+      var instance = M.Modal.getInstance($('#modal-confirm'));
+      instance.open();
+    }
+
+    function restoreSnapshot(name){
+      $.ajax({
+       url: '/instances/' + instanceID + '/snapshots/',
+       type: "PUT",
+       dataType: "json",
+       data:JSON.stringify({
+           "target": name
+       }),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'restore snapshot fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'snapshot "' + name + '" restored'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    //delete
+    function confirmDelete(name){
+      $('#confirm-link').attr('onclick', 'deleteSnapshot(\''+ name +'\')');
+      $('#confirm-title').text('Delete Snapshot');
+      $('#confirm-content').text('Are you sure to delete snapshot "' + name + '"?');
+      var instance = M.Modal.getInstance($('#modal-confirm'));
+      instance.open();
+    }
+
+    function deleteSnapshot(name){
+      $.ajax({
+       url: '/instances/' + instanceID + '/snapshots/' + name,
+       type: "DELETE",
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete snapshot fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'snapshot "' + name + '" deleted'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    function selectSnapshot(name){
+      var url = "/instances/" + instanceID + '/snapshots/' + name;
+      $.getJSON(
+        url,
+        function(result){
+          if (0 != result['error_code']) {
+            M.toast({html: 'get snapshot fail: ' + result['message'], outDuration: 1000});
+            return;
+          }
+          var info = result['data'];
+          if (!info.hasOwnProperty('create_time')){
+            M.toast({html: 'no create time for snapshot ' + name, outDuration: 1000});
+            return;
+          }
+          var createTime = info['create_time'];
+          var description = "";
+          if (info.hasOwnProperty('description')){
+            description = info['description'];
+          }
+
+          $('#selected-content').empty().append(
+            $('<div>').addClass('card blue-grey lighten-2').append(
+              $('<div>').addClass('card-content white-text').append(
+                $('<span>').addClass('card-title').text(name)
+              ).append(
+                $('<p>').text("Create Time: " + createTime)
+              ).append(
+                $('<p>').text(description)
+              )
+            ).append(
+              $('<div>').addClass('card-action').append(
+                $('<a>').addClass('white-text').attr('onclick', 'confirmRestore("' + name +'")').attr('href', '#').text("Restore").prepend(
+                  $('<i>').addClass('material-icons').text('restore')
+                )
+              ).append(
+                $('<a>').addClass('white-text').attr('onclick', 'confirmDelete("' + name +'")').attr('href', '#').text("Delete").prepend(
+                  $('<i>').addClass('material-icons').text('delete_forever')
+                )
+              )
+            )
+          );
+        }
+      );
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      var params = parseQueryString();
+      if (!params.has('pool')){
+        M.toast({html: 'must specify pool name'})
+        return;
+      }
+      if (!params.has('instance')){
+        M.toast({html: 'must specify instance'})
+        return;
+      }
+      poolName = params.get('pool');
+      $('#breadcrumb-path').append(
+        $('<a>').addClass('breadcrumb').text(poolName).attr('href','instance_list.html?pool=' + poolName)
+      );
+      if (params.has('cell')){
+        cellName = params.get('cell');
+        $('#breadcrumb-path').append(
+          $('<a>').addClass('breadcrumb').text(cellName).attr('href', 'instance_list.html?pool=' + poolName + '&cell=' + cellName)
+        );
+      }
+
+      instanceID = params.get('instance');
+      $('#breadcrumb-path').append(
+        $('<a>').addClass('breadcrumb').text(instanceID)
+      );
+
+      loadSnapshots();
+
+    });
+
+</script>
+</body>
+</html>

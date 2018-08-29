@@ -499,6 +499,19 @@
               $('<td>')
             )
           );
+          if (ins.hasOwnProperty('create_time')){
+            container.append(
+              $('<tr>').append(
+                $('<td>').append(
+                  $('<b>').text("Create Time")
+                )
+              ).append(
+                $('<td>').text(ins['create_time'])
+              ).append(
+                $('<td>')
+              )
+            )
+          }
 
           M.Tooltip.init($('.tooltipped'));
         }

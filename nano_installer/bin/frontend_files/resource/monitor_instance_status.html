@@ -145,8 +145,61 @@
           </div>
         </div>
       </div>
-      <div class="row">
-      </div>
+    </div>
+    <div class="modal" id="delete_modal">
+        <div class="modal-content">
+            <h4>Delete Confirm</h4>
+            <p id="delete_confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="delete_confirm_link">Yes</a>
+        </div>
+    </div>
+    <div class="modal" id="media_modal">
+        <!--hide model -->
+        <div class="modal-content">
+            <h4>Start guest with media</h4>
+            <div class="row">
+              <div class="input-field col m4">
+                  <select name="media" id="media_options">
+                  </select>
+                  <label>Choose Media</label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="media_confirm_link">Yes</a>
+        </div>
+    </div>
+    <div class="modal" id="insert_modal">
+        <!--hide model -->
+        <div class="modal-content">
+            <h4>Insert media into instance</h4>
+            <div class="row">
+              <div class="input-field col m4">
+                  <select name="media" id="insert_options">
+                  </select>
+                  <label>Choose Media</label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="insert_confirm_link">Yes</a>
+        </div>
+    </div>
+    <div class="modal" id="eject_modal">
+        <!--hide model -->
+        <div class="modal-content">
+            <h4>Eject media from instance</h4>
+            <p id="eject_confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat">No</a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="eject_confirm_link">Yes</a>
+        </div>
     </div>
   </div>
   <footer class="page-footer  blue-grey darken-3">
@@ -223,14 +276,19 @@
     });
     //cpu canvas
     var cpuChart = new Chart($("#cpu_canvas"), {
-        type: "line",
+        type: "bar",
         data: {
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
               label: "cores usage",
-              fill: "start",
-              backgroundColor: '#c8e6c9',
+              stack: 'Stack 0',
+              backgroundColor: '#66bb6a',
+            },
+            {
+              label: "cores available",
+              stack: 'Stack 0',
+              backgroundColor: '#e8f5e9',
             }
           ]
         },
@@ -240,25 +298,29 @@
           },
           scales: {
             xAxes: [{
-              display: true,
-              scaleLabel: {
-                display: true,
-                labelString: 'Past Seconds'
-              }
+              display: false
+            }],
+            yAxes: [{
+                stacked: true
             }]
           }
         }
     });
     //memory canvas
     var memoryChart = new Chart( $("#memory_canvas"), {
-        type: "line",
+        type: "bar",
         data: {
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
               label: "memory usage(GB)",
-              fill: "start",
-              backgroundColor: '#bbdefb',
+              stack: 'Stack 0',
+              backgroundColor: '#42a5f5',
+            },
+            {
+              label: "memory available(GB)",
+              stack: 'Stack 0',
+              backgroundColor: '#e3f2fd',
             }
           ]
         },
@@ -268,11 +330,10 @@
           },
           scales: {
             xAxes: [{
-              display: true,
-              scaleLabel: {
-                display: true,
-                labelString: 'Past Seconds'
-              }
+              display: false
+            }],
+            yAxes: [{
+                stacked: true
             }]
           }
         }
@@ -326,8 +387,10 @@
     });
     function initialCharts(){
       diskChart.data.datasets[0].data = [0, 0];
-      for(var i = 0; i < 6;i++){
+      var cpuChartDataCount = 6;
+      for(var i = 0; i < cpuChartDataCount;i++){
         cpuChart.data.datasets[0].data.push(0);
+        cpuChart.data.datasets[1].data.push(0);
       }
       cpuChart.options.scales.yAxes[0].ticks = {
           min: 0,
@@ -336,6 +399,7 @@
       };
       for(var i = 0; i < 6;i++){
         memoryChart.data.datasets[0].data.push(0);
+        memoryChart.data.datasets[1].data.push(0);
       }
       memoryChart.options.scales.yAxes[0].ticks = {
           min: 0,
@@ -368,67 +432,86 @@
         }
         //success
         var status = result['data'];
+        var instanceName = status['name'];
         $('#instance-name').text(status['name']).prepend($('<i>').addClass('material-icons blue-grey-text darken-2').text('cloud_queue'));
         $('#instance-cores').text(status['cores']);
+
+        var operators = $('#instance-actions');
 
         if (running != status['running']){
           running = status['running'];
           //change
           $('#instance-icons').empty();
-          $('#instance-actions').empty();
+          operators.empty();
           if (running){
             $('#instance-icons').prepend(
               $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip', 'running').text('play_arrow')
             );
-            $('#instance-actions').append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Monitor').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('desktop_windows')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Modify').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('build')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Stop').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('power_settings_new')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Force Stop').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('power')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Reboot').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('rotate_right')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Force Reboot').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('refresh')
-              )
+            operators.append(
+              $('<a>').attr('href', 'instance_control.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Control').attr('target', '_blank').append(
+                  $('<i>').addClass('material-icons').text('desktop_windows')
+                )
             );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Stop').attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('power_settings_new')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Force Stop').attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('power')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Reboot').attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('rotate_right')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Force Reboot').attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('refresh')
+                )
+            );
+            mediaAttached = status['media_attached'];
+            updateMediaStatus(instanceID, instanceName, running, mediaAttached, operators);
           }else{
             $('#instance-icons').prepend(
               $('<i>').addClass('material-icons red-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip', 'stopped').text('stop')
             );
-            $('#instance-actions').append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Modify').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('build')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Start').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('play_arrow')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Start with Media').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('play_circle_outline')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Delete').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('delete')
-              )
-            ).append(
-              $('<a>').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'Build Disk Image').attr('href', '#').prepend(
-                $('<i>').addClass('material-icons').text('cloud_upload')
-              )
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Start').attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('play_arrow')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Start with Media').attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
+                  $('<i>').addClass('material-icons').text('play_circle_outline')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', 'snapshots.html?pool=' + poolName + '&instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Snapshots').attr('target', '_blank').append(
+                  $('<i>').addClass('material-icons').text('photo_camera')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', 'build_image.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Build Disk Image').attr('target', '_blank').append(
+                  $('<i>').addClass('material-icons').text('cloud_upload')
+                )
+            );
+            operators.append(
+              $('<a>').attr('href', '#').attr('onclick', 'confirmDelete("' + instanceName + '","' + instanceID + '")').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                attr('data-tooltip','Delete').append(
+                  $('<i>').addClass('material-icons').text('delete')
+                )
             );
           }
         }
@@ -443,14 +526,9 @@
           }
         }
         if (mediaAttached != status['media_attached']){
+          //attach status changed
           mediaAttached = status['media_attached'];
-          if (mediaAttached){
-            $('#instance-icons').append(
-              $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'media attached').text('album').attr('id', 'media-icon')
-            );
-          }else{
-            $('i#media-icon').remove();
-          }
+          updateMediaStatus(instanceID, instanceName, running, mediaAttached, operators);
         }
         //Address
         if (status['internal']){
@@ -480,15 +558,20 @@
         //cpu
         cpuChart.data.datasets[0].data.shift();
         cpuChart.data.datasets[0].data.push(Math.floor(status['cpu_usage'] * status['cores'])/100);
+        cpuChart.data.datasets[1].data.shift();
+        cpuChart.data.datasets[1].data.push(Math.floor(( 100 - status['cpu_usage']) * status['cores'])/100);
         cpuChart.options.scales.yAxes[0].ticks = {
             max: status['cores'],
             stepSize: status['cores'] / 4
         };
         var used_memory = Math.floor((status['memory'] - status['memory_available']) * 100 / gib) / 100;
         var max_memory = Math.round(status['memory']  / gib) ;
+        var available_memory = Math.floor(status['memory_available'] * 100 / gib) / 100;
         //memory
         memoryChart.data.datasets[0].data.shift();
         memoryChart.data.datasets[0].data.push(used_memory);
+        memoryChart.data.datasets[1].data.shift();
+        memoryChart.data.datasets[1].data.push(available_memory);
         memoryChart.options.scales.yAxes[0].ticks = {
             max: max_memory,
             stepSize: max_memory / 4
@@ -512,26 +595,281 @@
       });
     }
 
-
-
-    if (parseQueryString()){
-
-      $('#breadcrumb-path').append(
-        $('<a>').addClass('breadcrumb').text(poolName).attr('href','cell_status.html?pool=' + poolName)
-      );
-      if (undefined != cellName){
-        $('#breadcrumb-path').append(
-          $('<a>').addClass('breadcrumb').text(cellName).attr('href','instance_status.html?pool=' + poolName + "&cell=" + cellName)
+    function updateMediaStatus(instanceID, instanceName, running, attached, operators){
+      const iconID = "media-icon";
+      const ejectID = "eject-btn";
+      const insertID = "insert-btn";
+      if (attached){
+        $('#instance-icons').append(
+          $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top')
+            .attr('data-tooltip', 'media attached').text('album').attr('id', iconID)
         );
+        if(running){
+          $('#' + insertID).remove();
+          operators.append(
+            $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('id', ejectID).
+              attr('data-tooltip','Eject media').attr('onclick', 'confirmEject("' + instanceName + '","' + instanceID + '")').append(
+                $('<i>').addClass('material-icons').text('eject')
+              )
+          );
+        }
+      }else{
+        $('#' + iconID).remove();
+        if(running){
+          $('#' + ejectID).remove();
+          operators.append(
+            $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('id', insertID).
+              attr('data-tooltip','Insert Media').attr('onclick', 'selectInsertMedia("' + instanceName + '","' + instanceID + '")').append(
+                $('<i>').addClass('material-icons').text('arrow_drop_down')
+              )
+          );
+        }
       }
-      $('#breadcrumb-path').append(
-        $('<a>').addClass('breadcrumb').text(instanceID).attr('href','#')
-      );
-
-      initialCharts();
-      updateDashboard();
-      setInterval(updateDashboard, 2000);
     }
+
+    function startInstance(name, id) {
+        $.post('/instances/' + id,
+        JSON.stringify({}),
+        function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'start instance fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            M.toast({html: 'instance "' + name + '" started'});
+        },
+        "json");
+    }
+    function stopInstance(name, id) {
+        $.ajax({
+         url:'/instances/' + id,
+         type: "DELETE",
+         data:JSON.stringify({
+             "reboot": false,
+             "force": false
+         }),
+         dataType: "json",
+         success: function (result) {
+             if (0 != result['error_code']) {
+                 M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
+                 return;
+             }
+             M.toast({html: 'instance "' + name + '" stopped'});
+         }
+        });
+    }
+
+    function forceStopInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": false,
+                "force": true
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'force stop instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" force stopped'});
+            }
+        });
+    }
+
+    function restartInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": true,
+                "force": false
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" restarted'});;
+            }
+        });
+    }
+    function resetInstance(name, id) {
+        $.ajax({
+            url:'/instances/' + id,
+            type: "DELETE",
+            data:JSON.stringify({
+                "reboot": true,
+                "force": true,
+            }),
+            dataType: "json",
+            success: function (result) {
+                if (0 != result['error_code']) {
+                    M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
+                    return;
+                }
+                M.toast({html: 'instance "' + name + '" reset'});
+            }
+        });
+    }
+
+    function selectMedia(name, id){
+      $('#media_confirm_link').attr('onclick', 'startWithMedia("' + name + '", "' + id +'")');
+      $.getJSON(
+        '/media_images/',
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          $('#media_options').empty();
+          result['data'].forEach((media)=>{
+            $('#media_options').append(
+              $('<option>').attr('value', media['id']).text(media['name'])
+            );
+          });
+          M.FormSelect.init($('#media_options'));
+          var instance = M.Modal.getInstance($('#media_modal'));
+          instance.open();
+        }
+      )
+    }
+
+    function startWithMedia(name, id){
+      var media = $('#media_options').val();
+      var mediaName = $('#media_options :selected').text();
+      $.post(
+        '/instances/' + id,
+        JSON.stringify({
+          "from_media": true,
+          "source": media
+        }),
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'start instance fail: ' + result['message'], outDuration: 1000});
+              return;
+          }
+          M.toast({html: 'instance "' + name + '" started with media ' + mediaName});
+        },
+        "json"
+      );
+    }
+
+    function confirmDelete(name, id){
+      $('#delete_confirm_content').text('Are you sure to delete guest ' + name);
+      $('#delete_confirm_link').attr('onclick', 'deleteGuest("' + name + '", "' + id +'")');
+      var instance = M.Modal.getInstance($('#delete_modal'));
+      instance.open();
+    }
+
+    function deleteGuest(name, id) {
+      $.ajax({
+       url:'/guests/' + id,
+       type: "DELETE",
+       dataType: "json",
+       data:JSON.stringify({
+           "force": false
+       }),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete guest fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'guest "' + name + '" deleted'})
+       }
+      });
+    }
+
+    //insert media
+    function selectInsertMedia(name, id){
+      $('#insert_confirm_link').attr('onclick', 'insertMedia("' + name + '", "' + id +'")');
+      $.getJSON(
+        '/media_images/',
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});
+              return;
+          }
+          $('#insert_options').empty();
+          result['data'].forEach((media)=>{
+            $('#insert_options').append(
+              $('<option>').attr('value', media['id']).text(media['name'])
+            );
+          });
+          M.FormSelect.init($('#insert_options'));
+          var instance = M.Modal.getInstance($('#insert_modal'));
+          instance.open();
+        }
+      )
+    }
+
+    function insertMedia(name, id){
+      var media = $('#insert_options').val();
+      var mediaName = $('#insert_options :selected').text();
+      $.post(
+        '/instances/' + id + '/media',
+        JSON.stringify({
+          "source": media
+        }),
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'insert media fail: ' + result['message'], outDuration: 1000});
+              return;
+          }
+          M.toast({html: 'media "' + mediaName + '" insert into ' + name });
+        },
+        "json"
+      );
+    }
+
+    //eject media
+    function confirmEject(name, id){
+      $('#eject_confirm_content').text('Are you sure to eject media of guest ' + name);
+      $('#eject_confirm_link').attr('onclick', 'ejectMedia("' + name + '", "' + id +'")');
+      var instance = M.Modal.getInstance($('#eject_modal'));
+      instance.open();
+    }
+
+    function ejectMedia(name, id) {
+      $.ajax({
+       url:'/instances/' + id + '/media',
+       type: "DELETE",
+       dataType: "json",
+       data:JSON.stringify({
+       }),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'eject media fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'media of guest "' + name + '" ejected'})
+       }
+      });
+    }
+
+    $(function(){
+      M.Modal.init($('.modal'));
+      if (parseQueryString()){
+        $('#breadcrumb-path').append(
+          $('<a>').addClass('breadcrumb').text(poolName).attr('href','cell_status.html?pool=' + poolName)
+        );
+        if (undefined != cellName){
+          $('#breadcrumb-path').append(
+            $('<a>').addClass('breadcrumb').text(cellName).attr('href','instance_status.html?pool=' + poolName + "&cell=" + cellName)
+          );
+        }
+        $('#breadcrumb-path').append(
+          $('<a>').addClass('breadcrumb').text(instanceID).attr('href','#')
+        );
+
+        initialCharts();
+        updateDashboard();
+        setInterval(updateDashboard, 2000);
+      }
+    });
+
+
   </script>
   </body>
 </html>

@@ -110,13 +110,31 @@
             }else{
               sizeString = Math.floor(imageSize*100 / (1 << 20)) / 100 + ' MiB';
             }
+
             content.append(
               $('<span>').addClass('card-title').text(image['name'])
             ).append(
-              $('<p>').append(image['description'] + '<br>').append(
-                $('<strong>').text('Size').append(': ' + sizeString + '<br>')
-              ).append(tags)
+              $('<p>').append(
+                $('<b>').text('Size').append(': ' + sizeString)
+              )
             );
+            if (image.hasOwnProperty('create_time')){
+              content.append(
+                $('<p>').text('Create: ' + image['create_time'])
+              );
+            }
+            if (image.hasOwnProperty('modify_time')){
+              content.append(
+                $('<p>').text('Modify: ' + image['modify_time'])
+              );
+            }
+            if (image.hasOwnProperty('description')){
+              content.append(
+                $('<p>').text(image['description'])
+              );
+            }
+            content.append(tags);
+
             var actions = $('<div>').addClass('card-action').append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
                 attr('data-tooltip', 'Delete Image').attr('onclick', 'confirmDelete("' + image['name'] + '", "' + image['id'] +'")').append(

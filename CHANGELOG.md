@@ -1,5 +1,62 @@
 # Change Log
 
+## [0.3.1] - 2018-8-29
+
+### Core 0.3.1
+
+#### Added
+
+- Insert/Eject media in instance
+
+- Add instance create time
+
+- Add create and modify time of images
+
+- Snapshot management: create/restore/delete/query/get
+
+#### Fixed
+
+- Wrong instance name sent to cell when create a new guest
+
+### Cell 0.3.1
+
+#### Added
+
+- Snapshot management: create/delete/restore/get/query
+
+- Storage create time of guest
+
+- Inject/eject media in running instance
+
+- Lock volumes when running disk operates
+
+#### Fixed
+
+- Get instance status sync status without notify core
+
+
+### FrontEnd 0.3.1
+
+
+#### Added
+
+- Create time of Instance
+
+- Create/modify time of Image
+
+- Snapshot management: create/ delete / revert
+
+- Insert / eject media image
+
+#### Changed
+
+- Enable instance funtions in instance monitor page
+
+- Change cpu/memory usage to bar chart in dashboard/instance monitor
+
+- Open new tab for monitor/snapshots/details of instances list
+
+
 ## [0.2.3] - 2018-8-17
 
 ### Core 0.2.3
