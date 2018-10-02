@@ -1,5 +1,90 @@
 # Change Log
 
+## [0.4.1] - 2018-10-2
+
+### Core 0.4.1 
+
+#### Added
+
+- Storage Pool management: Create/Delete/Modify
+
+- NFS storage backend supported
+
+- Allow choosing storage pool when creating/modifying compute pool
+
+- Synchronize storage configure when cell joined or added
+
+- Add storage mount status when getting cell status
+
+- Check duplicate instance name in a pool when creating a guest
+
+- Mark instance status to lost when cell disconnected
+
+- Notify cell to detach storage when removed from pool
+
+#### Fixed
+
+- Improper instance count when instance deallocated
+
+- Task put a message to closed proxy channel causing panic
+
+- Task put a message to deallocated proxy session causing panic
+
+### Cell 0.4.1
+
+#### Added
+
+- Support NFS storage pool
+
+- Report share storage(NFS) mount status
+
+- Support volume/snapshot save on shared storage
+
+- Create instance metadata when using shared storage
+
+- Automount shared storage when cell start or added to compute pool
+
+#### Fixed
+
+- Snapshot files left when delete volumes
+
+- Try recover stub service when stop module
+
+### FrontEnd 0.4.1
+
+#### Added
+
+- Support storage pool management
+
+- Modify compute pool
+
+- Get compute cell info
+
+- Standalone google materialize icons
+
+- Mark instance lost status when cell stop/disconnected
+
+- Add image id in list
+
+#### Fixed
+
+- No response to click start or insert media button when no media available.
+
+- Auto fresh page become slower after a long time running
+
+- Deleted instance count in the dashboard
+
+- Output message without clear previous info in the list
+
+### Installer 0.1.6
+
+#### Changed
+
+- Install nfs-client/semanage for cell
+
+- Ask if continue when installing fail
+
+
 ## [0.3.1] - 2018-8-29
 
 ### Core 0.3.1

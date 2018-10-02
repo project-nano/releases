@@ -2,7 +2,7 @@
 <html>
 <head>
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
     <title>Control Instance</title>
@@ -250,6 +250,10 @@
         if (0 != result['error_code']) {
             M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});
             return;
+        }
+        if (!result['data']){
+          M.toast({html: 'no media image available', outDuration: 600});
+          return;
         }
         $('#insert_options').empty();
         result['data'].forEach((media)=>{

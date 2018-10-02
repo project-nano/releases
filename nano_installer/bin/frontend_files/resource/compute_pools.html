@@ -2,7 +2,7 @@
 <html>
 <head>
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
     <title>Compute Pools</title>
@@ -32,13 +32,14 @@
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">Nano</a>
             <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
-                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
-                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
-                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
-                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
+                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
+                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
+                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
+                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
+                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
             </ul>
 
         </div>
@@ -58,7 +59,7 @@
     <div class="section">
         <div class="row">
             <div class="col m3">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn"><i class="material-icons left">add</i>Create</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" href="create_pool.html"><i class="material-icons left">add</i>Create</a>
             </div>
         </div>
     </div>
@@ -98,7 +99,7 @@
     }
 
     function outputMessage(message){
-      $('#pool_list').append(
+      $('#pool_list').empty().append(
         $('<div>').addClass('center').append(
           $('<span>').text(message)
         )
@@ -143,6 +144,10 @@
           );
           result['data'].forEach((pool) => {
             var content = $('<tr>');
+            var storage = pool['storage'];
+            if (!storage){
+              storage = 'local storage';
+            }
             content.append(
               $('<td>').text(pool['name'])
             ).append(
@@ -150,7 +155,7 @@
             ).append(
               $('<td>').text(pool['network'])
             ).append(
-              $('<td>').text(pool['strorage'])
+              $('<td>').text(storage)
             );
             var operators = $('<td>');
             //Status
@@ -195,7 +200,7 @@
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip','Modify').append(
+                attr('data-tooltip','Modify').attr('href', 'modify_pool.html?pool=' + pool['name']).append(
                   $('<i>').addClass('material-icons').text('build')
                 )
             );
@@ -210,7 +215,8 @@
               table.append(content)
             );
           });
-          $('#pool_list').append(container);
+          $('#pool_list').empty().append(container);
+          $('.material-tooltip').remove();
           M.Tooltip.init($('.tooltipped'));
         }
       );

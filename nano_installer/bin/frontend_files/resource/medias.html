@@ -2,7 +2,7 @@
 <html>
 <head>
     <!--Import Google Icon Font-->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="/css/materialize.min.css" media="screen,projection"/>
     <title>Media Images</title>
@@ -18,13 +18,14 @@
         <div class="nav-wrapper">
             <a href="#" class="brand-logo">Nano</a>
             <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="/dashboard.html">Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="/compute_pools.html">Compute Pool</a></li>
-                <li class="hide-on-small-only"><a href="/instances.html">Instances</a></li>
-                <li class="hide-on-small-only"><a href="/images.html">Images</a></li>
-                <li class="hide-on-small-only"><a href="/medias.html">Medias</a></li>
-                <li class="hide-on-small-only"><a href="/users.html">Users</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons right">list</i></a></li>
+                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
+                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
+                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
+                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
+                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
+                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
+                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
+                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
             </ul>
 
         </div>
@@ -72,7 +73,7 @@
 <script>
     M.AutoInit();
     function outputMessage(message){
-      $('#images_list').append(
+      $('#images_list').empty().append(
         $('<div>').addClass('center').append(
           $('<span>').text(message)
         )
@@ -117,6 +118,8 @@
               $('<p>').append(
                 $('<b>').text('Size').append(': ' + sizeString)
               )
+            ).append(
+              $('<p>').text('ID: ' + image['id'])
             );
             if (image.hasOwnProperty('create_time')){
               content.append(
@@ -147,7 +150,7 @@
                 )
             );
             container.append(
-              $('<div>').addClass('col m3').append(
+              $('<div>').addClass('col m4').append(
                 $('<div>').addClass('card').append(content).append(actions)
               )
             );
