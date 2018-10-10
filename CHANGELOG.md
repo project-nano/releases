@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.4.2] - 2018-10-10
+
+### Core 0.4.2
+
+#### Fixed
+
+- result.Error output message
+
+### Cell 0.4.2
+
+#### Added
+
+- Synchronize allocated network ports to instance configures
+
+#### Fixed
+
+- Compatible with local storage config file of the previous version
+
 ## [0.4.1] - 2018-10-2
 
 ### Core 0.4.1 
