@@ -11,41 +11,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 </head>
-
 <body>
 
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
-  <div class="section">
-    <div class="row">
-      <p><span class="flow-text">Create New Compute Pool</span>
-      </p>
-    </div>
-  </div>
   <div class="section">
     <div class="row">
       <div class="col m6 push-m2" id="main-panel">
         <div class="row">
           <div class="input-field col m5">
             <input type="text" id="pool-name" placeholder="Compute pool name" class="validate">
-            <label for="pool-name">Pool Name</label>
+            <label for="pool-name" id="name-label"></label>
           </div>
         </div>
         <div class="row">
@@ -53,7 +28,12 @@
               <select name="storage" id="pool-storage">
                 <option value="" selected>default (using local storage)</option>
               </select>
-              <label>Storage</label>
+              <label id="storage-label"></label>
+          </div>
+        </div>
+        <div class="row">
+          <span id="failover-label"></span>
+          <div class="switch" id="failover-div">
           </div>
         </div>
       </div>
@@ -64,34 +44,39 @@
   <div class="section">
       <div class="row">
           <div class="col m2">
-              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
-                      class="material-icons left">chevron_left</i>Back</a>
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                      class="material-icons left">chevron_left</i></a>
           </div>
           <div class="col m2 right" id="button">
-              <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="createPool()">Create
-                  <i class="material-icons right">add</i>
+              <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="createPool()" id="create-caption">
+                <i class="material-icons right">add</i>
               </button>
           </div>
       </div>
   </div>
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+N.CreateMenuAndFooter();
+var texts = N.GetTexts();
+$('#back-caption').append(texts.get(N.TagBack));
+$('#create-caption').prepend(texts.get(N.TagCreate));
+
+$('#name-label').text(texts.get(N.TagName));
+$('#storage-label').text(texts.get(N.TagStoragePool));
+$('#failover-label').text(texts.get(N.TagFailover));
+$('#failover-div').append(
+  $('<label>').append(texts.get(N.TagOff)).append(
+    $('<input>').attr('type', 'checkbox').attr('id', 'failover-switch')
+  ).append(
+    $('<span>').addClass('lever')
+  ).append(texts.get(N.TagOn))
+);
+
 M.AutoInit();
 
 function loadOptions(){
@@ -124,6 +109,11 @@ function createPool(){
   if ('' == poolStorage){
     poolStorage = "local storage";
   }
+  request.failover = $('#failover-switch').prop('checked');
+  var failoverText = texts.get(N.TagDisable);
+  if (request.failover){
+    failoverText = texts.get(N.TagEnable);
+  }
 
   $('#button').empty();
   $('#main-panel').empty();
@@ -131,19 +121,25 @@ function createPool(){
   var table = $('<table>').addClass('striped');
   table.append(
     $('<tr>').append(
-      $('<td>').text('Pool')
+      $('<td>').text(texts.get(N.TagComputePool))
     ).append(
       $('<td>').text(poolName)
     )
   ).append(
     $('<tr>').append(
-      $('<td>').text('Storage')
+      $('<td>').text(texts.get(N.TagStorage))
     ).append(
       $('<td>').text(poolStorage)
     )
   ).append(
     $('<tr>').append(
-      $('<td>').text('Result')
+      $('<td>').text(texts.get(N.TagFailover))
+    ).append(
+      $('<td>').text(failoverText)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagResult))
     ).append(
       $('<td>').attr('id', 'request-result')
     )
@@ -162,7 +158,7 @@ function createPool(){
       $('#request-result').text('success');
       $('#button').append(
         $('<a>').attr('href', 'compute_pools.html').append(
-          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text('Finish').prepend(
+          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
             $('<i>').addClass('material-icons').text('check')
           )
         )

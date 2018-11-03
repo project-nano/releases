@@ -25,34 +25,15 @@
     </style>
 
   </head>
-
   <body>
 
-    <nav class="blue-grey ">
-      <div class="container">
-        <div class="nav-wrapper">
-          <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-      </div>
-    </nav>
   <div class="container">
     <div class="section">
       <nav class="clean">
          <div class="nav-wrapper">
            <div class="col s12">
-              <a href="dashboard.html" class="breadcrumb">Zone</a>
-              <a href="#" class="breadcrumb">Compute Pools</a>
+              <a href="dashboard.html" class="breadcrumb" id="zone-caption"></a>
+              <a href="#" class="breadcrumb" id="pool-caption"></a>
             </div>
         </div>
       </nav>
@@ -61,24 +42,17 @@
     <div class="section" id="status_list">
     </div>
   </div>
-  <footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-      <div class="container">
-      © 2018 Copyright Project Nano. All rights reserved.
-      </div>
-    </div>
-  </footer>
 
   <!--JavaScript at end of body for optimized loading-->
   <script type="text/javascript" src="js/materialize.min.js"></script>
   <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
+  <script type="text/javascript" src="js/nano.js"></script>
   <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#zone-caption').text(texts.get(N.TagZone));
+    $('#pool-caption').text(texts.get(N.TagComputePool));
     M.AutoInit();
 
     var chartsMap = new Map();
@@ -104,13 +78,13 @@
 
       var cardContent = $('<div>').addClass('card-content').append(cardTitle).append(canvasRow);
       var cardActions = $('<div>').addClass('card-action');
-      cardActions.append($('<a>').addClass('blue-grey-text tooltipped').attr({href: 'cell_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': 'Cells'}).append(
+      cardActions.append($('<a>').addClass('blue-grey-text tooltipped').attr({href: 'cell_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': texts.get(N.TagCell)}).append(
         $('<i>').addClass('material-icons').text('storage')
       ));
-      cardActions.append($('<a>', {href: 'instance_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': 'Instances'}).addClass('blue-grey-text tooltipped').append(
+      cardActions.append($('<a>', {href: 'instance_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': texts.get(N.TagInstance)}).addClass('blue-grey-text tooltipped').append(
         $('<i>').addClass('material-icons').text('cloud_queue')
       ));
-      cardActions.append($('<a>', {href: 'monitor_pool_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': 'Monitor'}).addClass('blue-grey-text tooltipped').append(
+      cardActions.append($('<a>', {href: 'monitor_pool_status.html?pool='+ poolName,  'data-position': 'bottom', 'data-tooltip': texts.get(N.TagMonitor)}).addClass('blue-grey-text tooltipped').append(
         $('<i>').addClass('material-icons').text('insert_chart')
       ));
       var status = $('<div>', {id: 'status_' + poolName}).addClass('row').append(
@@ -123,7 +97,7 @@
       var cellChart = new Chart(cellCanvas,{
           type: "doughnut",
           data: {
-            labels: ["offline", "online"],
+            labels: [ texts.get(N.TagOffline), texts.get(N.TagOnline)],
             datasets: [
               {
                 backgroundColor: ['#9e9e9e', '#4caf50'],
@@ -137,14 +111,14 @@
             },
             title: {
               display: true,
-              text: 'Cells'
+              text: texts.get(N.TagCell)
             }
           }
       });
       var instanceChart = new Chart(instanceCanvas,{
           type: "doughnut",
           data: {
-            labels: ["stopped", "running", "lost", "migrate"],
+            labels: [ texts.get(N.TagStopped), texts.get(N.TagRunning), texts.get(N.TagLost), texts.get(N.TagMigrate)],
             datasets: [
               {
                 backgroundColor: ['#9e9e9e', '#2196f3', "#ff9800", "#9e9e9e"],
@@ -158,7 +132,7 @@
             },
             title: {
               display: true,
-              text: 'Instances'
+              text: texts.get(N.TagInstance)
             }
           }
       });
@@ -166,7 +140,7 @@
       var coreChart = new Chart(coreCanvas, {
         type: "doughnut",
         data: {
-          labels: ["idle", "used"],
+          labels: [ texts.get(N.TagAvailable), texts.get(N.TagUsed)],
           datasets: [
             {
               backgroundColor: ['#bbdefb', '#2196f3'],
@@ -180,7 +154,7 @@
           },
           title: {
             display: true,
-            text: 'Cores'
+            text: texts.get(N.TagCore)
           }
         }
       });
@@ -188,7 +162,7 @@
       var memoryChart = new Chart(memoryCanvas, {
         type: "doughnut",
         data: {
-          labels: ["available", "used"],
+          labels: [ texts.get(N.TagAvailable), texts.get(N.TagUsed)],
           datasets: [
             {
               backgroundColor: ['#bbdefb', '#2196f3'],
@@ -202,14 +176,14 @@
           },
           title: {
             display: true,
-            text: 'Memory(MB)'
+            text: texts.get(N.TagMemory)
           }
         }
       });
       var diskChart = new Chart( diskCanvas, {
         type: "doughnut",
         data: {
-          labels: ["available", "used"],
+          labels: [ texts.get(N.TagAvailable), texts.get(N.TagUsed)],
           datasets: [
             {
               backgroundColor: ['#bbdefb', '#2196f3'],
@@ -224,7 +198,7 @@
           },
           title: {
             display: true,
-            text: 'Disk(GB)'
+            text: texts.get(N.TagDisk)
           }
         }
       });
@@ -232,7 +206,7 @@
       var ioChart = new Chart(ioCanvas, {
         type: "horizontalBar",
         data: {
-          labels: ["read", "written", "received", "sent"],
+          labels: [ texts.get(N.TagRead), texts.get(N.TagWrite), texts.get(N.TagReceive), texts.get(N.TagSend)],
           datasets: [
             {
               backgroundColor: ['#bbdefb', '#2196f3', '#c8e6c9', '#ffecb3'],
@@ -245,7 +219,7 @@
           },
           title: {
             display: true,
-            text: 'IO Speed'
+            text: texts.get(N.TagIOMeter)
           },
           scales: {
             xAxes: [{

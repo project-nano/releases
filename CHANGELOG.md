@@ -1,5 +1,63 @@
 # Change Log
 
+## [0.5.1] - 2018-11-3
+
+### Core 0.5.1 
+
+#### Added
+
+- Enable/Disable cell
+
+- Enable failover in compute pool
+
+- Migrate instance
+
+#### Changed
+
+- Optimize load balance algorithm considering both real-time load and instances configured when choosing cell for allocation.
+
+- Sort instance list by lexicographic order
+
+### Cell 0.5.1
+
+#### Added
+
+- Attach/Detach instances
+
+- Add 'qcow2' suffix to volume/snapshot files
+
+- Set hostname when using CloudInit module
+
+- Check the default route when startup
+
+#### Changed
+
+- Randomize allocation of the monitor port
+
+- Determine system/admin name of the guest by version when creating an instance
+
+### FrontEnd 0.5.1
+
+#### Added
+
+- Multi-language support
+
+- Enable/Disable cell
+
+- Enable failover option in compute pool
+
+- Migrate instance
+
+#### Changed
+
+- Optimize console output when starting module
+
+### Installer 0.1.7
+
+#### Added
+
+- Check default route
+
 ## [0.4.2] - 2018-10-11
 
 ### Core 0.4.2

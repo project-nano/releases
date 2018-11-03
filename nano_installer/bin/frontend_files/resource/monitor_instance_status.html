@@ -25,34 +25,15 @@
     </style>
 
   </head>
-
   <body>
 
-    <nav class="blue-grey ">
-      <div class="container">
-        <div class="nav-wrapper">
-          <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-      </div>
-    </nav>
   <div class="container">
     <div class="section">
       <nav class="clean">
          <div class="nav-wrapper">
            <div class="col s12" id="breadcrumb-path">
-             <a href="dashboard.html" class="breadcrumb">Zone</a>
-             <a href="pool_status.html" class="breadcrumb">Compute pools</a>
+             <a href="dashboard.html" class="breadcrumb" id="zone-caption"></a>
+             <a href="pool_status.html" class="breadcrumb" id="pool-caption"></a>
             </div>
         </div>
       </nav>
@@ -63,48 +44,39 @@
         <div class="col m6 s12">
           <div class="card small">
             <div class="card-content">
-              <span class="card-title" id="instance-name"><i class="material-icons blue-grey-text darken-2">cloud_queue</i>manager.admin.guest1</span>
+              <span class="card-title" id="instance-name"><i class="material-icons blue-grey-text darken-2">cloud_queue</i></span>
               <table class="striped">
                 <tbody>
                   <tr>
-                    <td>Cores</td>
+                    <td id="core-caption"></td>
                     <td id="instance-cores"></td>
-                    <td>Internal address</td>
+                    <td id="internal-caption"></td>
                     <td id="instance-internal"></td>
                   </tr>
                   <tr>
-                    <td>Memory</td>
+                    <td id="memory-caption"></td>
                     <td id="instance-memory"></td>
-                    <td>External address</td>
+                    <td id="external-caption"></td>
                     <td id="instance-external"></td>
                   </tr>
                   <tr>
-                    <td>Disk</td>
+                    <td id="disk-caption"></td>
                     <td id="instance-disk"></td>
                     <td></td>
                     <td id="instance-icons">
-                      <i class="material-icons green-text darken-2 tooltipped" data-position="top" data-tooltip="running">play_arrow</i>
-                      <i class="material-icons light-blue-text tooltipped" data-position="top" data-tooltip="autostart">all_inclusive</i>
-                      <i class="material-icons blue-grey-text tooltipped" data-position="top" data-tooltip="media attached">album</i>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="card-action" id="instance-actions">
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Monitor"><i class="material-icons">desktop_windows</i></a>
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Modify"><i class="material-icons">build</i></a>
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Stop"><i class="material-icons">power_settings_new</i></a>
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Force Stop"><i class="material-icons">power</i></a>
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Reboot"><i class="material-icons">rotate_right</i></a>
-              <a href="#" class="blue-grey-text tooltipped" data-position="top" data-tooltip="Force Reboot"><i class="material-icons">refresh</i></a>
             </div>
           </div>
         </div>
         <div class="col m3 s6">
           <div class="card small">
             <div class="card-content">
-              <span class="card-title"><i class="material-icons blue-grey-text">memory</i>Core Usage</span>
+              <span class="card-title" id="core-usage-caption"><i class="material-icons blue-grey-text">memory</i></span>
               <div>
                 <canvas id="cpu_canvas" height="250px"></canvas>
               </div>
@@ -114,7 +86,7 @@
         <div class="col m3 s6">
           <div class="card small">
             <div class="card-content">
-              <span class="card-title"><i class="material-icons blue-grey-text">sd_card</i>Memory Usage</span>
+              <span class="card-title" id="memory-usage-caption"><i class="material-icons blue-grey-text">sd_card</i></span>
               <div>
                 <canvas id="memory_canvas" height="250px"></canvas>
               </div>
@@ -127,7 +99,7 @@
         <div class="col m4 s6">
           <div class="card small">
             <div class="card-content">
-              <span class="card-title"><i class="material-icons blue-grey-text">storage</i>Disk Usage</span>
+              <span class="card-title" id="disk-usage-caption"><i class="material-icons blue-grey-text">storage</i></span>
               <div>
                 <canvas id="disk_canvas" height="160px"></canvas>
               </div>
@@ -138,7 +110,7 @@
         <div class="col m8 s12">
           <div class="card small">
             <div class="card-content">
-              <span class="card-title"><i class="material-icons blue-grey-text">show_chart</i></span>
+              <span class="card-title" id="io-caption"><i class="material-icons blue-grey-text">show_chart</i></span>
               <div>
                 <canvas id="io_canvas" height="80px"></canvas>
               </div>
@@ -203,24 +175,31 @@
         </div>
     </div>
   </div>
-  <footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-      <div class="container">
-      © 2018 Copyright Project Nano. All rights reserved.
-      </div>
-    </div>
-  </footer>
 
   <!--JavaScript at end of body for optimized loading-->
   <script type="text/javascript" src="js/materialize.min.js"></script>
   <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
+  <script type="text/javascript" src="js/nano.js"></script>
   <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#zone-caption').text(texts.get(N.TagZone));
+    $('#pool-caption').text(texts.get(N.TagComputePool));
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
+    $('#core-caption').text(texts.get(N.TagCore));
+    $('#internal-caption').text(texts.get(N.TagInternalAddress));
+    $('#memory-caption').text(texts.get(N.TagMemory));
+    $('#external-caption').text(texts.get(N.TagExternalAddress));
+    $('#disk-caption').text(texts.get(N.TagDisk));
+
+    $('#core-usage-caption').text(texts.get(N.TagCoreUsage));
+    $('#memory-usage-caption').text(texts.get(N.TagMemoryUsage));
+    $('#disk-usage-caption').text(texts.get(N.TagDisk));
+    $('#io-caption').text(texts.get(N.TagIOMeter));
+
     M.AutoInit();
     var poolName;
     var cellName;
@@ -261,7 +240,7 @@
     var diskChart = new Chart( $("#disk_canvas"), {
       type: "doughnut",
       data: {
-        labels: ["available", "used"],
+        labels: [texts.get(N.TagAvailable), texts.get(N.TagUsed)],
         datasets: [
           {
             backgroundColor: ['#bbdefb', '#2196f3'],
@@ -282,12 +261,12 @@
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
-              label: "cores usage",
+              label: texts.get(N.TagUsed),
               stack: 'Stack 0',
               backgroundColor: '#66bb6a',
             },
             {
-              label: "cores available",
+              label: texts.get(N.TagAvailable),
               stack: 'Stack 0',
               backgroundColor: '#e8f5e9',
             }
@@ -314,12 +293,12 @@
           labels: ["10", "8", "6", "4", "2", "0"],
           datasets: [
             {
-              label: "memory usage(GB)",
+              label: texts.get(N.TagUsed),
               stack: 'Stack 0',
               backgroundColor: '#42a5f5',
             },
             {
-              label: "memory available(GB)",
+              label: texts.get(N.TagAvailable),
               stack: 'Stack 0',
               backgroundColor: '#e3f2fd',
             }
@@ -347,19 +326,19 @@
           labels: ["16", "14", "12", "10", "8", "6", "4", "2", "0"],
           datasets: [
             {
-              label: "read",
+              label: texts.get(N.TagRead),
               backgroundColor: '#90caf9',
             },
             {
-              label: "written",
+              label: texts.get(N.TagWrite),
               backgroundColor: '#b0bec5',
             },
             {
-              label: "received",
+              label: texts.get(N.TagReceive),
               backgroundColor: '#b39ddb',
             },
             {
-              label: "sent",
+              label: texts.get(N.TagSend),
               backgroundColor: '#9fa8da',
             },
           ]
@@ -446,35 +425,35 @@
           operators.empty();
           if (running){
             $('#instance-icons').prepend(
-              $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip', 'running').text('play_arrow')
+              $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagRunning)).text('play_arrow')
             );
             operators.append(
               $('<a>').attr('href', 'instance_control.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Control').attr('target', '_blank').append(
+                attr('data-tooltip',  texts.get(N.TagRemoteControl)).attr('target', '_blank').append(
                   $('<i>').addClass('material-icons').text('desktop_windows')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Stop').attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagStop)).attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('power_settings_new')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Force Stop').attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagForceStop)).attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('power')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Reboot').attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagReboot)).attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('rotate_right')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Force Reboot').attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagForceReboot)).attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('refresh')
                 )
             );
@@ -482,35 +461,35 @@
             updateMediaStatus(instanceID, instanceName, running, mediaAttached, operators);
           }else{
             $('#instance-icons').prepend(
-              $('<i>').addClass('material-icons red-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip', 'stopped').text('stop')
+              $('<i>').addClass('material-icons red-text darken-2 tooltipped').attr('data-position', 'top').attr('data-tooltip',  texts.get(N.TagStopped)).text('stop')
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Start').attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagStart)).attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('play_arrow')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Start with Media').attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
+                attr('data-tooltip',  texts.get(N.TagStartWithMedia)).attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
                   $('<i>').addClass('material-icons').text('play_circle_outline')
                 )
             );
             operators.append(
               $('<a>').attr('href', 'snapshots.html?pool=' + poolName + '&instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Snapshots').attr('target', '_blank').append(
+                attr('data-tooltip',  texts.get(N.TagSnapshot)).attr('target', '_blank').append(
                   $('<i>').addClass('material-icons').text('photo_camera')
                 )
             );
             operators.append(
               $('<a>').attr('href', 'build_image.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Build Disk Image').attr('target', '_blank').append(
+                attr('data-tooltip',  texts.get(N.TagBuildDiskImage)).attr('target', '_blank').append(
                   $('<i>').addClass('material-icons').text('cloud_upload')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').attr('onclick', 'confirmDelete("' + instanceName + '","' + instanceID + '")').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Delete').append(
+                attr('data-tooltip',  texts.get(N.TagDelete)).append(
                   $('<i>').addClass('material-icons').text('delete')
                 )
             );
@@ -520,7 +499,7 @@
           autostart = status['auto_start'];
           if (autostart){
             $('#instance-icons').append(
-              $('<i>').addClass('material-icons light-blue-text tooltipped').attr('data-position', 'top').attr('data-tooltip', 'autostart').text('all_inclusive').attr('id', 'autostart-icon')
+              $('<i>').addClass('material-icons light-blue-text tooltipped').attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagAutoStart) + ' ' + texts.get(N.TagEnable)).text('all_inclusive').attr('id', 'autostart-icon')
             );
           }else{
             $('i#autostart-icon').remove();
@@ -603,13 +582,13 @@
       if (attached){
         $('#instance-icons').append(
           $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top')
-            .attr('data-tooltip', 'media attached').text('album').attr('id', iconID)
+            .attr('data-tooltip',  texts.get(N.TagMediaAttached)).text('album').attr('id', iconID)
         );
         if(running){
           $('#' + insertID).remove();
           operators.append(
             $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('id', ejectID).
-              attr('data-tooltip','Eject media').attr('onclick', 'confirmEject("' + instanceName + '","' + instanceID + '")').append(
+              attr('data-tooltip',  texts.get(N.TagEjectMedia)).attr('onclick', 'confirmEject("' + instanceName + '","' + instanceID + '")').append(
                 $('<i>').addClass('material-icons').text('eject')
               )
           );
@@ -620,7 +599,7 @@
           $('#' + ejectID).remove();
           operators.append(
             $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').attr('id', insertID).
-              attr('data-tooltip','Insert Media').attr('onclick', 'selectInsertMedia("' + instanceName + '","' + instanceID + '")').append(
+              attr('data-tooltip',  texts.get(N.TagInsertMedia)).attr('onclick', 'selectInsertMedia("' + instanceName + '","' + instanceID + '")').append(
                 $('<i>').addClass('material-icons').text('arrow_drop_down')
               )
           );

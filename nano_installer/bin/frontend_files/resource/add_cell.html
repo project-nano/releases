@@ -14,24 +14,6 @@
 
 <body>
 
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
   <div class="section">
     <div class="row">
@@ -40,7 +22,7 @@
           <div class="input-field col m4">
             <i class="material-icons prefix">blur_on</i>
             <input type="text" id="pool-name" value="" placeholder="" readonly>
-            <label for="pool-name">Pool Name</label>
+            <label for="pool-name" id="pool-label"></label>
           </div>
         </div>
         <div class="row">
@@ -48,7 +30,7 @@
               <i class="material-icons prefix">view_quilt</i>
               <select name="cell" id="cell-options">
               </select>
-              <label>New Cell</label>
+              <label id="cell-label"></label>
           </div>
         </div>
       </div>
@@ -59,34 +41,31 @@
   <div class="section">
       <div class="row">
           <div class="col m2">
-              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
-                      class="material-icons left">chevron_left</i>Back</a>
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                      class="material-icons left">chevron_left</i></a>
           </div>
-          <div class="col m2 right" id="button">
-              <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="addCell()">Add
+          <div class="col m2 right" id="btn-add">
+              <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="addCell()" id="add-caption">
                   <i class="material-icons right">add</i>
               </button>
           </div>
       </div>
   </div>
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+N.CreateMenuAndFooter();
+var texts = N.GetTexts();
+$('#back-caption').append(texts.get(N.TagBack));
+$('#add-caption').prepend(texts.get(N.TagAdd));
+
+$('#pool-label').text(texts.get(N.TagComputePool));
+$('#cell-label').text(texts.get(N.TagCell));
+
 M.AutoInit();
 var poolName;
 
@@ -122,25 +101,25 @@ function loadOptions(){
 function addCell(){
   var cellName = $('#cell-options').val();
 
-  $('#button').empty();
+  $('#btn-add').empty();
   $('#main-panel').empty();
 
   var table = $('<table>').addClass('striped');
   table.append(
     $('<tr>').append(
-      $('<td>').text('Pool')
+      $('<td>').text(texts.get(N.TagComputePool))
     ).append(
       $('<td>').text(poolName)
     )
   ).append(
     $('<tr>').append(
-      $('<td>').text('Cell')
+      $('<td>').text(texts.get(N.TagCell))
     ).append(
       $('<td>').text(cellName)
     )
   ).append(
     $('<tr>').append(
-      $('<td>').text('Result')
+      $('<td>').text(texts.get(N.TagResult))
     ).append(
       $('<td>').attr('id', 'request-result')
     )
@@ -156,9 +135,9 @@ function addCell(){
         return;
       }
       $('#request-result').text('success');
-      $('#button').append(
+      $('#btn-add').append(
         $('<a>').attr('href', '/compute_cells.html?pool=' + poolName).append(
-          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text('Finish').prepend(
+          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
             $('<i>').addClass('material-icons').text('check')
           )
         )
@@ -179,8 +158,10 @@ $(function(){
   $('#pool-name').val(poolName);
   loadOptions();
 });
+</script>
 
-
+<script nomodule>
+  M.toast({html: 'current browser not support javascript module'});
 </script>
 </body>
 </html>

@@ -11,27 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 </head>
-
 <body>
-
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
     <div class="section">
         <div class="row">
@@ -39,18 +19,18 @@
               <div class="row">
                   <div class="input-field col m4">
                       <input id="image_name" placeholder="input image name" type="text" class="validate" name="name" required>
-                      <label for="image_name">Disk Image Name</label>
+                      <label for="image_name" id="name-label"></label>
                   </div>
               </div>
               <div class="row">
                   <div class="input-field col m8">
                       <textarea id="description" placeholder="descript this image" class="materialize-textarea" required></textarea>
-                      <label for="description">Description</label>
+                      <label for="description" id="description-label"></label>
                   </div>
               </div>
               <div class="row">
                 <div class="col m2">
-                  <label>Tags</label>
+                  <label id="tag-label"></label>
                 </div>
               </div>
               <div class="row">
@@ -58,37 +38,37 @@
                     <div class="row">
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="linux"/>
+                          <input type="checkbox" name="tag" value="linux"/>
                           <span>Linux</span>
                         </label>
                       </div>
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="windows"/>
+                          <input type="checkbox" name="tag" value="windows"/>
                           <span>Windows</span>
                         </label>
                       </div>
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="centos"/>
+                          <input type="checkbox" name="tag" value="centos"/>
                           <span>CentOS</span>
                         </label>
                       </div>
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="ubuntu"/>
+                          <input type="checkbox" name="tag" value="ubuntu"/>
                           <span>Ubuntu</span>
                         </label>
                       </div>
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="64bit"/>
+                          <input type="checkbox" name="tag" value="64bit"/>
                           <span>64Bit</span>
                         </label>
                       </div>
                       <div class="col m3">
                         <label>
-                          <input type="checkbox" value="32bit"/>
+                          <input type="checkbox" name="tag" value="32bit"/>
                           <span>32Bit</span>
                         </label>
                       </div>
@@ -98,7 +78,7 @@
               </div>
               <div class="row">
                 <div class="col m2">
-                  <label>Disk File</label>
+                  <label id="file-label"></label>
                 </div>
               </div>
               <div class="row">
@@ -109,7 +89,7 @@
                         <input class="file-path validate" type="text" placeholder="choose upload file" required>
                       </div>
                       <div class="waves-effect waves-light blue-grey lighten-2 btn-small col m2">
-                        <span>select
+                        <span id="select-label">
                         </span>
                         <input type="file" name="image">
                       </div>
@@ -124,32 +104,35 @@
     <div class="section">
         <div class="row">
             <div class="col m2">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
-                        class="material-icons left">chevron_left</i>Back</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                        class="material-icons left">chevron_left</i></a>
             </div>
             <div class="col m2 right" id="button">
-                <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="uploadImage()">Upload
+                <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="uploadImage()" id="upload-caption">
                     <i class="material-icons right">file_upload</i>
                 </button>
             </div>
         </div>
     </div>
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+N.CreateMenuAndFooter();
+var texts = N.GetTexts();
+$('#back-caption').append(texts.get(N.TagBack));
+$('#upload-caption').prepend(texts.get(N.TagUpload));
+
+$('#name-label').text(texts.get(N.TagImageName));
+$('#description-label').text(texts.get(N.TagDescription));
+$('#tag-label').text(texts.get(N.TagTag));
+$('#file-label').text(texts.get(N.TagImageFile));
+$('#select-label').text(texts.get(N.TagSelect));
+
 M.AutoInit();
 
 function uploadImage(){
@@ -165,7 +148,7 @@ function uploadImage(){
   }
 
   var tags = new Array();
-  $(':checkbox:checked').each(function(){
+  $("input[name='tag']:checkbox:checked").each(function(){
     tags.push($(this).val());
   });
   createImage(imageName, imageDescription, tags);
@@ -218,19 +201,19 @@ function startTransport(name, description, tags, imageId){
       var table = $('<table>').addClass('striped');
       table.append(
         $('<tr>').append(
-          $('<td>').text('Name')
+          $('<td>').text(texts.get(N.TagName))
         ).append(
           $('<td>').text(name)
         )
       ).append(
         $('<tr>').append(
-          $('<td>').text('Description')
+          $('<td>').text(texts.get(N.TagDescription))
         ).append(
           $('<td>').text(description)
         )
       ).append(
         $('<tr>').append(
-          $('<td>').text('Tags')
+          $('<td>').text(texts.get(N.TagTag))
         ).append(
           $('<td>').text(tags.join('/'))
         )
@@ -242,7 +225,7 @@ function startTransport(name, description, tags, imageId){
         )
       ).append(
         $('<tr>').append(
-          $('<td>').text('Result')
+          $('<td>').text(texts.get(N.TagResult))
         ).append(
           $('<td>').attr('id', 'operate_result').append(
             $('<div>').addClass('center').append(
@@ -266,7 +249,7 @@ function startTransport(name, description, tags, imageId){
       $('#operate_result').text('success');
       $('#button').append(
         $('<a>').attr('href', '/images.html').append(
-          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text('Finish').prepend(
+          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
             $('<i>').addClass('material-icons').text('check')
           )
         )

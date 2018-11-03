@@ -24,33 +24,13 @@
         }
     </style>
 </head>
-
 <body>
-
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
     <div class="section">
         <nav class="clean">
             <div class="nav-wrapper">
                 <div class="col s12" id="breadcrumb-path">
-                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                    <a href="/compute_pools.html" class="breadcrumb" id="pool-caption"></a>
                 </div>
             </div>
         </nav>
@@ -59,11 +39,6 @@
     <div class="section">
       <div class="row">
         <div class="col m6 push-m2 s12">
-          <div class="row">
-            <p>
-              <h3 class="flow-text">Instance Detail</h3>
-            </p>
-          </div>
           <div class="row">
             <table class="striped">
               <tbody id="detail">
@@ -79,8 +54,8 @@
     <div class="section">
         <div class="row">
             <div class="col m2">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
-                        class="material-icons left">chevron_left</i>Back</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                        class="material-icons left">chevron_left</i></a>
             </div>
         </div>
     </div>
@@ -186,23 +161,18 @@
     </div>
 
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#pool-caption').text(texts.get(N.TagComputePool));
+    $('#back-caption').append(texts.get(N.TagBack));
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
     var poolName;
     var cellName;
     var instanceID;
@@ -262,7 +232,7 @@
           var autoStart;
           if (ins['auto_start']){
             autoStart = $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-              attr('data-tooltip','enabled').text('all_inclusive');
+              attr('data-tooltip', texts.get(N.TagEnable)).text('all_inclusive');
           }
           var isRunning = ins['running'];
           var monitorAddress;
@@ -276,7 +246,7 @@
             monitorAddress = protocol + "://" + ins['internal']['display_address'];
           }
           var monitorOperator = $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showMonitorPassword()')
-            .attr('data-tooltip','Display').append(
+            .attr('data-tooltip', texts.get(N.TagView)).append(
               $('<i>').addClass('material-icons').text('remove_red_eye')
           );
           var internalAddress = "unavailable";
@@ -291,7 +261,7 @@
           var memoryOperator = $('<td>');
           var passwordOperator = $('<td>').append(
             $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showPassword()')
-            .attr('data-tooltip','Display').append(
+            .attr('data-tooltip', texts.get(N.TagView)).append(
                 $('<i>').addClass('material-icons').text('remove_red_eye')
             )
           );
@@ -299,33 +269,33 @@
               $('<i>').addClass('material-icons').text('lock_outline')
           );
           if (isRunning){
-            coreOperator.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
-            memoryOperator.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+            coreOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenRunning)));
+            memoryOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenRunning)));
             passwordOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showModifyPassword()')
-              .attr('data-tooltip','Change').append(
+              .attr('data-tooltip', texts.get(N.TagChange)).append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
           }else{
             coreOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalCore()')
-                .attr('data-position', 'top').attr('data-tooltip','Change').append(
+                .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
             memoryOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalMemory()')
-                .attr('data-position', 'top').attr('data-tooltip','Change').append(
+                .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
                   $('<i>').addClass('material-icons').text('build')
               )
             );
-            passwordOperator.append(lockICON.clone().attr('data-tooltip','Disabled when stopped'));
+            passwordOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenStopped)));
           }
           container.append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Name")
+                $('<b>').text(texts.get(N.TagName))
               )
             ).append(
               $('<td>').text(ins['name'])
@@ -345,7 +315,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Cores")
+                $('<b>').text(texts.get(N.TagCore))
               )
             ).append(
               $('<td>').attr('id', 'text_core').text(cores)
@@ -355,7 +325,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Memory")
+                $('<b>').text(texts.get(N.TagMemory))
               )
             ).append(
               $('<td>').attr('id', 'text_memory').text(memoryDisplayed)
@@ -365,7 +335,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Password")
+                $('<b>').text(texts.get(N.TagPassword))
               )
             ).append(
               $('<td>').attr('id', 'text_password').text("************")
@@ -378,7 +348,7 @@
             container.append(
               $('<tr>').append(
                 $('<td>').append(
-                  $('<b>').text("Monitor Address")
+                  $('<b>').text(texts.get(N.TagMonitorAddress))
                 )
               ).append(
                 $('<td>').text(monitorAddress)
@@ -388,7 +358,7 @@
             ).append(
               $('<tr>').append(
                 $('<td>').append(
-                  $('<b>').text("Monitor Password")
+                  $('<b>').text(texts.get(N.TagMonitorPassword))
                 )
               ).append(
                 $('<td>').attr('id', 'text_monitor_secret').text("************")
@@ -403,9 +373,9 @@
           var diskName;
           ins['disks'].forEach((diskSize) =>{
             if (0 == index){
-              diskName = 'System Disk';
+              diskName = texts.get(N.TagSystemDisk);
             }else{
-              diskName = 'Data Disk ' + index;
+              diskName = texts.get(N.TagDataDisk) +' ' + index;
             }
             var operators = $('<td>');
             if (isRunning){
@@ -413,11 +383,11 @@
             }else{
               operators.append(
                 $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showExtendDisk(' + index + ')').
-                attr('data-tooltip','Extend Disk').append(
+                attr('data-tooltip', texts.get(N.TagExtend)).append(
                     $('<i>').addClass('material-icons').text('zoom_out_map')
                 )).append(
                 $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').attr('onclick', 'showShrinkDisk(' + index + ')').
-                attr('data-tooltip','Shrink Disk').append(
+                attr('data-tooltip', texts.get(N.TagShrink)).append(
                     $('<i>').addClass('material-icons').text('system_update_alt')
                 ));
             }
@@ -440,7 +410,7 @@
           container.append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Internal Address")
+                $('<b>').text(texts.get(N.TagInternalAddress))
               )
             ).append(
               $('<td>').text(internalAddress)
@@ -450,7 +420,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("External Address")
+                $('<b>').text(texts.get(N.TagExternalAddress))
               )
             ).append(
               $('<td>').text(externalAddress)
@@ -460,7 +430,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("System")
+                $('<b>').text(texts.get(N.TagSystem))
               )
             ).append(
               $('<td>').text(ins['system'])
@@ -470,7 +440,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("AutoStart")
+                $('<b>').text(texts.get(N.TagAutoStart))
               )
             ).append(
               $('<td>').append(
@@ -482,7 +452,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Pool")
+                $('<b>').text(texts.get(N.TagComputePool))
               )
             ).append(
               $('<td>').text(ins['pool'])
@@ -492,7 +462,7 @@
           ).append(
             $('<tr>').append(
               $('<td>').append(
-                $('<b>').text("Cell")
+                $('<b>').text(texts.get(N.TagCell))
               )
             ).append(
               $('<td>').text(ins['cell'])
@@ -504,7 +474,7 @@
             container.append(
               $('<tr>').append(
                 $('<td>').append(
-                  $('<b>').text("Create Time")
+                  $('<b>').text(texts.get(N.TagCreate))
                 )
               ).append(
                 $('<td>').text(ins['create_time'])

@@ -24,33 +24,13 @@
         }
     </style>
 </head>
-
 <body>
-
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
     <div class="section">
         <nav class="clean">
             <div class="nav-wrapper">
                 <div class="col s12" id="breadcrumb-path">
-                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                    <a href="/compute_pools.html" class="breadcrumb" id="pool-caption"></a>
                 </div>
             </div>
         </nav>
@@ -61,7 +41,7 @@
         <div class="col m8 push-m2 s12">
           <div class="row">
             <div class="col m3">
-              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="showCreateSnapshot()"><i class="material-icons left">photo_camera</i>Take Snapshot</a>
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="showCreateSnapshot()" id="create-caption"><i class="material-icons left">photo_camera</i></a>
             </div>
 
           </div>
@@ -81,8 +61,8 @@
     <div class="section">
         <div class="row">
             <div class="col m2">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()"><i
-                        class="material-icons left">chevron_left</i>Back</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                        class="material-icons left">chevron_left</i></a>
             </div>
         </div>
     </div>
@@ -125,23 +105,20 @@
     </div>
 
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#pool-caption').text(texts.get(N.TagComputePool));
+    $('#create-caption').append(texts.get(N.TagCreate));
+    $('#back-caption').append(texts.get(N.TagBack));
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
     var poolName;
     var cellName;
     var instanceID;
@@ -256,7 +233,7 @@
             cellContent.append(
               $('<div>').addClass('col m1').append(
                 $('<i>').addClass('material-icons blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','current snapshot').text('pets')
+                  attr('data-tooltip', texts.get(N.TagCurrentSnapshot)).text('pets')
               )
             );
           }
@@ -449,17 +426,17 @@
               $('<div>').addClass('card-content white-text').append(
                 $('<span>').addClass('card-title').text(name)
               ).append(
-                $('<p>').text("Create Time: " + createTime)
+                $('<p>').text(texts.get(N.TagCreate) + ": " + createTime)
               ).append(
                 $('<p>').text(description)
               )
             ).append(
               $('<div>').addClass('card-action').append(
-                $('<a>').addClass('white-text').attr('onclick', 'confirmRestore("' + name +'")').attr('href', '#').text("Restore").prepend(
+                $('<a>').addClass('white-text').attr('onclick', 'confirmRestore("' + name +'")').attr('href', '#').text(texts.get(N.TagRestore)).prepend(
                   $('<i>').addClass('material-icons').text('restore')
                 )
               ).append(
-                $('<a>').addClass('white-text').attr('onclick', 'confirmDelete("' + name +'")').attr('href', '#').text("Delete").prepend(
+                $('<a>').addClass('white-text').attr('onclick', 'confirmDelete("' + name +'")').attr('href', '#').text(texts.get(N.TagDelete)).prepend(
                   $('<i>').addClass('material-icons').text('delete_forever')
                 )
               )

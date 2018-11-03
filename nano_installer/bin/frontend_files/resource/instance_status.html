@@ -25,36 +25,15 @@
     </style>
 
   </head>
-
   <body>
 
-    <nav class="blue-grey ">
-      <div class="container">
-        <div class="nav-wrapper">
-          <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-      </div>
-    </nav>
   <div class="container">
     <div class="section">
       <nav class="clean">
          <div class="nav-wrapper">
            <div class="col s12" id="breadcrumb-path">
-              <a href="dashboard.html" class="breadcrumb">Zone</a>
-              <a href="pool_status.html" class="breadcrumb">Compute pools</a>
-              <!-- <a href="cell_status.html?pool=default" class="breadcrumb">default</a>
-              <a href="#" class="breadcrumb">cell_ae7ec22d3c</a> -->
+             <a href="dashboard.html" class="breadcrumb" id="zone-caption"></a>
+             <a href="pool_status.html" class="breadcrumb" id="pool-caption"></a>
             </div>
         </div>
       </nav>
@@ -66,26 +45,19 @@
       </div>
     </div>
   </div>
-  <footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-      <div class="container">
-      © 2018 Copyright Project Nano. All rights reserved.
-      </div>
-    </div>
-  </footer>
 
   <!--JavaScript at end of body for optimized loading-->
   <script type="text/javascript" src="js/materialize.min.js"></script>
   <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
   <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
+  <script type="text/javascript" src="js/nano.js"></script>
   <script>
-    M.AutoInit();
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#zone-caption').text(texts.get(N.TagZone));
+    $('#pool-caption').text(texts.get(N.TagComputePool));
 
+    M.AutoInit();
     var poolName;
     var cellName;
     function parseQueryString(){
@@ -123,17 +95,17 @@
       );
       var tbody = $('<tbody>').append(
         $('<tr>').append(
-          $('<td>').text('Cores')
+          $('<td>').text(texts.get(N.TagCore))
         ).append(
           $('<td>').attr('id', 'core-' + instanceID)
         ).append(
-          $('<td>').text('Disk')
+          $('<td>').text(texts.get(N.TagDisk))
         ).append(
           $('<td>').attr('id', 'disk-' + instanceID)
         )
       ).append(
         $('<tr>').append(
-          $('<td>').text('Memory')
+          $('<td>').text(texts.get(N.TagMemory))
         ).append(
           $('<td>').attr('id', 'memory-' + instanceID)
         ).append(
@@ -172,7 +144,7 @@
         $('#action-' + instanceID).empty();
         if (created){
           //not created => created
-          $('#action-' + instanceID).append($('<a>', {'href': 'monitor_instance_status.html?cell='+ cellName + '&pool=' + poolName + '&instance=' + instanceID,  'data-position': 'bottom', 'data-tooltip': 'Monitor'}).addClass('blue-grey-text tooltipped').append(
+          $('#action-' + instanceID).append($('<a>', {'href': 'monitor_instance_status.html?cell='+ cellName + '&pool=' + poolName + '&instance=' + instanceID,  'data-position': 'bottom', 'data-tooltip': texts.get(N.TagMonitor)}).addClass('blue-grey-text tooltipped').append(
             $('<i>').addClass('material-icons').text('insert_chart')
           ));
         }else{
@@ -201,7 +173,7 @@
           $('#icon-' + instanceID).append(
             $('<i>').text('play_arrow').addClass(
               'material-icons green-text darken-2 tooltipped'
-            ).attr('data-position', 'top').attr('data-tooltip', 'running').attr('id', 'running-icon-' + instanceID)
+            ).attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagRunning)).attr('id', 'running-icon-' + instanceID)
           )
         }else{
           //running=>stop
@@ -211,10 +183,11 @@
           $('#icon-' + instanceID).append(
             $('<i>').text('stop').addClass(
               'material-icons red-text darken-2 tooltipped'
-            ).attr('data-position', 'top').attr('data-tooltip', 'stopped').attr('id', 'stop-icon-' + instanceID)
+            ).attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagStopped)).attr('id', 'stop-icon-' + instanceID)
           )
         }
       }
+      M.Tooltip.init($('.tooltipped'));
     }
 
     function updateDashboard(){

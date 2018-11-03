@@ -27,30 +27,12 @@
 
 <body>
 
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
     <div class="section">
         <nav class="clean">
             <div class="nav-wrapper">
                 <div class="col s12">
-                    <a href="#" class="breadcrumb">Compute Pools</a>
+                    <a href="#" class="breadcrumb" id="title-caption"></a>
                 </div>
             </div>
         </nav>
@@ -59,7 +41,7 @@
     <div class="section">
         <div class="row">
             <div class="col m3">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn" href="create_pool.html"><i class="material-icons left">add</i>Create</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" href="create_pool.html" id="create-caption"><i class="material-icons left">add</i></a>
             </div>
         </div>
     </div>
@@ -76,23 +58,19 @@
         </div>
     </div>
 </div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
-        </div>
-    </div>
-</footer>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#title-caption').text(texts.get(N.TagComputePool));
+    $('#create-caption').append(texts.get(N.TagAdd));
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
     M.AutoInit();
     function refresh(){
       location.reload();
@@ -114,6 +92,10 @@
             outputMessage(result['message']);
             return;
           }
+          if (!result['data']){
+            outputMessage('no compute pool available');
+            return
+          }
           if (0 == result['data'].length){
             outputMessage('no compute pool available');
             return;
@@ -122,23 +104,25 @@
           var table = $('<table>').append(
             $('<thead>').append(
               $('<tr>').append(
-                $('<td>').text('Compute Pool').prepend(
+                $('<td>').text(texts.get(N.TagComputePool)).prepend(
                   $('<i>').addClass('material-icons blue-gray-text darken-2').text('blur_on')
                 )
               ).append(
-                $('<td>').text('Cells').prepend(
+                $('<td>').text(texts.get(N.TagCell)).prepend(
                   $('<i>').addClass('material-icons blue-gray-text darken-2').text('view_quilt')
                 )
               ).append(
-                $('<td>').text('Network').prepend(
+                $('<td>').text(texts.get(N.TagNetwork)).prepend(
                   $('<i>').addClass('material-icons blue-gray-text darken-2').text('share')
                 )
               ).append(
-                $('<td>').text('Storage').prepend(
+                $('<td>').text(texts.get(N.TagStorage)).prepend(
                   $('<i>').addClass('material-icons blue-gray-text darken-2').text('storage')
                 )
               ).append(
-                $('<td>').text('Status')
+                $('<td>').text(texts.get(N.TagFailover))
+              ).append(
+                $('<td>').text(texts.get(N.TagStatus))
               ).append($('<td>'))
             )
           );
@@ -146,7 +130,7 @@
             var content = $('<tr>');
             var storage = pool['storage'];
             if (!storage){
-              storage = 'local storage';
+              storage = texts.get(N.TagLocalStorage);
             }
             content.append(
               $('<td>').text(pool['name'])
@@ -158,17 +142,28 @@
               $('<td>').text(storage)
             );
             var operators = $('<td>');
+            if (pool['failover']){
+              //failover enabled
+              content.append(
+                $('<td>').append(
+                  $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
+                    attr('data-tooltip', texts.get(N.TagEnable)).text('autorenew')
+                )
+              );
+            }else{
+              content.append($('<td>'));
+            }
             //Status
             if (pool['enabled']){
               content.append(
                 $('<td>').append(
                   $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','enabled').text('check')
+                    attr('data-tooltip', texts.get(N.TagEnable)).text('check')
                 )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                  attr('data-tooltip','Disable').append(
+                  attr('data-tooltip', texts.get(N.TagDisable)).append(
                     $('<i>').addClass('material-icons').text('do_not_disturb')
                   )
               );
@@ -176,37 +171,37 @@
               content.append(
                 $('<td>').append(
                   $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','disabled').text('do_not_disturb')
+                    attr('data-tooltip', texts.get(N.TagDisable)).text('do_not_disturb')
                 )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                  attr('data-tooltip','Enable').append(
+                  attr('data-tooltip', texts.get(N.TagEnable)).append(
                     $('<i>').addClass('material-icons').text('check')
                   )
               );
             }
             operators.append(
               $('<a>').attr('href', '/compute_cells.html?pool=' + pool['name']).addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip','Cells').append(
+                attr('data-tooltip', texts.get(N.TagCell)).append(
                   $('<i>').addClass('material-icons').text('view_quilt')
                 )
             );
             operators.append(
               $('<a>').attr('href', '/instance_list.html?pool=' + pool['name']).addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip','Instances').append(
+                attr('data-tooltip', texts.get(N.TagInstance)).append(
                   $('<i>').addClass('material-icons').text('cloud_queue')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip','Modify').attr('href', 'modify_pool.html?pool=' + pool['name']).append(
+                attr('data-tooltip', texts.get(N.TagModify)).attr('href', 'modify_pool.html?pool=' + pool['name']).append(
                   $('<i>').addClass('material-icons').text('build')
                 )
             );
             operators.append(
               $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip','Delete').attr('onclick', 'confirmDelete("'+ pool['name'] +'")').append(
+                attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'confirmDelete("'+ pool['name'] +'")').append(
                   $('<i>').addClass('material-icons').text('delete')
                 )
             );
@@ -243,10 +238,6 @@
            setTimeout(refresh, 500);
        }
       });
-    }
-
-    function modifyPool(id) {
-        M.toast({html: 'todo: mofidy pool ' + id});
     }
 
     $(function(){

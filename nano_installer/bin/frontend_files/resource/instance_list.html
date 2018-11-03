@@ -24,33 +24,14 @@
         }
     </style>
 </head>
-
 <body>
 
-<nav class="blue-grey ">
-    <div class="container">
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Nano</a>
-            <ul id="nav-mobile" class="right">
-                <li class="hide-on-small-only"><a href="dashboard.html"><i class="material-icons left">multiline_chart</i>Dashboard</a></li>
-                <li class="hide-on-small-only"><a href="compute_pools.html"><i class="material-icons left">blur_on</i>Resource Pool</a></li>
-                <li class="hide-on-small-only"><a href="storages.html"><i class="material-icons left">storage</i>Storage</a></li>
-                <li class="hide-on-small-only"><a href="instances.html"><i class="material-icons left">cloud</i>Instances</a></li>
-                <li class="hide-on-small-only"><a href="images.html"><i class="material-icons left">content_copy</i>Images</a></li>
-                <li class="hide-on-small-only"><a href="medias.html"><i class="material-icons left">album</i>Medias</a></li>
-                <li class="hide-on-small-only"><a href="#"><i class="material-icons left">people</i>Users</a></li>
-                <li class="hide-on-med-and-up"><a href="#"><i class="material-icons right">menu</i>Menu</a></li>
-            </ul>
-
-        </div>
-    </div>
-</nav>
 <div class="container">
     <div class="section">
         <nav class="clean">
             <div class="nav-wrapper">
                 <div class="col s12" id="breadcrumb-path">
-                    <a href="/compute_pools.html" class="breadcrumb">Compute Pools</a>
+                    <a href="/compute_pools.html" class="breadcrumb" id="pool-caption"></a>
                 </div>
             </div>
         </nav>
@@ -59,18 +40,9 @@
     <div class="section">
         <div class="row">
             <div class="col m3">
-                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i>Create Instance</a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i></a>
             </div>
-            <div class="col m3 push-m6">
-                <span>Auto Refresh</span>
-                  <div class="switch">
-                      <label>
-                          Off
-                          <input type="checkbox" checked onclick="onAutoFreshSwitched()" id="cb_autofresh">
-                          <span class="lever"></span>
-                          On
-                      </label>
-                  </div>
+            <div class="col m3 push-m6" id="autofresh">
             </div>
         </div>
     </div>
@@ -131,24 +103,55 @@
             <a href="#" class="modal-close waves-effect waves-green btn-flat" id="eject_confirm_link">Yes</a>
         </div>
     </div>
-</div>
-<footer class="page-footer  blue-grey darken-3">
-    <div class="container">
-        <!-- <div class="col s6 m2">
-          <h4>Help</h4>
-        </div> -->
-    </div>
-    <div class="footer-copyright">
-        <div class="container">
-            © 2018 Copyright Project Nano. All rights reserved.
+    <div class="modal" id="migrate-modal">
+        <!--hide model -->
+        <div class="modal-content">
+            <h4>Migrate Instance</h4>
+            <div class="row">
+              <p id="migrate-content">
+              </p>
+              <input type="hidden" id="migrate-pool">
+              <input type="hidden" id="migrate-source">
+            </div>
+            <div class="row">
+              <div class="input-field col m4">
+                  <select name="migrate-target" id="migrate-target-options">
+                  </select>
+                  <label>Target Cell</label>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="migrate-confirm-link"></a>
         </div>
     </div>
-</footer>
+</div>
 
 <!--JavaScript at end of body for optimized loading-->
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="/js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+    $('#create_button').append(texts.get(N.TagCreate));
+    $('#pool-caption').text(texts.get(N.TagComputePool));
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
+    //auto fresh switch
+    $('#autofresh').append(
+      $('<span>').text(texts.get(N.TagAutoFresh))
+    ).append(
+      $('<div>').addClass('switch').append(
+        $('<label>').append(texts.get(N.TagOff)).append(
+          $('<input>').attr('type', 'checkbox').attr('onclick', 'onAutoFreshSwitched()').attr('id', 'switch-autofresh').prop('checked', true)
+        ).append(
+          $('<span>').addClass('lever')
+        ).append(texts.get(N.TagOn))
+      )
+    )
     var poolName;
     var cellName;
 
@@ -182,6 +185,9 @@
     }
 
     function loadInstances(){
+      if (!poolName){
+        return;
+      }
       var url = "/guest_search/?pool=" + poolName;
       if (cellName){
         url += "&cell=" + cellName;
@@ -193,6 +199,11 @@
             outputMessage(result['message']);
             return;
           }
+          if (!result['data']){
+            outputMessage('no instance available');
+            $('#instance_list').empty();
+            return
+          }
           if (0 == result['data'].length){
             outputMessage('no instance available');
             return;
@@ -202,19 +213,19 @@
           var table = $('<table>').append(
             $('<thead>').append(
               $('<tr>').append(
-                $('<td>').text('Name')
+                $('<td>').text(texts.get(N.TagName))
               ).append(
-                $('<td>').text('Cell')
+                $('<td>').text(texts.get(N.TagCell))
               ).append(
-                $('<td>').text('Address')
+                $('<td>').text(texts.get(N.TagAddress))
               ).append(
-                $('<td>').text('Cores')
+                $('<td>').text(texts.get(N.TagCore))
               ).append(
-                $('<td>').text('Memory')
+                $('<td>').text(texts.get(N.TagMemory))
               ).append(
-                $('<td>').text('Disk')
+                $('<td>').text(texts.get(N.TagDisk))
               ).append(
-                $('<td>').text('Status')
+                $('<td>').text(texts.get(N.TagStatus))
               ).append($('<td>'))
             )
           );
@@ -266,96 +277,104 @@
             if (instance['lost']){
               status.append(
                 $('<i>').addClass('material-icons orange-text darken-2 tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','lost').text('cloud_off')
+                  attr('data-tooltip', texts.get(N.TagLost)).text('cloud_off')
               );
             }
             else if (instance['running']){
+              //running
               status.append(
                 $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','running').text('play_arrow')
+                  attr('data-tooltip', texts.get(N.TagRunning)).text('play_arrow')
               );
               operators.append(
                 $('<a>').attr('href', 'instance_control.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Control').attr('target', '_blank').append(
+                  attr('data-tooltip', texts.get(N.TagRemoteControl)).attr('target', '_blank').append(
                     $('<i>').addClass('material-icons').text('desktop_windows')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Stop').attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagStop)).attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('power_settings_new')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Force Stop').attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagForceStop)).attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('power')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Reboot').attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagReboot)).attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('rotate_right')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Force Reboot').attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagForceReboot)).attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('refresh')
                   )
               );
               if (mediaAttached){
                 status.append(
                     $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-                      attr('data-tooltip','media attached').text('album')
+                      attr('data-tooltip', texts.get(N.TagMediaAttached)).text('album')
                 );
                 operators.append(
                   $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','Eject media').attr('onclick', 'confirmEject("' + instanceName + '","' + instanceID + '")').append(
+                    attr('data-tooltip', texts.get(N.TagEjectMedia)).attr('onclick', 'confirmEject("' + instanceName + '","' + instanceID + '")').append(
                       $('<i>').addClass('material-icons').text('eject')
                     )
                 );
               }else{
                 operators.append(
                   $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','Insert Media').attr('onclick', 'selectInsertMedia("' + instanceName + '","' + instanceID + '")').append(
+                    attr('data-tooltip', texts.get(N.TagInsertMedia)).attr('onclick', 'selectInsertMedia("' + instanceName + '","' + instanceID + '")').append(
                       $('<i>').addClass('material-icons').text('arrow_drop_down')
                     )
                 );
               }
             }else{
+              //stopped
               status.append(
                   $('<i>').addClass('material-icons red-text darken-4 tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','stopped').text('stop')
+                    attr('data-tooltip', texts.get(N.TagStopped)).text('stop')
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Start').attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagStart)).attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('play_arrow')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Start with Media').attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagStartWithMedia)).attr('onclick', 'selectMedia("' + instanceName + '","' + instanceID + '")').append(
                     $('<i>').addClass('material-icons').text('play_circle_outline')
                   )
               );
               operators.append(
                 $('<a>').attr('href', 'snapshots.html?pool=' + poolName + '&instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Snapshots').attr('target', '_blank').append(
+                  attr('data-tooltip', texts.get(N.TagSnapshot)).attr('target', '_blank').append(
                     $('<i>').addClass('material-icons').text('photo_camera')
                   )
               );
               operators.append(
                 $('<a>').attr('href', 'build_image.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Build Disk Image').attr('target', '_blank').append(
+                  attr('data-tooltip', texts.get(N.TagBuildDiskImage)).attr('target', '_blank').append(
                     $('<i>').addClass('material-icons').text('cloud_upload')
                   )
               );
               operators.append(
                 $('<a>').attr('href', '#').attr('onclick', 'confirmDelete("' + instanceName + '","' + instanceID + '")').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip','Delete').append(
+                  attr('data-tooltip', texts.get(N.TagDelete)).append(
                     $('<i>').addClass('material-icons').text('delete')
+                  )
+              );
+              operators.append(
+                $('<a>').attr('href', '#').attr('onclick', 'confirmMigrate("' + instanceName + '","' + instanceID + '")').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip', texts.get(N.TagMigrate)).append(
+                    $('<i>').addClass('material-icons').text('local_shipping')
                   )
               );
             }
@@ -364,7 +383,7 @@
             if (instance['auto_start']){
               status.append(
                   $('<i>').addClass('material-icons green-text darken-2 tooltipped').attr('data-position', 'top').
-                    attr('data-tooltip','autostarted').text('all_inclusive')
+                    attr('data-tooltip', texts.get(N.TagAutoStart) + ' ' + texts.get(N.TagEnable)).text('all_inclusive')
                 );
             }
 
@@ -377,13 +396,13 @@
             }
             operators.append(
               $('<a>').attr('href', monitorUrl).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Monitor').attr('target', '_blank').append(
+                attr('data-tooltip', texts.get(N.TagMonitor)).attr('target', '_blank').append(
                   $('<i>').addClass('material-icons').text('show_chart')
                 )
             );
             operators.append(
               $('<a>').attr('href', detailURL).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                attr('data-tooltip','Details').attr('target', '_blank').append(
+                attr('data-tooltip', texts.get(N.TagDetail)).attr('target', '_blank').append(
                   $('<i>').addClass('material-icons').text('settings')
                 )
             );
@@ -633,10 +652,115 @@
       });
     }
 
+    //migrate instance
+    function confirmMigrate(name, id){
+      $('#migrate-confirm-link').attr('onclick', 'migrateInstance("' + name + '", "' + id +'")');
+      $.getJSON(
+        '/guests/' + id,
+        function(result){
+          if (0 != result['error_code']) {
+            M.toast({html: 'get instance config fail: ' + result['message']});
+            return;
+          }
+          if (!result['data']){
+            M.toast({html: 'no config available for instance "' + name + '"'});
+            return;
+          }
+          var config = result['data'];
+          var poolName = config['pool'];
+          var currentCell = config['cell'];
+          $.getJSON(
+            '/compute_pool_cells/' + poolName,
+            function(result){
+              if (0 != result['error_code']) {
+                M.toast({html: 'query cells fail: ' + result['message']});
+                return;
+              }
+              if (!result['data']){
+                M.toast({html: 'no cell available in pool "' + poolName + '"'});
+                return;
+              }
+              if (0 == result['data'].length){
+                M.toast({html: 'no cell available in pool "' + poolName + '"'});
+                return;
+              }
+              var options = $('#migrate-target-options').empty();
+              var currentAddress = "";
+              result['data'].forEach((cell)=>{
+                var cellName = cell['name'];
+                var displayText = cellName + '('+ cell['address']+')';
+                if (cellName == currentCell){
+                  currentAddress = displayText;
+                  return;
+                }
+                if (!cell['enabled']){
+                  options.append(
+                    $('<option>').attr('value', cellName).text(displayText + ' - Disabled').prop('disabled', true)
+                  );
+                }else if(!cell['alive']){
+                  options.append(
+                    $('<option>').attr('value', cellName).text(displayText + ' - Lost').prop('disabled', true)
+                  );
+                }else{
+                  options.append(
+                    $('<option>').attr('value', cellName).text(displayText)
+                  );
+                }
+              });
+              M.FormSelect.init($('#migrate-target-options'));
+              if (currentAddress){
+                $('#migrate-content').text('Migrate instance "' + name + '" from "' + currentAddress + '" to');
+              }else{
+                $('#migrate-content').text('Migrate instance "' + name + '" from "' + currentCell + '" to');
+              }
+              $('#migrate-pool').val(poolName);
+              $('#migrate-source').val(currentCell);
+              var instance = M.Modal.getInstance($('#migrate-modal'));
+              instance.open();
+            }
+          );
+        }
+      );
+
+    }
+
+    function migrateInstance(name, id){
+      var poolName = $('#migrate-pool').val();
+      var sourceCell = $('#migrate-source').val();
+      var targetCell = $('#migrate-target-options').val();
+      if (!targetCell){
+        M.toast({html: "invalid target cell"});
+        return;
+      }
+      var request = new Object();
+      request.source_pool = poolName;
+      request.source_cell = sourceCell;
+      request.target_cell = targetCell;
+      request.instances = [id];
+      $.post(
+        '/migrations/',
+        JSON.stringify(request),
+        function(result){
+          if (0 != result['error_code']) {
+            M.toast({html: 'migrate instance fail: ' + result['message']});
+            return;
+          }
+          if (!result['data']){
+            M.toast({html: 'migrate summited, but no data available'});
+            return;
+          }
+          var migration = result['data'];
+          M.toast({html: 'try migrate "'+ name +'" to "'+targetCell+'"'});
+        },
+        "json"
+      );
+    }
+
+
     var intervalID;
     var refreshInterval = 5*1000;
     function onAutoFreshSwitched(){
-      var autoFresh = $('#cb_autofresh').prop( "checked");
+      var autoFresh = $('#switch-autofresh').prop( "checked");
       if (autoFresh){
         intervalID = setInterval(refresh, refreshInterval);
         M.toast({html: "Auto Fresh Enabled"});
@@ -667,7 +791,7 @@
         );
       }
       $('#breadcrumb-path').append(
-        $('<a>').addClass('breadcrumb').text('Instances').attr('href','#')
+        $('<a>').addClass('breadcrumb').text(texts.get(N.TagInstance)).attr('href','#')
       );
 
       $('#create_button').attr('href',  createURL);
