@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Address Pool Detail</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        nav.clean {
+            background: none;
+            box-shadow: none;
+        }
+
+        .breadcrumb:before {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .breadcrumb, .breadcrumb:last-child {
+            color: rgba(0, 0, 0, 1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="section">
+      <div class="row">
+        <div class="col m5 s8">
+          <div class="row">
+            <div class="col m4 s4">
+              <b><span id="name-label"></span></b>
+            </div>
+            <div class="col m8 s8">
+              <span id="pool-name"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col m4 s4">
+              <b><span id="gateway-label"></span></b>
+            </div>
+            <div class="col m8 s8">
+              <span id="pool-gateway"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col m4 s4">
+              <b><span id="dns-label"></span></b>
+            </div>
+            <div class="col m8 s8">
+              <span id="pool-dns"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+          <div class="col m2">
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                      class="material-icons left">chevron_left</i></a>
+          </div>
+          <div class="col m2">
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" id="modify-button"><i
+                      class="material-icons left">build</i></a>
+          </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m3">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="add-button"><i class="material-icons left">add</i></a>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col m8 s12" id="range-list">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col m6 s10" id="allocated-list">
+          </div>
+        </div>
+    </div>
+    <div class="modal" id="modal_confirm">
+        <div class="modal-content">
+            <h4>Delete Confirm</h4>
+            <p id="confirm_content"></p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link"></a>
+        </div>
+    </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
+<script>
+    N.CreateMenuAndFooter();
+    var texts = N.GetTexts();
+
+    $('#add-button').append(texts.get(N.TagAdd));
+    $('#back-caption').append(texts.get(N.TagBack));
+    $('#modify-button').append(texts.get(N.TagModify));
+    $('#name-label').text(texts.get(N.TagAddressPool));
+    $('#gateway-label').text(texts.get(N.TagGateway));
+    $('#dns-label').text(texts.get(N.TagDNS));
+
+    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
+    M.AutoInit();
+    var poolName;
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    function loadPoolConfig(){
+      $.getJSON("/address_pools/" + poolName, function(result){
+        if (0 != result['error_code']) {
+            M.toast({html: 'get address pool fail:' + result['message']});
+            return;
+        }
+        var pool = result['data'];
+        var gateway = pool['gateway'];
+        var dns = pool['dns'];
+        if (!gateway){
+          M.toast({html: 'no gateway available'});
+          return;
+        }
+        if (!dns){
+          M.toast({html: 'no dns available'});
+          return;
+        }
+        if (0 == dns.length){
+          M.toast({html: 'no dns available'});
+          return;
+        }
+        $('#pool-name').text(poolName);
+        $('#pool-gateway').text(gateway);
+        $('#pool-dns').text(dns.join(';'));
+        $('#modify-button').attr('href', 'modify_address_pool.html?pool=' + poolName);
+        $('#add-button').attr('href', 'add_address_range.html?pool=' + poolName);
+        //ranges
+        var rangeList = $('#range-list').empty();
+        var ranges = pool['ranges'];
+        if (!ranges || 0 == ranges.length){
+          rangeList.append(
+            $('<p>').text('no address ranges available, please add some address')
+          );
+        }else{
+          var tbody = $('<tbody>');
+          ranges.forEach((range) =>{
+            var rangeStart = range['start'];
+            var row = $('<tr>').append(
+              $('<td>').text(rangeStart)
+            ).append(
+              $('<td>').text(range['end'])
+            ).append(
+              $('<td>').text(range['netmask'])
+            );
+            var operators = $('<td>').append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip', texts.get(N.TagDetail)).attr('href', 'address_range_detail.html?pool=' + poolName + '&type=internal&start=' + rangeStart).append(
+                  $('<i>').addClass('material-icons').text('remove_red_eye')
+                )
+            ).append(
+              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'confirmRemove("'+ rangeStart +'")').append(
+                  $('<i>').addClass('material-icons').text('delete')
+                )
+            );
+            tbody.append(
+              row.append(
+                operators
+              )
+            );
+          });
+          rangeList.append(
+            $('<table>').append(
+              $('<thead>').append(
+                $('<tr>').append(
+                  $('<th>').text(texts.get(N.TagStartAddress))
+                ).append(
+                  $('<th>').text(texts.get(N.TagEndAddress))
+                ).append(
+                  $('<th>').text(texts.get(N.TagNetmask))
+                ).append(
+                  $('<th>')
+                )
+              )
+            ).append(
+              tbody
+            )
+          );
+        }
+        var allocated = pool['allocated'];
+        if (allocated && allocated.length > 0){
+          var container = $('<tbody>');
+          allocated.forEach((pair) =>{
+              container.append(
+                $('<tr>').append(
+                  $('<td>').text(pair['address'])
+                ).append(
+                  $('<td>').append(
+                    $('<a>').attr('href', 'instance_detail.html?pool=' + poolName + '&instance=' + pair['instance']).attr('target', '_blank').text(pair['instance'])
+                  )
+                )
+              );
+          });
+
+          $('#allocated-list').empty().append(
+            $('<table>').append(
+              $('<thead>').append(
+                $('<tr>').append(
+                  $('<th>').text(texts.get(N.TagAllocated))
+                ).append(
+                  $('<th>').text(texts.get(N.TagInstance))
+                )
+              )
+            ).append(
+              container
+            )
+          );
+        }
+      });
+    }
+
+    function refresh(){
+      loadPoolConfig();
+    }
+
+
+    function confirmRemove(start){
+      $('#confirm_content').text('Are you sure to remove address range from ' + start);
+      $('#confirm_link').attr('onclick', 'removeRange("' + start + '")');
+      var instance = M.Modal.getInstance($('.modal'));
+      instance.open();
+    }
+
+    function removeRange(startAddress) {
+      $.ajax({
+       url:'/address_pools/' + poolName + '/internal/ranges/' + startAddress,
+       type: "DELETE",
+       dataType: "json",
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'delete range fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'address range "' + startAddress + '" removed'})
+           setTimeout(refresh, 500);
+       }
+      });
+    }
+
+    $(function(){
+      var params = parseQueryString();
+      if (!params.has('pool')){
+        M.toast({html: 'must specify pool name'})
+        return;
+      }
+      poolName = params.get('pool');
+      M.Modal.init($('.modal'));
+      loadPoolConfig();
+    });
+
+</script>
+</body>
+</html>

@@ -15,11 +15,18 @@
 <div class="container">
   <div class="section">
     <div class="row">
-      <div class="col m6 push-m2" id="main-panel">
+      <div class="col m8 push-m2" id="main-panel">
         <div class="row">
           <div class="input-field col m6">
             <input type="text" id="pool-name" readonly>
             <label for="pool-name" id="name-label"></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col m6">
+              <select name="network" id="pool-network">
+              </select>
+              <label id="network-label"></label>
           </div>
         </div>
         <div class="row">
@@ -65,6 +72,7 @@ $('#back-caption').append(texts.get(N.TagBack));
 $('#modify-caption').prepend(texts.get(N.TagModify));
 
 $('#name-label').text(texts.get(N.TagName));
+$('#network-label').text(texts.get(N.TagAddressPool));
 $('#storage-label').text(texts.get(N.TagStoragePool));
 $('#failover-label').text(texts.get(N.TagFailover));
 $('#failover-div').append(
@@ -74,7 +82,12 @@ $('#failover-div').append(
     $('<span>').addClass('lever')
   ).append(texts.get(N.TagOn))
 );
-
+var localStorageText = "use local storage";
+var noNetworkText = "don't use address pool";
+if (N.zh_CN == N.GetLanguage()){
+  localStorageText = "使用本地存储";
+  noNetworkText = "不使用地址池";
+}
 M.AutoInit();
 
 var poolName;
@@ -103,8 +116,10 @@ function loadPoolConfig(){
           return;
       }
       $('#pool-name').val(poolName);
+      M.updateTextFields();
       var pool = result['data'];
       var currentStorage = pool['storage'];
+      var currentNetwork = pool['network'];
       if (pool['failover']){
         //enable
         $('#failover-switch').prop('checked', true);
@@ -116,33 +131,55 @@ function loadPoolConfig(){
               M.toast({html: 'query storage pool fail:' + result['message']});
               return;
           }
+          var storageOptions = $('#pool-storage');
+          var localOption = $('<option>').attr('value', "").text(localStorageText);
+          if ('' == currentStorage){
+            localOption.prop('selected', true);
+          }
+          storageOptions.append(
+            localOption
+          );
           var storages = result['data'];
           if (!storages){
-            $('#pool-storage').append(
-              $('<option>').attr('value', "").text("default (using local storage)")
-            );
+            M.FormSelect.init(storageOptions);
             return;
-          }
-          var storageOptions = $('#pool-storage');
-          if ('' == currentStorage){
-            storageOptions.append(
-              $('<option>').attr('value', "").text("local storage").attr('selected', 'selected')
-            );
-          }else{
-            storageOptions.append(
-              $('<option>').attr('value', "").text("local storage")
-            );
           }
 
           storages.forEach((storage)=>{
             var option = $('<option>').attr('value', storage['name']).text(storage['name'] + ' (' + storage['type'] +')')
             if (storage['name'] == currentStorage){
-              option.attr('selected', 'selected');
+              option.prop('selected', true);
             }
             storageOptions.append(option);
           });
           M.FormSelect.init(storageOptions);
-          M.updateTextFields();
+        });
+      $.getJSON(
+        "/address_pools/",
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'query address pool fail:' + result['message']});
+              return;
+          }
+          var networkOptions = $('#pool-network');
+          var noNetworkOption = $('<option>').attr('value', "").text(noNetworkText);
+          if ('' == currentNetwork){
+            noNetworkOption.prop('selected', true);
+          }
+          networkOptions.append(noNetworkOption);
+          var networks = result['data'];
+          if (!networks){
+            M.FormSelect.init(networkOptions);
+            return;
+          }
+          networks.forEach((network)=>{
+            var option = $('<option>').attr('value', network['name']).text(network['name']);
+            if (network['name'] == currentNetwork){
+              option.prop('selected', true);
+            }
+            networkOptions.append(option);
+          });
+          M.FormSelect.init(networkOptions);
         });
     });
 }
@@ -154,11 +191,18 @@ function modifyPool(){
     M.toast({html: "please input pool name"});
     return;
   }
+  var poolNetwork = $('#pool-network').val();
 
   var request = new Object();
   request.storage = poolStorage;
+  var storageText = poolStorage;
   if ('' == poolStorage){
-    poolStorage = "local storage";
+    storageText = localStorageText;
+  }
+  request.network = poolNetwork;
+  var networkText = poolNetwork;
+  if ('' == poolNetwork){
+    networkText = noNetworkText;
   }
   request.failover = $('#failover-switch').prop('checked');
   var failoverText = texts.get(N.TagDisable);
@@ -178,9 +222,15 @@ function modifyPool(){
     )
   ).append(
     $('<tr>').append(
-      $('<td>').text(texts.get(N.TagStorage))
+      $('<td>').text(texts.get(N.TagAddressPool))
     ).append(
-      $('<td>').text(poolStorage)
+      $('<td>').text(networkText)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagStoragePool))
+    ).append(
+      $('<td>').text(storageText)
     )
   ).append(
     $('<tr>').append(

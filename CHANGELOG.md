@@ -1,5 +1,51 @@
 # Change Log
 
+## [0.6.1] - 2018-11-30
+
+### Core 0.6.1
+
+#### Added
+
+- Address pool management: query/create/modify/delete
+
+- Address range management: add/remove
+
+- Instance address allocate/migrate
+
+- Allocated address in instance status
+
+### Cell 0.6.1
+
+#### Added
+
+- Support assigned network address of instance
+
+- Enable distributed DHCP service for MAC bound
+
+- Configure template for different OS version
+
+- Optimize mouse position using tablet input
+
+- Disable DHCP service in default network when startup
+
+### FrontEnd 0.6.1
+
+#### Added
+
+- Redirect address pool/range API
+
+- Addess pool/range managment page
+
+#### Changed
+
+- Address pool option when creating/modifing compute pool
+
+### Installer 0.1.8
+
+#### Added
+
+- Enable DHCP port for cell
+
 ## [0.5.1] - 2018-11-3
 
 ### Core 0.5.1 

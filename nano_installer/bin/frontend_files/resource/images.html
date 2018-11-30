@@ -103,7 +103,7 @@
     }
 
     function refresh(){
-      location.reload();
+      loadImages();
     }
 
     function loadImages(){
@@ -192,7 +192,7 @@
               )
             );
           });
-          $('#images_list').append(container);
+          $('#images_list').empty().append(container);
           M.Tooltip.init($('.tooltipped'));
         }
       );

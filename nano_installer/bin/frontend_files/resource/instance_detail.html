@@ -198,7 +198,7 @@
     }
 
     function refresh(){
-      location.reload();
+      loadInstance();
     }
 
     function outputMessage(message){
@@ -252,6 +252,10 @@
           var internalAddress = "unavailable";
           if (ins.hasOwnProperty('internal') && ins['internal'].hasOwnProperty('network_address') ){
             internalAddress = ins['internal']['network_address'];
+          }
+          var allocatedInternal = "";
+          if (ins.hasOwnProperty('internal') && ins['internal'].hasOwnProperty('allocated_address') ){
+            allocatedInternal = ins['internal']['allocated_address'];
           }
           var externalAddress = "unavailable";
           if (ins.hasOwnProperty('external') && ins['external'].hasOwnProperty('network_address')){
@@ -414,6 +418,16 @@
               )
             ).append(
               $('<td>').text(internalAddress)
+            ).append(
+              $('<td>')
+            )
+          ).append(
+            $('<tr>').append(
+              $('<td>').append(
+                $('<b>').text(texts.get(N.TagAllocated))
+              )
+            ).append(
+              $('<td>').text(allocatedInternal)
             ).append(
               $('<td>')
             )

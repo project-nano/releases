@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Add Address Range</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+<body>
+<div class="container">
+  <div class="section">
+    <div class="row">
+      <div class="col m8 push-m2" id="main-panel">
+        <div class="row">
+          <div class="input-field col m6">
+            <input type="text" id="range-start" placeholder="start IP of address range" class="validate">
+            <label for="range-start" id="start-label"></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col m7">
+            <input type="text" id="range-end" placeholder="end IP of address range" class="validate">
+            <label for="range-end" id="end-label"></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col m7">
+            <input type="text" id="range-netmask" placeholder="netmask of address range" class="validate">
+            <label for="range-netmask" id="netmask-label"></label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section">
+      <div class="row">
+          <div class="col m2">
+              <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                      class="material-icons left">chevron_left</i></a>
+          </div>
+          <div class="col m2 right" id="button">
+              <button class="waves-effect waves-light blue-grey lighten-2 btn" onclick="addRange()" id="add-caption">
+                  <i class="material-icons right">add</i>
+              </button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
+<script>
+N.CreateMenuAndFooter();
+var texts = N.GetTexts();
+$('#back-caption').append(texts.get(N.TagBack));
+$('#add-caption').prepend(texts.get(N.TagAdd));
+
+$('#start-label').text(texts.get(N.TagStartAddress));
+$('#end-label').text(texts.get(N.TagEndAddress));
+$('#netmask-label').text(texts.get(N.TagNetmask));
+
+M.AutoInit();
+
+var ipv4Pattern = new RegExp('^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$');
+
+var poolName;
+
+function parseQueryString(){
+  var url = window.location.search;
+  var queryParams = new Map();
+  var queryString = url.substring( url.indexOf('?') + 1 );
+  if (0 === queryString.length){
+    return queryParams;
+  }
+  var values = queryString.split("&");
+  values.forEach((value) => {
+    var p = value.split('=');
+    queryParams.set(p[0], p[1]);
+  });
+  return queryParams;
+}
+
+function addRange(){
+  var startAddress = $('#range-start').val();
+  var endAddress = $('#range-end').val();
+  var netmask = $('#range-netmask').val();
+
+  if (!ipv4Pattern.test(startAddress)){
+    M.toast({html: "invalid start address: " + startAddress});
+    return;
+  }
+  if (!ipv4Pattern.test(endAddress)){
+    M.toast({html: "invalid end address: " + endAddress});
+    return;
+  }
+  if (!ipv4Pattern.test(netmask)){
+    M.toast({html: "invalid netmask: " + netmask});
+    return;
+  }
+
+  $('#button').empty();
+  $('#main-panel').empty();
+
+  var table = $('<table>').addClass('striped');
+  table.append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagAddressPool))
+    ).append(
+      $('<td>').text(poolName)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagStartAddress))
+    ).append(
+      $('<td>').text(startAddress)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagEndAddress))
+    ).append(
+      $('<td>').text(endAddress)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagNetmask))
+    ).append(
+      $('<td>').text(netmask)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagResult))
+    ).append(
+      $('<td>').attr('id', 'request-result')
+    )
+  );
+  $('#main-panel').append(table);
+  var request = new Object();
+  request.end = endAddress;
+  request.netmask = netmask;
+
+  const rangeType = 'internal';
+  $.post(
+    '/address_pools/'+ poolName + '/' + rangeType + '/ranges/' + startAddress,
+    JSON.stringify(request),
+    function(result){
+      if (0 != result['error_code']) {
+        $('#request-result').text(result['message']);
+        return;
+      }
+      $('#request-result').text('success');
+      $('#button').append(
+        $('<a>').attr('href', 'address_pool_detail.html?pool=' + poolName).append(
+          $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
+            $('<i>').addClass('material-icons').text('check')
+          )
+        )
+      );
+    },
+    "json"
+  );
+
+}
+
+$(function(){
+  var params = parseQueryString();
+  if (!params.has('pool')){
+    M.toast({html: 'must specify pool name'})
+    return;
+  }
+  poolName = params.get('pool');
+});
+
+</script>
+</body>
+</html>

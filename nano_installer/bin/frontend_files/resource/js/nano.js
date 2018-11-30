@@ -137,6 +137,14 @@ N.TagImageName = "image_name";
 N.TagImageFile = "image_file";
 N.TagSelect = "select";
 N.TagFailover = "failover";
+N.TagAddressPool = "address_pool";
+N.TagStartAddress = "start_address";
+N.TagEndAddress = "end_address";
+N.TagNetmask = "netmask";
+N.TagAddressRange = "address_range";
+N.TagAllocated = "allocated";
+N.TagGateway = "gateway";
+N.TagDNS = "dns";
 
 //Language name
 N.zh_CN = "zh_CN";
@@ -243,7 +251,15 @@ var zh_CN_text = new TextSet(new Map([
   [N.TagSelect, "选择"],
   [N.TagFailover, "故障切换"],
   [N.TagSystemVersion, "系统版本"],
-  [N.TagInstalledModule, "预装模块"]
+  [N.TagInstalledModule, "预装模块"],
+  [N.TagAddressPool, "地址池"],
+  [N.TagStartAddress, "起始地址"],
+  [N.TagEndAddress, "结束地址"],
+  [N.TagNetmask, "网络掩码"],
+  [N.TagAddressRange, "地址范围"],
+  [N.TagAllocated, "已分配"],
+  [N.TagGateway, "网关"],
+  [N.TagDNS, "域名服务器"]
 ]));
 
 var en_US_text = new TextSet(new Map([
@@ -347,7 +363,15 @@ var en_US_text = new TextSet(new Map([
   [N.TagSelect, "Select"],
   [N.TagFailover, "Failover"],
   [N.TagSystemVersion, "System Version"],
-  [N.TagInstalledModule, "Installed Modules"]
+  [N.TagInstalledModule, "Installed Modules"],
+  [N.TagAddressPool, "Address Pool"],
+  [N.TagStartAddress, "Start Address"],
+  [N.TagEndAddress, "End Address"],
+  [N.TagNetmask, "Netmask"],
+  [N.TagAddressRange, "Address Range"],
+  [N.TagAllocated, "Allocated"],
+  [N.TagGateway, "Gateway"],
+  [N.TagDNS, "DNS"]
 ]));
 
 //initial text sets
@@ -368,7 +392,7 @@ N.SetLanguage = function(lang){
 N.GetLanguage = function(){
   var current = localStorage.getItem('current_language');
   if (!current){
-    current = _defaultLang;
+    current = N.en_US;
     localStorage.setItem('current_language', current);
   }
   return current;
@@ -399,6 +423,7 @@ N.CreateMenuAndFooter = function(){
   var _menuDefine = [
     ['dashboard.html', 'multiline_chart', this.TagDashboard],
     ['compute_pools.html', 'blur_on', this.TagResourcePool],
+    ['address_pools.html', 'share', this.TagAddressPool],
     ['storages.html', 'storage', this.TagStoragePool],
     ['instances.html', 'cloud', this.TagInstance],
     ['images.html', 'content_copy', this.TagImage],
