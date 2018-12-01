@@ -46,6 +46,12 @@
 
 - Enable DHCP port for cell
 
+#### Changed
+
+- Disable NetworkManager before link bridge to prevent ssh disconnection
+
+- Migrate bridge configure from interface
+
 ## [0.5.1] - 2018-11-3
 
 ### Core 0.5.1 
