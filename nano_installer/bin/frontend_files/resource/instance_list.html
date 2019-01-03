@@ -133,7 +133,7 @@
 <script type="text/javascript" src="/js/materialize.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-    N.CreateMenuAndFooter();
+    N.ValidateSession();
     var texts = N.GetTexts();
     $('#create_button').append(texts.get(N.TagCreate));
     $('#pool-caption').text(texts.get(N.TagComputePool));
@@ -363,6 +363,16 @@
                 $('<a>').attr('href', 'build_image.html?instance=' + instanceID).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
                   attr('data-tooltip', texts.get(N.TagBuildDiskImage)).attr('target', '_blank').append(
                     $('<i>').addClass('material-icons').text('cloud_upload')
+                  )
+              );
+              var resetURL = 'reset_system.html?origin=list&instance=' + instanceID + '&name=' + instanceName + '&pool=' + poolName;
+              if(cellName){
+                resetURL += cellName;
+              }
+              operators.append(
+                $('<a>').attr('href', resetURL).addClass('blue-grey-text tooltipped').attr('data-position', 'top').
+                  attr('data-tooltip', texts.get(N.TagResetSystem)).attr('target', '_self').append(
+                    $('<i>').addClass('material-icons').text('replay')
                   )
               );
               operators.append(

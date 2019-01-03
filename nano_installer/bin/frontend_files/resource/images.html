@@ -59,7 +59,7 @@
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-    N.CreateMenuAndFooter();
+    N.ValidateSession();
     var texts = N.GetTexts();
     $('#btn-build').append(texts.get(N.TagBuild));
     $('#btn-upload').append(texts.get(N.TagUpload));
@@ -135,9 +135,11 @@
           result['data'].forEach((image) =>{
             var content = $('<div>').addClass('card-content');
             var tags = $('<div>');
-            image['tags'].forEach((tag) =>{
-              tags.append($('<div>').addClass('chip').text(tag));
-            });
+            if (image['tags']){
+              image['tags'].forEach((tag) =>{
+                tags.append($('<div>').addClass('chip').text(tag));
+              });
+            }
             var imageSize = image['size'];
             var sizeString;
             if (imageSize > (1 << 30)){

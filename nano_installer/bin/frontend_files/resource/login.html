@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Login</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="col s8 push-s2 m6 push-m3" id="panel">
+    </div>
+  </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
+<script>
+
+    function parseQueryString(){
+      var url = window.location.search;
+      var queryParams = new Map();
+      var queryString = url.substring( url.indexOf('?') + 1 );
+      if (0 === queryString.length){
+        return queryParams;
+      }
+      var values = queryString.split("&");
+      values.forEach((value) => {
+        var p = value.split('=');
+        queryParams.set(p[0], p[1]);
+      });
+      return queryParams;
+    }
+
+    function generateNonce(length) {
+      var text = "";
+      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      for(var i = 0; i < length; i++) {
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+      }
+      return text;
+    }
+
+    function outputMessage(message){
+      $('#error').text(message);
+    }
+
+    function login() {
+      var user = $('#username').val();
+      if (!user){
+        outputMessage('please input user name');
+        return;
+      }
+      var password = $('#password').val();
+      if (!user){
+        outputMessage('please input password');
+        return;
+      }
+      var request = new Object();
+      request.user = user;
+      request.password = password;
+      request.nonce = generateNonce(16);
+      $.post(
+        '/sessions/',
+        JSON.stringify(request),
+        function(result){
+          if (0 != result['error_code']) {
+            outputMessage(result['message']);
+            return;
+          }
+          var data = result['data'];
+          if (!data){
+            outputMessage('no data available');
+            return;
+          }
+          var sessionID = data['session'];
+          if (!sessionID){
+            outputMessage('no session ID available');
+            return;
+          }
+          var timeout = data['timeout'];
+          if (!timeout){
+            outputMessage('no timeout available');
+            return;
+          }
+          var menu = data['menu'];
+          N.SaveSession(sessionID, user, menu, parseInt(timeout));
+          //todo: redirect
+          var params = parseQueryString();
+          var targetURL = '/dashboard.html'
+          if (params.has('previous')){
+            targetURL = decodeURIComponent(params.get('previous'));
+          }
+          window.location.replace(targetURL);
+        },
+        "json"
+      );
+    }
+
+    $(function(){
+      N.CreateMenuAndFooter();
+      M.AutoInit();
+      var texts = N.GetTexts();
+      var panel = $('#panel').empty();
+      panel.append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('col m6').append(
+              $('<span>').attr('id', 'error').addClass('red-text')
+          )
+        )
+      ).append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('input-field col m6').append(
+            $('<input>').attr('type', 'text').attr('id', 'username')
+          ).append(
+            $('<label>').attr('for', 'username').text(texts.get(N.TagUser))
+          )
+        )
+      ).append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('input-field col m6').append(
+            $('<input>').attr('type', 'password').attr('id', 'password')
+          ).append(
+            $('<label>').attr('for', 'password').text(texts.get(N.TagPassword))
+          )
+        )
+      ).append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('col m3').append(
+            $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').attr('onclick', 'login()').append(
+              $('<i>').addClass('material-icons right').text('keyboard_arrow_right')
+            ).append(
+              texts.get(N.TagLogin)
+            )
+          )
+        )
+      );
+    });
+
+</script>
+</body>
+</html>

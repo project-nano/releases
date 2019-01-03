@@ -232,7 +232,7 @@
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-N.CreateMenuAndFooter();
+N.ValidateSession();
 var texts = N.GetTexts();
 $('#back-caption').append(texts.get(N.TagBack));
 $('#create-caption').prepend(texts.get(N.TagCreate));
@@ -263,7 +263,7 @@ var versions = new Map(
     ["centos7", {Name: 'CentOS 7 or Later', System: 'linux', Enable: true}],
     ["centos6", {Name: 'CentOS 6', System: 'linux', Enable: true}],
     ["win2012", {Name: 'Windows Server 2012', System: 'windows', Enable: true}],
-    ["legacy", {Name: 'Legacy system', System: 'linux', Enable: false}],
+    ["legacy", {Name: 'Legacy system', System: 'linux', Enable: true}],
     ["general", {Name: 'Other General System', System: 'linux', Enable: true}],
   ]
 );

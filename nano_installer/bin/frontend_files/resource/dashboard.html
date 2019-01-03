@@ -27,7 +27,7 @@
   <body>
 
   <div class="container">
-    <div class="section">
+    <!-- <div class="section">
       <nav class="clean">
         <div class="nav-wrapper">
           <div class="col m12">
@@ -36,8 +36,11 @@
         </div>
       </nav>
       <div class="divider"></div>
-    </div>
+    </div> -->
     <div class="section">
+      <div class="row center">
+        <span id="uptime"></span>
+      </div>
       <div class="row">
         <div class="col m8 s12">
           <a href="pool_status.html" class=" blue-grey-text">
@@ -107,9 +110,9 @@
   <script type="text/javascript" src="js/Chart.bundle.min.js"></script>
   <script type="text/javascript" src="js/nano.js"></script>
   <script>
-    N.CreateMenuAndFooter();
+    N.ValidateSession();
     var texts = N.GetTexts();
-    $('#zone-caption').text(texts.get(N.TagZone));
+    // $('#zone-caption').text(texts.get(N.TagZone));
     $('#resource-caption').append(texts.get(N.TagResourceUsage));
     $('#core-caption').append(texts.get(N.TagCoreUsage));
     $('#memory-caption').append(texts.get(N.TagMemoryUsage));
@@ -367,8 +370,29 @@
             M.toast({html: 'update dashboard fail:' + result['message']});
             return;
         }
+
         //success
         var status = result['data'];
+        if (!status['start_time']){
+          M.toast({html: 'no start time available'});
+          return;
+        }
+        var startTime = new Date(status['start_time']);
+        var now = new Date();
+        var elapsedSeconds = Math.floor((now.getTime() - startTime.getTime())/1000);
+        var elapsedDays = Math.floor(elapsedSeconds/(24*3600));
+        elapsedSeconds -= elapsedDays*24*3600;
+        var elapsedHours = Math.floor(elapsedSeconds/3600);
+        elapsedSeconds -= elapsedHours*3600;
+        var elapsedMinutes = Math.floor(elapsedSeconds/60);
+        elapsedSeconds -= elapsedMinutes*60;
+        if (N.IsChinese()){
+          $('#uptime').text('系统启动时间 ' + status['start_time'] + ', 已运行 ' + elapsedDays + ' 天 ' + elapsedHours + ' 小时 ' + elapsedMinutes + ' 分 ' + elapsedSeconds + ' 秒');
+        }else{
+          $('#uptime').text('System start at ' + status['start_time'] + ', Uptime: ' + elapsedDays + ' day, ' + elapsedHours + ' hour, ' + elapsedMinutes + ' min, ' + elapsedSeconds + ' secs');
+        }
+
+
         poolChart.data.datasets[0].data = status['pools'];
         cellChart.data.datasets[0].data = status['cells'];
         instanceChart.data.datasets[0].data = status['instances'];

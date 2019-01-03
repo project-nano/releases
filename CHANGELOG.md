@@ -1,5 +1,47 @@
 # Change Log
 
+## [0.7.1] - 2019-01-03
+
+### Core 0.7.1
+
+#### Added
+
+- System start time when query zone status
+
+- Reset guest system
+
+### Cell 0.7.1
+
+#### Added
+
+- "legacy" option of system version
+
+- Reset guest system
+
+- Sync storage option when compute pool available
+
+### FrontEnd 0.7.1
+
+#### Added
+
+- Role/Group/User management
+
+- Session management
+
+- Invoke system initial page when no user configured
+
+- Enable reset system
+
+- Add "legacy system" option when create new instance
+
+- Add uptime to dashboard.html
+
+### RPMS
+
+#### Changed
+
+- Update all rpms base on CentOS 7.6(1810)
+
 ## [0.6.1] - 2018-11-30
 
 ### Core 0.6.1

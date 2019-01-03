@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Reset System</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+<body>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col m10 push-m2" id="reset-panel">
+              <div class="row">
+                <span id='title'></span>
+              </div>
+              <div class="row">
+                  <div class="input-field col m4">
+                      <input id="instance_name" type="text" readonly>
+                      <label for="instance_name" id="name-label"></label>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="input-field col m4">
+                      <select name="from_image" id="image-options">
+                      </select>
+                      <label for="image-options" id="system-image-label"></label>
+                  </div>
+              </div>
+              <div class="modal" id="confirm_modal">
+                  <!--hide model -->
+                  <div class="modal-content" id="confirm-content">
+                  </div>
+                  <div class="modal-footer">
+                      <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+                      <a href="#" class="modal-close waves-effect waves-green btn-flat" onclick="resetSystem()"></a>
+                  </div>
+              </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                        class="material-icons left">chevron_left</i></a>
+            </div>
+            <div class="col m2 right" id="button">
+                <button class="waves-effect waves-light blue-grey lighten-2 btn modal-trigger"
+                        data-target="confirm_modal" id="reset-caption">
+                    <i class="material-icons right">replay</i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
+<script>
+N.ValidateSession();
+var texts = N.GetTexts();
+
+var originURL, poolName, cellName, instanceID, instanceName;
+
+function loadImages(){
+  var IMAGE_GROUP = "manager";
+  $.getJSON("/disk_image_search?group=" + IMAGE_GROUP, function(result){
+    if (0 != result['error_code']) {
+        M.toast({html: 'query disk images fail:' + result['message']});
+        return;
+    }
+    if (!result['data']){
+      M.toast({html: 'no disk image available'});
+      return;
+    }
+    if (0 == result['data'].length){
+      M.toast({html: 'no disk image available'});
+      return;
+    }
+    result['data'].forEach((image) =>{
+      $('#image-options').append(
+        $('<option>').attr('value', image['id']).text(image['name'])
+      )
+    });
+    M.FormSelect.init($('#image-options'));
+  });
+}
+
+function finishReset(){
+  $('#reset-result').text('success');
+  var finishPage;
+  if (originURL){
+    finishPage = "instance_list.html";
+  }else{
+    finishPage = 'instances.html';
+  }
+  if (poolName){
+    finishPage += "?pool=" + poolName;
+  }
+  if (cellName){
+    finishPage += "&cell=" + cellName;
+  }
+  $('#button').append(
+    $('<a>').attr('href', finishPage).append(
+      $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
+        $('<i>').addClass('material-icons').text('check')
+      )
+    )
+  );
+}
+
+function checkResult(){
+  $.ajax({
+    url: '/guests/' + instanceID,
+    method: "GET",
+    dataType: "json",
+    statusCode:{
+      200: function(result){
+        if (0 != result['error_code']) {
+          $('#reset-result').text(result['message']);
+          //fail
+          return;
+        }
+        finishReset();
+      },
+      201: function(result){
+        var progress = result['data']['progress'] + '%';
+        $('#progress-bar').width(progress);
+        $('#progress-info').text('Resetting... ' + progress);
+        setTimeout(checkResult, 1000);
+      },
+    }
+  });
+}
+
+function requestReset(request){
+  //update form
+  $('#button').empty();
+  $('#reset-panel').empty().removeClass('m10').addClass('m6');
+
+  var table = $('<table>').addClass('striped');
+  table.append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagName))
+    ).append(
+      $('<td>').text(instanceName)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagImage))
+    ).append(
+      $('<td>').text(request.from_image)
+    )
+  ).append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagResult))
+    ).append(
+      $('<td>').attr('id', 'reset-result')
+    )
+  );
+  $('#reset-panel').append(table);
+  M.AutoInit();
+
+  //begin create
+  $.ajax({
+    url: '/guest/' + instanceID + '/system/',
+    method: "PUT",
+    dataType: "json",
+    data: JSON.stringify(request),
+    statusCode: {
+      200:function(result){
+        if (0 != result['error_code']) {
+          $('#reset-result').text(result['message']);
+          return;
+        }
+        //success
+        var progress = '0%';
+        //in progress
+        $('#reset-result').append(
+          $('<div>').addClass('center').append(
+            $('<span>').text('Resetting... ' + progress).attr('id', 'progress-info')
+          )
+        ).append(
+          $('<div>').addClass('progress').append(
+            $('<div>').addClass('determinate').width(progress).attr('id', 'progress-bar')
+          )
+        );
+        //start interval check
+        setTimeout(checkResult, 1000);
+      },
+    }
+  });
+}
+
+function resetSystem() {
+    var request = new Object();
+    var sourceImage = $('#image-options').val();
+    if (!sourceImage){
+      M.toast({html: 'must specify system image'});
+      return;
+    }
+    request.from_image = sourceImage;
+    requestReset(request);
+}
+
+
+function parseQueryString(){
+  var url = window.location.search;
+  var queryParams = new Map();
+  var queryString = url.substring( url.indexOf('?') + 1 );
+  if (0 === queryString.length){
+    return queryParams;
+  }
+  var values = queryString.split("&");
+  values.forEach((value) => {
+    var p = value.split('=');
+    queryParams.set(p[0], p[1]);
+  });
+  return queryParams;
+}
+
+$(function(){
+  var params = parseQueryString();
+  if (!params.has('instance')){
+    M.toast({html: 'must specify instance'});
+    return;
+  }
+  if (!params.has('name')){
+    M.toast({html: 'must specify instance name'});
+    return;
+  }
+  instanceID = params.get('instance');
+  instanceName = params.get('name');
+
+  if (params.has('origin')){
+    originURL = params.get('origin');
+  }
+  if (params.has('pool')){
+    poolName = params.get('pool');
+  }
+  if (params.has('cell')){
+    cellName = params.get('cell');
+  }
+  $('#title').text(texts.get(N.TagResetSystem));
+  $('#back-caption').append(texts.get(N.TagBack));
+  $('#reset-caption').prepend(texts.get(N.TagResetSystem));
+
+  $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+  $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+
+  $('#name-label').text(texts.get(N.TagInstance));
+  $('#system-image-label').text(texts.get(N.TagSystemImage));
+
+  $('#instance_name').val(instanceName);
+
+  if (N.IsChinese()){
+    $('#confirm-content').append(
+      $('<h4>').text('重置系统')
+    ).append(
+      $('<div>').text('您确定要重置云主机 ' + instanceName + ' 的现有系统吗？')
+    );
+  }else{
+    $('#confirm-content').append(
+      $('<h4>').text('Reset System')
+    ).append(
+      $('<div>').text('Reset system of guest ' + instanceName + '?')
+    );
+  }
+
+  M.AutoInit();
+  loadImages();
+  M.Modal.init($('.modal'));
+  M.updateTextFields();
+});
+
+
+</script>
+</body>
+</html>
