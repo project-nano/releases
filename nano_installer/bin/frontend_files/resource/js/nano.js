@@ -159,6 +159,8 @@ N.TagNew = "new";
 N.TagLogin = "login";
 N.TagLogout = "logout";
 N.TagResetSystem = "reset_system";
+N.Batch = "batch";
+N.Operate = "operate";
 
 //Language name
 N.zh_CN = "zh_CN";
@@ -288,7 +290,9 @@ var zh_CN_text = new TextSet(new Map([
   [N.TagNew, "新"],
   [N.TagLogin, "登录"],
   [N.TagLogout, "注销"],
-  [N.TagResetSystem, "重置系统"]
+  [N.TagResetSystem, "重置系统"],
+  [N.Batch, "批量"],
+  [N.Operate, "操作"]
 ]));
 
 var en_US_text = new TextSet(new Map([
@@ -413,7 +417,9 @@ var en_US_text = new TextSet(new Map([
   [N.TagNew, "New "],
   [N.TagLogin, "Login"],
   [N.TagLogout, "Logout"],
-  [N.TagResetSystem, "Reset System"]
+  [N.TagResetSystem, "Reset System"],
+  [N.Batch, "Batch"],
+  [N.Operate, "Operate"]
 ]));
 
 //initial text sets
@@ -574,9 +580,18 @@ N.GetAllMenus = function(){
 
 N.CreateMenuAndFooter = function(userName, menuList){
   var texts = this.GetTexts();
-  var menu = $('<ul>').addClass('right');
+  // var menu = $('<ul>').addClass('right');
+  var menu = $('<ul>').addClass('sidenav sidenav-fixed').append(
+    $('<li>').addClass('brand-logo white-text blue-grey').append(
+      $('<h4>').text('Nano')
+    ).append(
+      $('<div>').addClass('divider')
+    )
+  );
+
 
   if (menuList){
+    var menuItems = $('<ul>').addClass('collapsible collapsible-accordion');
     var selectedMenu = new Set();
     menuList.forEach((menuName)=>{
       selectedMenu.add(menuName);
@@ -587,29 +602,180 @@ N.CreateMenuAndFooter = function(userName, menuList){
         var page = define[1];
         var icon = define[2];
         var label = texts.get(define[3]);
-        menu.append(
-          $('<li>').addClass('hide-on-small-only').append(
-            $('<a>').attr('href', page).text(label).prepend(
-              $('<i>').addClass('material-icons left').text(icon)
+        menuItems.append(
+          $('<li>').append(
+            $('<a>').attr('href', page).addClass('blue-grey-text').text(label).prepend(
+              $('<i>').addClass('material-icons blue-grey-text').text(icon)
             )
           )
-        )
+        // ).append(
+        //   $('<li>').append(
+        //     $('<div>').addClass('divider')
+        //   )
+        );
       }
     });
+    menu.append(
+      $('<li>').addClass('no-padding').append(
+        menuItems
+      )
+    )
   }
 
+  var changePassword = function(){
+    var currentPassword = $('#_change_password_current').val();
+    if (!currentPassword){
+      if (N.IsChinese()){
+        M.toast({html: '请输入当前密码'});
+      }else{
+        M.toast({html: 'Input current password'});
+      }
+      return;
+    }
+    var newPassword = $('#_change_password_new').val();
+    if(!newPassword){
+      if (N.IsChinese()){
+        M.toast({html: '请输入新密码'});
+      }else{
+        M.toast({html: 'Input a new password'});
+      }
+      return;
+    }
+    if($('#_change_password_confirm_new').val() != newPassword){
+      if (N.IsChinese()){
+        M.toast({html: '请输入一致的新密码'});
+      }else{
+        M.toast({html: 'Two passwords do not match'});
+      }
+      return;
+    }
+    var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
+    if(!strongRegex.test(newPassword)){
+      if (N.IsChinese()){
+        M.toast({html: '密码长度最低8位，必须包含大小写字母与数字'});
+      }else{
+        M.toast({html: 'The password must longer than eight, contains one uppercase letter, one lowercase letter and one digit at least.'});
+      }
+      return;
+    }
 
-  $('body').prepend(
-    $('<nav>').addClass('blue-grey').append(
-      $('<div>').addClass('container').append(
-        $('<div>').addClass('nav-wrapper').append(
-          $('<a>').addClass('brand-logo').attr('href', '#').text('Nano')
+    var request = new Object();
+    request.old = currentPassword;
+    request.new = newPassword;
+    $.ajax({
+      url: '/users/'+ userName + '/password/',
+      method: "PUT",
+      dataType: "json",
+      data: JSON.stringify(request),
+      success: function (result) {
+        if (0 != result['error_code']) {
+          M.toast({html: result['message']});
+          return;
+        }
+        if (N.IsChinese()){
+          M.toast({html: '用户密码已修改'});
+        }else{
+          M.toast({html: 'User password modified'});
+        }
+      },
+      error: function (jqXHR, status, error) {
+        M.toast({html: 'request modify compute pool fail: ' + error, outDuration: 600});
+      }
+    });
+  };
+
+  var showChangePasswordModal = function(){
+    var content = $('#_change_password_modal_content').empty();
+    var title, currentLabel, newLabel, confirmLabel;
+    if(N.IsChinese()){
+      title = '修改用户密码';
+      currentLabel = '当前密码';
+      newLabel = '新密码';
+      confirmLabel = '确认新密码';
+    }else{
+      title = 'Change Password';
+      currentLabel = 'Current Password';
+      newLabel = 'New Password';
+      confirmLabel = 'Confirm New Password';
+    }
+    content.append(
+      $('<h4>').text(title)
+    ).append(
+      $('<div>').addClass('row').append(
+        $('<div>').addClass('input-field col s6').append(
+          $('<input>').attr('type', 'password').attr('id', '_change_password_current')
         ).append(
-          menu
+          $('<label>').attr('for', '_change_password_current').text(currentLabel)
         )
+      )
+    ).append(
+      $('<div>').addClass('row').append(
+        $('<div>').addClass('input-field col s6').append(
+          $('<input>').attr('type', 'password').attr('id', '_change_password_new')
+        ).append(
+          $('<label>').attr('for', '_change_password_current').text(newLabel)
+        )
+      )
+    ).append(
+      $('<div>').addClass('row').append(
+        $('<div>').addClass('input-field col s6').append(
+          $('<input>').attr('type', 'password').attr('id', '_change_password_confirm_new')
+        ).append(
+          $('<label>').attr('for', '_change_password_current').text(confirmLabel)
+        )
+      )
+    );
+    var instance = M.Modal.getInstance($('#_change_password_modal'));
+    instance.open();
+  };
+
+  var confirmLogout = function(){
+    var content = $('#_logout_modal_content').empty();
+    if(N.IsChinese()){
+      content.append(
+        $('<h4>').text('注销')
+      ).append(
+        $('<p>').text('确定退出当前登录吗？')
+      );
+    }else{
+      content.append(
+        $('<h4>').text('Logout')
+      ).append(
+        $('<p>').text('Logout current user?')
+      );
+    }
+    var instance = M.Modal.getInstance($('#_logout_modal'));
+    instance.open();
+  };
+
+  var pageBody = $('body');
+  pageBody.prepend(
+    menu
+  );
+
+  //modal
+  pageBody.prepend(
+    $('<div>').addClass('modal').attr('id', '_change_password_modal').append(
+      $('<div>').addClass('modal-content').attr('id', '_change_password_modal_content')
+    ).append(
+      $('<div>').addClass('modal-footer').append(
+        $('<a>').addClass('modal-close waves-effect waves-green btn-flat').attr('href', '#').text(texts.get(N.TagCancel))
+      ).append(
+        $('<a>').addClass('modal-close waves-effect waves-green btn-flat').attr('href', '#').click(changePassword).text(texts.get(N.TagConfirm))
+      )
+    )
+  ).prepend(
+    $('<div>').addClass('modal').attr('id', '_logout_modal').append(
+      $('<div>').addClass('modal-content').attr('id', '_logout_modal_content')
+    ).append(
+      $('<div>').addClass('modal-footer').append(
+        $('<a>').addClass('modal-close waves-effect waves-green btn-flat').attr('href', '#').text(texts.get(N.TagCancel))
+      ).append(
+        $('<a>').addClass('modal-close waves-effect waves-green btn-flat').attr('href', '#').click(_logoutSession).text(texts.get(N.TagConfirm))
       )
     )
   );
+  M.Modal.init($('.modal'));
   //footer
   const switchID = 'lang-switch';
   var langSwitch = $('<input>').attr('type', 'checkbox').attr('id', switchID);
@@ -632,10 +798,14 @@ N.CreateMenuAndFooter = function(userName, menuList){
   var rightDiv = $('<div>').addClass('row');
   if (userName){
     rightDiv.append(
-      $('<div>').addClass('col m2 push-m8').append(
+      $('<div>').addClass('col m3 push-m7').append(
         $('<label>').addClass('white-text').text(texts.get(this.TagCurrent) + texts.get(this.TagUser) + ': ' + userName)
       ).append(
-        $('<a>').addClass('btn-small btn-flat').attr('onclick', '_logoutSession()').append(
+        $('<a>').addClass('btn-small btn-flat').click(showChangePasswordModal).append(
+          $('<i>').addClass('material-icons white-text').text('lock')
+        )
+      ).append(
+        $('<a>').addClass('btn-small btn-flat').click(confirmLogout).append(
           $('<i>').addClass('material-icons white-text').text('exit_to_app')
         )
       )

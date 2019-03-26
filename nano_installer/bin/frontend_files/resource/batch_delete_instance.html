@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <title>Batch Delete Instance</title>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+<body>
+<div class="container">
+    <div class="section">
+        <div class="row">
+            <div class="col m10 push-m2" id="delete-panel">
+            </div>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+        <div class="row">
+            <div class="col m2">
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" onclick="window.history.back()" id="back-caption"><i
+                        class="material-icons left">chevron_left</i></a>
+            </div>
+            <div class="col m2 right" id="button">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
+<script>
+N.ValidateSession();
+var texts = N.GetTexts();
+
+M.AutoInit();
+
+function initialPanel(){
+  $('#back-caption').append(texts.get(N.TagBack));
+}
+
+function finishDelete(){
+  // $('#delete-result').text('success');
+  var finishPage;
+  if (originURL){
+    finishPage = "instance_list.html";
+  }else{
+    finishPage = 'instances.html';
+  }
+  if (poolName){
+    finishPage += "?pool=" + poolName;
+  }
+  $('#button').append(
+    $('<a>').attr('href', finishPage).append(
+      $('<button>').addClass('waves-effect waves-light blue-grey lighten-2 btn').text(texts.get(N.TagFinish)).prepend(
+        $('<i>').addClass('material-icons').text('check')
+      )
+    )
+  );
+}
+
+var batchID;
+
+function initialProgressList(statusList){
+  var list = $('<table>').addClass('striped');
+  statusList.forEach((status)=>{
+    var row = $('<tr>');
+    var instanceID = status['id'];
+    row.append(
+      $('<td>').text(instanceID)
+    );
+    var statusCell = $('<td>').attr('id', instanceID + '-status');
+    if ('deleted' == status['status']){
+      //success
+      statusCell.text('success');
+    }else if ('fail' == status['status']){
+      //fail
+      statusCell.text(status['error'])
+    }else{
+      statusCell.text('deleting');
+    }
+    list.append(
+      row.append(statusCell)
+    );
+  });
+  $('#delete-result').append(list);
+}
+
+function updateProgressList(statusList){
+  statusList.forEach((status)=>{
+    var instanceID = status['id'];
+    var statusCell = $('#' + instanceID + '-status');
+    if ('deleted' == status['status']){
+      //success
+      statusCell.text('success');
+    }else if ('fail' == status['status']){
+      //fail
+      statusCell.text(status['error'])
+    }else{
+      statusCell.text('deleting');
+    }
+  });
+}
+
+function checkResult(){
+  $.ajax({
+    url: '/batch/delete_guest/' + batchID,
+    method: "GET",
+    dataType: "json",
+    statusCode:{
+      202: function(result){
+        updateProgressList(result['data']);
+        setTimeout(checkResult, 1000);
+      },
+      200: function(result){
+        if (0 != result['error_code']) {
+          $('#delete-result').text(result['message']);
+          //fail
+          return;
+        }
+        updateProgressList(result['data']);
+        finishDelete();
+      }
+    }
+  });
+}
+
+function beginCheckProgress(){
+  $.ajax({
+    url: '/batch/delete_guest/' + batchID,
+    method: "GET",
+    dataType: "json",
+    statusCode:{
+      202: function(result){
+        //not finished
+        initialProgressList(result['data']);
+        //start interval check
+        setTimeout(checkResult, 2000);
+      },
+      200: function(result){
+        if (0 != result['error_code']) {
+          $('#delete-result').text(result['message']);
+          //fail
+          return;
+        }
+        initialProgressList(result['data']);
+        finishDelete();
+      }
+    }
+  });
+}
+
+function deleteGuest(request){
+  //update form
+  $('#button').empty();
+  $('#delete-panel').empty().removeClass('m10').addClass('m6');
+
+  var table = $('<table>').addClass('striped');
+  table.append(
+    $('<tr>').append(
+      $('<td>').text(texts.get(N.TagResult))
+    ).append(
+      $('<td>').attr('id', 'delete-result')
+    )
+  );
+  $('#delete-panel').append(table);
+  M.AutoInit();
+
+  //begin create
+  $.ajax({
+    url: '/batch/delete_guest/',
+    method: "POST",
+    dataType: "json",
+    data: JSON.stringify(request),
+    statusCode: {
+      202:function(result){
+        //accept
+        if (0 != result['error_code']) {
+          $('#delete-result').text(result['message']);
+          return;
+        }
+        batchID = result['data']['id'];
+        //further result
+        beginCheckProgress();
+      },
+      200:function(result){
+        //accept
+        if (0 != result['error_code']) {
+          $('#delete-result').text(result['message']);
+          return;
+        }
+      }
+    }
+  });
+}
+
+function submitDeleteRequest(targets) {
+    if (0 == targets.length){
+      M.toast({html: 'no targets available'});
+      return;
+    }
+    var request = new Object();
+    request.guest = targets;
+    deleteGuest(request);
+}
+
+var originURL, poolName;
+
+function parseQueryString(){
+  var url = window.location.search;
+  var queryParams = new Map();
+  var queryString = url.substring( url.indexOf('?') + 1 );
+  if (0 === queryString.length){
+    return queryParams;
+  }
+  var values = queryString.split("&");
+  values.forEach((value) => {
+    var p = value.split('=');
+    queryParams.set(p[0], p[1]);
+  });
+  return queryParams;
+}
+
+$(function(){
+  var params = parseQueryString();
+  if (params.has('origin')){
+    originURL = params.get('origin');
+  }
+  if (params.has('pool')){
+    poolName = params.get('pool');
+  }
+  initialPanel();
+  if (!params.has('targets')){
+    M.toast({html: 'must specify delete target'});
+    return;
+  }
+  var targets = JSON.parse(decodeURIComponent(params.get('targets')));
+  submitDeleteRequest(targets);
+});
+
+
+</script>
+</body>
+</html>

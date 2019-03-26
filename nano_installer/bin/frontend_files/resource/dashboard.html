@@ -25,18 +25,7 @@
 
   </head>
   <body>
-
   <div class="container">
-    <!-- <div class="section">
-      <nav class="clean">
-        <div class="nav-wrapper">
-          <div class="col m12">
-            <a href="dashboard.html" class="breadcrumb" id="zone-caption"></a>
-          </div>
-        </div>
-      </nav>
-      <div class="divider"></div>
-    </div> -->
     <div class="section">
       <div class="row center">
         <span id="uptime"></span>
@@ -48,16 +37,16 @@
             <div class="card-content">
               <span class="card-title" id="resource-caption"><i class="material-icons blue-grey-text darken-2">cloud_queue</i></span>
               <div class="row">
-                <div class="col m3">
+                <div class="col m3 s12">
                   <canvas id="pool_canvas" height="320px"></canvas>
                 </div>
-                <div class="col m3">
+                <div class="col m3 s12">
                   <canvas id="cell_canvas" height="320px"></canvas>
                 </div>
-                <div class="col m3">
+                <div class="col m3 s12">
                   <canvas id="instance_canvas" height="320px"></canvas>
                 </div>
-                <div class="col m3">
+                <div class="col m3 s12">
                   <canvas id="disk_canvas" height="320px"></canvas>
                 </div>
               </div>
@@ -123,7 +112,7 @@
     var poolChart = new Chart($("#pool_canvas"),{
         type: "doughnut",
         data: {
-          labels: [ texts.get(N.TagDisable), texts.get(N.TagEnabled)],
+          labels: [ texts.get(N.TagDisable), texts.get(N.TagEnable)],
           datasets: [
             {
               backgroundColor: ['#9e9e9e', '#03a9f4'],

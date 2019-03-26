@@ -5,7 +5,7 @@
     <link type="text/css" rel="stylesheet" href="css/material-icons.css"/>
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
-    <title>Instance List</title>
+    <title>Instance Detail</title>
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -159,7 +159,15 @@
           <a href="#" class="modal-close waves-effect waves-green btn-flat" id='shrink_confirm'>Yes</a>
       </div>
     </div>
-
+    <!--general modal-->
+    <div class="modal" id="modal-container">
+      <div class="modal-content" id="modal-content">
+      </div>
+      <div class="modal-footer">
+          <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+          <a href="#" class="modal-close waves-effect waves-green btn-flat" id='modal-confirm-button'></a>
+      </div>
+    </div>
 </div>
 
 <!--JavaScript at end of body for optimized loading-->
@@ -209,6 +217,7 @@
       );
     }
 
+
     function loadInstance(){
       var url = "/guests/" + instanceID;
 
@@ -223,6 +232,7 @@
           container.empty();
 
           ins = result['data'];
+          var guestName = ins['name'];
           var cores = Number(ins['cores']);
           $('#current_core').text(cores);
 
@@ -261,6 +271,7 @@
           if (ins.hasOwnProperty('external') && ins['external'].hasOwnProperty('network_address')){
             externalAddress = ins['external']['network_address'];
           }
+          var nameOperator = $('<td>');
           var coreOperator = $('<td>');
           var memoryOperator = $('<td>');
           var passwordOperator = $('<td>').append(
@@ -272,7 +283,9 @@
           var lockICON = $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'top').append(
               $('<i>').addClass('material-icons').text('lock_outline')
           );
+
           if (isRunning){
+            nameOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenRunning)));
             coreOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenRunning)));
             memoryOperator.append(lockICON.clone().attr('data-tooltip', texts.get(N.TagDisabledWhenRunning)));
             passwordOperator.append(
@@ -282,6 +295,12 @@
               )
             );
           }else{
+            nameOperator.append(
+              $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModifyNameModal("' + guestName + '")')
+                .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
+                  $('<i>').addClass('material-icons').text('build')
+              )
+            );
             coreOperator.append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModalCore()')
                 .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
@@ -302,9 +321,9 @@
                 $('<b>').text(texts.get(N.TagName))
               )
             ).append(
-              $('<td>').text(ins['name'])
+              $('<td>').attr('id', 'guest-name').text(guestName)
             ).append(
-              $('<td>')
+              nameOperator
             )
           ).append(
             $('<tr>').append(
@@ -501,6 +520,77 @@
           M.Tooltip.init($('.tooltipped'));
         }
       );
+    }
+
+    function showModifyNameModal(guestName){
+      var title, current, label;
+      if (N.IsChinese()){
+        title = '修改实例名';
+        current = '当前名称：' + guestName;
+        label = '请输入新名称';
+      }else{
+        title = 'Modify Name';
+        current = 'Current name:' + guestName;
+        label = 'New name';
+      }
+      $('#modal-content').empty().append(
+        $('<h4>').text(title)
+      ).append(
+        $('<div>').addClass('row').text(current)
+      ).append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('input-field col m4 s12').append(
+            $('<label>').attr('for', 'new-guest-name').text(label)
+          ).append(
+            $('<input>').attr('type', 'text').attr('id', 'new-guest-name')
+          )
+        )
+      )
+      $('#modal-confirm-button').attr('onclick', 'modifyName("' + guestName + '")');
+      M.Modal.getInstance($('#modal-container')).open();
+    }
+
+    function modifyName(guestName){
+      var newName = $('#new-guest-name').val();
+      if (!newName){
+        if(N.IsChinese()){
+          M.toast({html: '请输入新名称'});
+        }else{
+          M.toast({html: 'Please input new name'});
+        }
+        return;
+      }
+      if (newName == guestName){
+        if(N.IsChinese()){
+          M.toast({html: '名称相同'});
+        }else{
+          M.toast({html: 'No need to change'});
+        }
+        return;
+      }
+      var request = new Object();
+      request.name = newName;
+      $.ajax({
+        url: '/guest/' + instanceID + '/name/',
+        method: "PUT",
+        dataType: "json",
+        data: JSON.stringify(request),
+        success: function (result) {
+            if (0 != result['error_code']) {
+                M.toast({html: 'modify name fail: ' + result['message'], outDuration: 600});
+                return;
+            }
+            if(N.IsChinese()){
+              M.toast({html: '实例名已修改'});
+            }else{
+              M.toast({html: 'Guest name modified'});
+            }
+            $('#guest-name').text(newName);
+        },
+        error: function (jqXHR, status, error) {
+          M.toast({html: 'request modify guest name fail: ' + error, outDuration: 600});
+        }
+      });
     }
 
     function showModalCore(){

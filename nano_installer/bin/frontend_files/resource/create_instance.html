@@ -672,6 +672,17 @@ function submitConfig() {
     }
     var request = new Object();
     request.name = $('#instance_name').val();
+    //verify name
+    var nameRule = new RegExp("[^\\w-]");
+    if(request.name.match(nameRule)){
+      if (N.IsChinese()){
+        M.toast({html: "实例名称仅允许使用字母、数字以及字符'_'和'-'"});
+      }else{
+        M.toast({html: "Only letters, digits and '-'/'_' allowed in instance name"});
+      }
+      return;
+    }
+
     request.owner = 'admin';
     request.group = 'manager';
     request.pool = $('#pool-options').val();

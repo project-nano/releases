@@ -39,10 +39,11 @@
     <div class="divider"></div>
     <div class="section">
         <div class="row">
-            <div class="col m3">
+            <div class="col m9 s8" id="button_panel">
                 <a class="waves-effect waves-light blue-grey lighten-2 btn" id="create_button"><i class="material-icons left">add</i></a>
+                <a class="waves-effect waves-light blue-grey lighten-2 btn" id="batch_create_button"><i class="material-icons left">playlist_add</i></a>
             </div>
-            <div class="col m3 push-m6" id="autofresh">
+            <div class="col m3 s4" id="autofresh">
             </div>
         </div>
     </div>
@@ -126,6 +127,15 @@
             <a href="#" class="modal-close waves-effect waves-green btn-flat" id="migrate-confirm-link"></a>
         </div>
     </div>
+    <div class="modal" id="batch-modal">
+        <!--hide model -->
+        <div class="modal-content" id="batch-modal-content">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="batch-button-confirm"></a>
+        </div>
+    </div>
 </div>
 
 <!--JavaScript at end of body for optimized loading-->
@@ -139,23 +149,95 @@
     $('#pool-caption').text(texts.get(N.TagComputePool));
     $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
     $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+    if (N.IsChinese()){
+      $('#batch_create_button').append('批量创建');
+    }else{
+      $('#batch_create_button').append('Batch Create');
+    }
 
-    //auto fresh switch
-    $('#autofresh').append(
-      $('<span>').text(texts.get(N.TagAutoFresh))
-    ).append(
-      $('<div>').addClass('switch').append(
-        $('<label>').append(texts.get(N.TagOff)).append(
-          $('<input>').attr('type', 'checkbox').attr('onclick', 'onAutoFreshSwitched()').attr('id', 'switch-autofresh').prop('checked', true)
-        ).append(
-          $('<span>').addClass('lever')
-        ).append(texts.get(N.TagOn))
-      )
-    )
     var poolName;
     var cellName;
+    var batchModeEnabled = false;
 
     M.AutoInit();
+
+    function enableAutoFreshSwitch(){
+      //auto fresh switch
+      $('#autofresh').append(
+        $('<span>').text(texts.get(N.TagAutoFresh))
+      ).append(
+        $('<div>').addClass('switch').append(
+          $('<label>').append(texts.get(N.TagOff)).append(
+            $('<input>').attr('type', 'checkbox').attr('onclick', 'onAutoFreshSwitched()').attr('id', 'switch-autofresh').prop('checked', true)
+          ).append(
+            $('<span>').addClass('lever')
+          ).append(texts.get(N.TagOn))
+        )
+      );
+      //enable auto fresh in default
+      intervalID = setInterval(refresh, refreshInterval);
+    }
+
+    function disableAutoFreshSwitch(){
+      if(intervalID){
+        clearInterval(intervalID);
+        intervalID = undefined;
+      }
+      $('#autofresh').empty();
+    }
+
+    function disableBatchMode(){
+      //load button
+      var panel = $('#button_panel');
+      var enableButton = $('<a>').addClass('waves-effect waves-light blue-grey lighten-2 btn').attr('id', 'enable_batch_button')
+        .attr('onclick', 'enableBatchMode()').append(
+          $('<i>').addClass('material-icons left').text('list')
+      );
+      if (N.IsChinese()){
+        enableButton.append('批量处理');
+      }else{
+        enableButton.append('Batch Mode');
+      }
+      $('#batch_delete_button').remove();
+      $('#disable_batch_button').remove();
+      panel.append(enableButton);
+      batchModeEnabled = false;
+      enableAutoFreshSwitch();
+      loadInstances();
+    }
+
+    function enableBatchMode(){
+      disableAutoFreshSwitch();
+      //load button
+      var panel = $('#button_panel');
+      var deleteButton = $('<a>').addClass('waves-effect waves-light blue-grey lighten-2 btn').attr('id', 'batch_delete_button').attr('onclick', 'confirmBatchDelete()').append(
+        $('<i>').addClass('material-icons left').text('delete')
+      );
+      var disableButton = $('<a>').addClass('waves-effect waves-light red lighten-2 btn').attr('id', 'disable_batch_button')
+        .attr('onclick', 'disableBatchMode()').append(
+          $('<i>').addClass('material-icons left').text('done')
+      );
+      if (N.IsChinese()){
+        deleteButton.append('批量删除');
+        disableButton.append('完成批量处理');
+      }else{
+        deleteButton.append('Batch Delete');
+        disableButton.append('Exit Batch Mode');
+      }
+      $('#enable_batch_button').remove();
+      panel.append(deleteButton);
+      panel.append(disableButton);
+      batchModeEnabled = true;
+      reloadInstances();
+    }
+
+    function switchAllInstances(){
+      if ($("input[name='all-checkbox']:checkbox").prop('checked')) {
+        $("input[name='batch-target']").prop('checked', true);
+      }else{
+        $("input[name='batch-target']").prop('checked', false);
+      }
+    }
 
     function parseQueryString(){
       var url = window.location.search;
@@ -210,10 +292,28 @@
           }
           var parent = $('#instance_list').empty();
           var container = $('<div>').addClass('row');
+          var instanceTitle = $('<td>');
+          if (batchModeEnabled){
+            var textSpan = $('<span>');
+            if (N.IsChinese()){
+              textSpan.text('全选');
+            }else{
+              textSpan.text('All Instances');
+            }
+            instanceTitle.append(
+              $('<label>').append(
+                $('<input>').attr('type', 'checkbox').addClass('filled-in')
+                  .attr('name', 'all-checkbox').attr('onclick', 'switchAllInstances()')
+              ).append(textSpan)
+            )
+          }else{
+            instanceTitle.text(texts.get(N.TagName));
+          }
+
           var table = $('<table>').append(
             $('<thead>').append(
               $('<tr>').append(
-                $('<td>').text(texts.get(N.TagName))
+                instanceTitle
               ).append(
                 $('<td>').text(texts.get(N.TagCell))
               ).append(
@@ -235,9 +335,21 @@
             var instanceID = instance['id'];
             var instanceName = instance['name'];
             var mediaAttached = instance['media_attached'];
+            var titleContent = $('<td>');
+            if (batchModeEnabled){
+              titleContent.append(
+                $('<label>').append(
+                  $('<input>').attr('type', 'checkbox').addClass('filled-in')
+                    .attr('name', 'batch-target').val(instanceID)
+                ).append($('<span>').text(instanceName))
+              )
+            }else{
+              titleContent.text(instanceName);
+            }
+
             var content = $('<tr>');
             content.append(
-              $('<td>').text(instanceName)
+              titleContent
             ).append(
               $('<td>').text(instance['cell'])
             );
@@ -767,6 +879,54 @@
     }
 
 
+    function confirmBatchDelete(){
+      var targets = new Array();
+      $("input[name='batch-target']:checkbox:checked").each(function(){
+        targets.push($(this).val());
+      });
+      if (0 === targets.length){
+        M.toast({html: 'Must select an instance'});
+        return;
+      }
+      var targetCount = targets.length;
+      var modal = M.Modal.getInstance($('#batch-modal'));
+      var content = $('#batch-modal-content').empty().append($('<h4>').text('Batch Delete Guest'));
+      if(N.IsChinese()){
+        content.append(
+          $('<div>').text('确认删除这' + targetCount + '个实例吗？')
+        );
+      }else{
+        content.append(
+          $('<div>').text('Are you sure to delete ' + targetCount + ' instance(s)?')
+        );
+      }
+      $('#batch-button-confirm').attr('onclick', 'batchDeleteGuest()');
+      modal.open();
+    }
+
+    function batchDeleteGuest(){
+      var baseBatchDeleteURL = "batch_delete_instance.html";
+      var targets = new Array();
+      $("input[name='batch-target']:checkbox:checked").each(function(){
+        targets.push($(this).val());
+      });
+      if (0 === targets.length){
+        M.toast({html: 'Must select an instance'});
+        return;
+      }
+      var redirectURL = baseBatchDeleteURL + "?targets=" + encodeURIComponent(JSON.stringify(targets));
+      var cellName = $('#cell-options').val();
+      if (cellName){
+        redirectURL += '&cell=' + cellName;
+      }
+      var poolName = $('#pool-options').val();
+      if (poolName){
+        redirectURL += '&pool=' + poolName;
+      }
+      window.location.href = redirectURL;
+    }
+
+
     var intervalID;
     var refreshInterval = 5*1000;
     function onAutoFreshSwitched(){
@@ -790,12 +950,14 @@
       }
       poolName = params.get('pool');
       var createURL = "/create_instance.html?origin=list&pool=" + poolName;
+      var batchCreateURL = "batch_create_instance.html?pool=" + poolName;
       $('#breadcrumb-path').append(
         $('<a>').addClass('breadcrumb').text(poolName).attr('href','compute_cells.html?pool=' + poolName)
       );
       if (params.has('cell')){
         cellName = params.get('cell');
         createURL += "&cell=" + cellName;
+        batchCreateURL += "&cell=" + cellName;
         $('#breadcrumb-path').append(
           $('<a>').addClass('breadcrumb').text(cellName).attr('href','#')
         );
@@ -805,10 +967,9 @@
       );
 
       $('#create_button').attr('href',  createURL);
+      $('#batch_create_button').attr('href', batchCreateURL);
 
-      loadInstances();
-
-      intervalID = setInterval(refresh, refreshInterval);
+      disableBatchMode();
     });
 
 </script>

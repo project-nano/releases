@@ -1,5 +1,62 @@
 # Change Log
 
+## [0.8.1] - 2019-03-26
+
+### Core 0.8.1
+
+#### Added
+
+- Modify guest name
+
+- Batch creating/deleting guest
+
+#### Changed
+
+- Adapt to new runnable implement
+
+- Locate cert files of image server base on the binary path
+
+
+### Cell 0.8.1
+
+#### Added
+
+- Rename guest
+
+#### Changed
+
+- Migrate bridge configure from interface
+
+- Adapt to new runnable implement
+
+
+### FrontEnd 0.8.1
+
+#### Added
+
+- Check resource path
+
+- Enable batch creating and deleting/modify guest name/modify image info
+
+- Batch creating/deleting guest
+
+- Modify user password
+
+- Modify guest name
+
+#### Changed
+
+- Locate resource using ABS path
+
+- Adapt to new runnable implement
+
+- Verify guest name before submit creating request
+
+- Navigation menu change to the sidebar
+
+- Update chartjs to v2.8
+
+
 ## [0.7.1] - 2019-01-03
 
 ### Core 0.7.1
