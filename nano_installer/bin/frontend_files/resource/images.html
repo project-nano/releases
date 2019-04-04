@@ -202,7 +202,7 @@
     function confirmDelete(name, id){
       $('#confirm_content').text('Are you sure to delete image ' + name);
       $('#confirm_link').attr('onclick', 'deleteImage("' + name + '","'+ id +'")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#modal_config'));
       instance.open();
     }
     function deleteImage(name, id) {

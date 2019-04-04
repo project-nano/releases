@@ -249,7 +249,7 @@
     function confirmRemove(start){
       $('#confirm_content').text('Are you sure to remove address range from ' + start);
       $('#confirm_link').attr('onclick', 'removeRange("' + start + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#modal_confirm'));
       instance.open();
     }
 

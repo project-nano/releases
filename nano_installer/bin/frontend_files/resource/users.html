@@ -23,7 +23,7 @@
       </div>
     </div>
   </div>
-  <div class="modal">
+  <div class="modal" id="user-modal">
       <div class="modal-content" id="modal-content">
       </div>
       <div class="modal-footer">
@@ -312,7 +312,7 @@
           );
           M.updateTextFields();
           $('#modal-confirm').attr('onclick', 'modifyUser("' + name + '")');
-          var instance = M.Modal.getInstance($('.modal'));
+          var instance = M.Modal.getInstance($('#user-modal'));
           instance.open();
       });
 
@@ -376,7 +376,7 @@
       );
       M.updateTextFields();
       $('#modal-confirm').attr('onclick', 'modifyPassword("' + name + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#user-modal'));
       instance.open();
     }
 
@@ -433,7 +433,7 @@
         $('<div>').text('Are you sure to delete user ' + name)
       );
       $('#modal-confirm').attr('onclick', 'deleteUser("' + name + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#user-modal'));
       instance.open();
     }
 
@@ -712,7 +712,7 @@
         $('<div>').text('Are you sure to remove role ' + name)
       );
       $('#modal-confirm').attr('onclick', 'removeRole("' + name + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#user-modal'));
       instance.open();
     }
 
@@ -1054,7 +1054,7 @@
         $('<div>').text('Are you sure to remove group ' + name)
       );
       $('#modal-confirm').attr('onclick', 'removeGroup("' + name + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#user-modal'));
       instance.open();
     }
 
@@ -1261,7 +1261,7 @@
         $('<div>').text('Are you sure to remove member '+ memberName +' from group ' + groupName)
       );
       $('#modal-confirm').attr('onclick', 'removeGroupMember("' + groupName + '", "' + memberName + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#user-modal'));
       instance.open();
     }
 

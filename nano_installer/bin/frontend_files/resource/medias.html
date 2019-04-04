@@ -84,7 +84,7 @@
             if (image['tags']){
               image['tags'].forEach((tag) => {
                 tags.append($('<div>').addClass('chip').text(tag));
-              });              
+              });
             }
             var imageSize = image['size'];
             var sizeString;
@@ -146,7 +146,7 @@
     function confirmDelete(name, id){
       $('#confirm_content').text('Are you sure to delete image ' + name);
       $('#confirm_link').attr('onclick', 'deleteImage("' + name + '","'+ id +'")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#modal_confirm'));
       instance.open();
     }
 

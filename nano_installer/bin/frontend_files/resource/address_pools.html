@@ -159,7 +159,7 @@
     function confirmDelete(name){
       $('#confirm_content').text('Are you sure to delete address pool ' + name);
       $('#confirm_link').attr('onclick', 'deletePool("' + name + '")');
-      var instance = M.Modal.getInstance($('.modal'));
+      var instance = M.Modal.getInstance($('#modal_confirm'));
       instance.open();
     }
 
