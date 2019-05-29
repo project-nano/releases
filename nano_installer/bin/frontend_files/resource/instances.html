@@ -259,7 +259,7 @@
       if (!poolName){
         return;
       }
-      var url = "/guest_search/?pool=" + poolName;
+      var url = "/guest_search/?pool=" + poolName + '&owner=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
       if (cellName){
         url += "&cell=" + cellName;
       }
@@ -393,27 +393,35 @@
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip', texts.get(N.TagStop)).attr('onclick', 'stopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagStop)).append(
                     $('<i>').addClass('material-icons').text('power_settings_new')
-                  )
+                  ).click(function(){
+                    N.StopInstance(instanceName, instanceID, refresh);
+                  })
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip', texts.get(N.TagForceStop)).attr('onclick', 'forceStopInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagForceStop)).append(
                     $('<i>').addClass('material-icons').text('power')
-                  )
+                  ).click(function(){
+                    N.ForceStopInstance(instanceName, instanceID, refresh);
+                  })
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip', texts.get(N.TagReboot)).attr('onclick', 'restartInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagReboot)).append(
                     $('<i>').addClass('material-icons').text('rotate_right')
-                  )
+                  ).click(function(){
+                    N.RestartInstance(instanceName, instanceID, refresh);
+                  })
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip', texts.get(N.TagForceReboot)).attr('onclick', 'resetInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagForceReboot)).append(
                     $('<i>').addClass('material-icons').text('refresh')
-                  )
+                  ).click(function(){
+                    N.ResetInstance(instanceName, instanceID, refresh);
+                  })
               );
               if (mediaAttached){
                 status.append(
@@ -442,9 +450,11 @@
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
-                  attr('data-tooltip', texts.get(N.TagStart)).attr('onclick', 'startInstance("' + instanceName + '","' + instanceID + '")').append(
+                  attr('data-tooltip', texts.get(N.TagStart)).append(
                     $('<i>').addClass('material-icons').text('play_arrow')
-                  )
+                  ).click(function(){
+                    N.StartInstance(instanceName, instanceID, refresh);
+                  })
               );
               operators.append(
                 $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'top').
@@ -526,102 +536,11 @@
       );
     }
 
-    function startInstance(name, id) {
-        $.post('/instances/' + id,
-        JSON.stringify({}),
-        function (result) {
-            if (0 != result['error_code']) {
-                M.toast({html: 'start instance fail: ' + result['message'], outDuration: 600});
-                return;
-            }
-            M.toast({html: 'instance "' + name + '" started'})
-            setTimeout(refresh, 2000);
-        },
-        "json");
-    }
-    function stopInstance(name, id) {
-        $.ajax({
-         url:'/instances/' + id,
-         type: "DELETE",
-         data:JSON.stringify({
-             "reboot": false,
-             "force": false
-         }),
-         dataType: "json",
-         success: function (result) {
-             if (0 != result['error_code']) {
-                 M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
-                 return;
-             }
-             M.toast({html: 'instance "' + name + '" stopped'})
-             setTimeout(refresh, 3000);
-         }
-        });
-    }
-
-    function forceStopInstance(name, id) {
-        $.ajax({
-            url:'/instances/' + id,
-            type: "DELETE",
-            data:JSON.stringify({
-                "reboot": false,
-                "force": true
-            }),
-            dataType: "json",
-            success: function (result) {
-                if (0 != result['error_code']) {
-                    M.toast({html: 'force stop instance fail: ' + result['message'], outDuration: 600});
-                    return;
-                }
-                M.toast({html: 'instance "' + name + '" force stopped'})
-                setTimeout(refresh, 2000);
-            }
-        });
-    }
-
-    function restartInstance(name, id) {
-        $.ajax({
-            url:'/instances/' + id,
-            type: "DELETE",
-            data:JSON.stringify({
-                "reboot": true,
-                "force": false
-            }),
-            dataType: "json",
-            success: function (result) {
-                if (0 != result['error_code']) {
-                    M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
-                    return;
-                }
-                M.toast({html: 'instance "' + name + '" restarted'})
-                setTimeout(refresh, 1500);
-            }
-        });
-    }
-    function resetInstance(name, id) {
-        $.ajax({
-            url:'/instances/' + id,
-            type: "DELETE",
-            data:JSON.stringify({
-                "reboot": true,
-                "force": true,
-            }),
-            dataType: "json",
-            success: function (result) {
-                if (0 != result['error_code']) {
-                    M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
-                    return;
-                }
-                M.toast({html: 'instance "' + name + '" reset'})
-                setTimeout(refresh, 1500);
-            }
-        });
-    }
-
     function selectMedia(name, id){
       $('#media_confirm_link').attr('onclick', 'startWithMedia("' + name + '", "' + id +'")');
+      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
       $.getJSON(
-        '/media_images/',
+        queryURL,
         function(result){
           if (0 != result['error_code']) {
               M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});
@@ -661,6 +580,7 @@
           }
           M.toast({html: 'instance "' + name + '" started with media ' + mediaName});
           setTimeout(refresh, 3000);
+          N.WriteOperateLog('start instance ' + name + ' / ' + id + ' with media ' + mediaName);
         },
         "json"
       );
@@ -688,6 +608,7 @@
            }
            M.toast({html: 'guest "' + name + '" deleted'})
            setTimeout(refresh, 500);
+           N.WriteOperateLog('delete guest ' + name + ' / ' + id);
        }
       });
     }
@@ -695,8 +616,9 @@
     //insert media
     function selectInsertMedia(name, id){
       $('#insert_confirm_link').attr('onclick', 'insertMedia("' + name + '", "' + id +'")');
+      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
       $.getJSON(
-        '/media_images/',
+        queryURL,
         function(result){
           if (0 != result['error_code']) {
               M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});

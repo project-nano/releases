@@ -33,6 +33,15 @@
             <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link">Yes</a>
         </div>
     </div>
+    <div class="modal" id="modal-dialog">
+        <!--hide model -->
+        <div class="modal-content" id="modal-dialog-content">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="modal-dialog-confirm"></a>
+        </div>
+    </div>
 </div>
 
 <!--JavaScript at end of body for optimized loading-->
@@ -40,13 +49,9 @@
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-    N.ValidateSession();
-    var texts = N.GetTexts();
-    $('#btn-upload').append(texts.get(N.TagUpload));
-    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
-    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
 
-    M.AutoInit();
+    var texts = N.GetTexts();
+
     function outputMessage(message){
       $('#images_list').empty().append(
         $('<div>').addClass('center').append(
@@ -60,8 +65,9 @@
     }
 
     function loadImages(){
+      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
       $.getJSON(
-        '/media_images/',
+        queryURL,
         function(result){
           if (0 != result['error_code']) {
             outputMessage(result['message']);
@@ -127,7 +133,7 @@
                 )
             ).append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
-                attr('data-tooltip', texts.get(N.TagModify)).attr('onclick', 'modifyImage("' + image['id'] +'")').append(
+                attr('data-tooltip', texts.get(N.TagModify)).attr('onclick', 'confirmModifyImage("' + image['id'] +'")').append(
                   $('<i>').addClass('material-icons').text('mode_edit')
                 )
             );
@@ -160,17 +166,144 @@
                M.toast({html: 'delete image fail: ' + result['message'], outDuration: 1000});
                return;
            }
-           M.toast({html: 'disk image "' + name + '" deleted'})
+           M.toast({html: 'media image "' + name + '" deleted'});
            setTimeout(refresh, 1500);
+           N.WriteOperateLog('delete media image ' + name + ' / ' + id);
        }
       });
     }
 
-    function modifyImage(id) {
-        M.toast({html: 'todo: mofidy image ' + id});
+    function confirmModifyImage(id) {
+      var queryURL = '/media_images/' + id;
+      $.getJSON(
+        queryURL,
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'get image info fail: ' + result['message'], outDuration: 1000});
+            return;
+          }
+          if (!result['data']){
+            M.toast({html: 'no media info available'});
+            return;
+          }
+          var image = result['data'];
+          var imageName = image['name'];
+          var imageDescription = image['description'];
+          var imageTags = image['tags'];
+
+          var content = $('#modal-dialog-content').empty();
+          if (N.IsChinese()){
+            content.append(
+              $('<h4>').text('修改镜像信息')
+            );
+          }else{
+            content.append(
+              $('<h4>').text('Modify Image')
+            );
+          }
+          //name
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('input-field col m4 s12').append(
+                $('<label>').attr('for', 'image-name').text(texts.get(N.TagName))
+              ).append(
+                $('<input>').attr('type','text').attr('id', 'image-name').val(imageName)
+              )
+            )
+          );
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('input-field col m8 s12').append(
+                $('<label>').attr('for', 'image-description').text(texts.get(N.TagDescription))
+              ).append(
+                $('<textarea>').addClass('materialize-textarea').attr('id', 'image-description').val(imageDescription)
+              )
+            )
+          );
+          var tagList = $('<div>').addClass('row');
+          N.GetAllImageTags().forEach((tag)=>{
+            tagList.append(
+              $('<div>').addClass('col m3').append(
+                $('<label>').append(
+                  $('<input>').attr('type', 'checkbox').attr('name', 'image-tag').val(tag[0])
+                ).append(
+                  $('<span>').text(tag[1])
+                )
+              )
+            );
+          });
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('col m2').append(
+                $('<label>').text(texts.get(N.TagTag))
+              )
+            )
+          ).append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('col m8').append(
+                tagList
+              )
+            )
+          );
+          //check tags
+          imageTags.forEach((tag)=>{
+            $(':checkbox[name=image-tag][value=' + tag +']').prop('checked', true);
+          });
+          //show
+          M.updateTextFields();
+          $('#modal-dialog-confirm').attr('onclick', 'modifyImage("'+ id +'")');
+          var instance = M.Modal.getInstance($('#modal-dialog'));
+          instance.open();
+        }
+      );
+    }
+
+    function modifyImage(imageID){
+      var imageName = $('#image-name').val();
+      if (!imageName){
+        M.toast({html: 'invalid image name'});
+        return;
+      }
+      var imageDescription = $('#image-description').val();
+      if (!imageDescription){
+        M.toast({html: 'input image description'});
+        return;
+      }
+
+      var imageTags = new Array();
+      $("input[name='image-tag']:checkbox:checked").each(function(){
+        imageTags.push($(this).val());
+      });
+      var request = new Object();
+      request.name = imageName;
+      request.description = imageDescription;
+      request.owner = N.GetCurrentUser();
+      request.group = N.GetCurrentGroup();
+      request.tags = imageTags;
+      $.ajax({
+       url: '/media_images/' + imageID ,
+       type: "PUT",
+       dataType: "json",
+       data:JSON.stringify(request),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'modify image fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'image "' + imageID + '" modified'});
+           setTimeout(refresh, 500);
+           N.WriteOperateLog('modify media image ' + imageName + ' / ' + imageID);
+       }
+      });
+
     }
 
     $(function(){
+      N.ValidateSession();
+      $('#btn-upload').append(texts.get(N.TagUpload));
+      $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+      $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+      M.AutoInit();
       M.Modal.init($('.modal'));
       loadImages();
 

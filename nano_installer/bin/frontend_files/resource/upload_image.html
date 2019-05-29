@@ -35,44 +35,7 @@
               </div>
               <div class="row">
                   <div class="col m8">
-                    <div class="row">
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="linux"/>
-                          <span>Linux</span>
-                        </label>
-                      </div>
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="windows"/>
-                          <span>Windows</span>
-                        </label>
-                      </div>
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="centos"/>
-                          <span>CentOS</span>
-                        </label>
-                      </div>
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="ubuntu"/>
-                          <span>Ubuntu</span>
-                        </label>
-                      </div>
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="64bit"/>
-                          <span>64Bit</span>
-                        </label>
-                      </div>
-                      <div class="col m3">
-                        <label>
-                          <input type="checkbox" name="tag" value="32bit"/>
-                          <span>32Bit</span>
-                        </label>
-                      </div>
-
+                    <div class="row" id="tag-list">
                     </div>
                   </div>
               </div>
@@ -122,18 +85,36 @@
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-N.ValidateSession();
 var texts = N.GetTexts();
-$('#back-caption').append(texts.get(N.TagBack));
-$('#upload-caption').prepend(texts.get(N.TagUpload));
 
-$('#name-label').text(texts.get(N.TagImageName));
-$('#description-label').text(texts.get(N.TagDescription));
-$('#tag-label').text(texts.get(N.TagTag));
-$('#file-label').text(texts.get(N.TagImageFile));
-$('#select-label').text(texts.get(N.TagSelect));
+$(function(){
+  N.ValidateSession();
+  $('#back-caption').append(texts.get(N.TagBack));
+  $('#upload-caption').prepend(texts.get(N.TagUpload));
 
-M.AutoInit();
+  $('#name-label').text(texts.get(N.TagImageName));
+  $('#description-label').text(texts.get(N.TagDescription));
+  $('#tag-label').text(texts.get(N.TagTag));
+  $('#file-label').text(texts.get(N.TagImageFile));
+  $('#select-label').text(texts.get(N.TagSelect));
+
+  //add tags
+  var tagList = $('#tag-list');
+  N.GetAllImageTags().forEach((tag)=>{
+    tagList.append(
+      $('<div>').addClass('col m3').append(
+        $('<label>').append(
+          $('<input>').attr('type', 'checkbox').attr('name', 'tag').val(tag[0])
+        ).append(
+          $('<span>').text(tag[1])
+        )
+      )
+    );
+  });
+
+  M.AutoInit();
+});
+
 
 function uploadImage(){
   var imageName = $('#image_name').val();
@@ -173,8 +154,8 @@ function createImage(name, description, tags){
   var request = new Object();
   request.name = name;
   request.description = description;
-  request.owner = "admin";
-  request.group = "manager";
+  request.owner = N.GetCurrentUser();
+  request.group = N.GetCurrentGroup();
   request.tags = tags;
   $.post(
     '/media_images/',
@@ -254,6 +235,7 @@ function startTransport(name, description, tags, imageId){
           )
         )
       );
+      N.WriteOperateLog('upload media image ' + name + ' / ' + imageId);
     },
     error: function(jqXHR, textStatus, errorThrown){
       releaseImage(imageId);

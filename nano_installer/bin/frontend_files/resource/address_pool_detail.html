@@ -265,6 +265,7 @@
            }
            M.toast({html: 'address range "' + startAddress + '" removed'})
            setTimeout(refresh, 500);
+           N.WriteOperateLog('remove range ' + startAddress + ' from address pool ' + poolName);
        }
       });
     }

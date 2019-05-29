@@ -207,6 +207,7 @@ function modifyPool(){
           )
         )
       );
+      N.WriteOperateLog('modify address pool ' + poolName);
     },
     error: function (jqXHR, status, error) {
       M.toast({html: 'request modify address pool fail: ' + error, outDuration: 600});

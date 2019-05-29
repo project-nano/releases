@@ -73,8 +73,8 @@ var texts = N.GetTexts();
 var originURL, poolName, cellName, instanceID, instanceName;
 
 function loadImages(){
-  var IMAGE_GROUP = "manager";
-  $.getJSON("/disk_image_search?group=" + IMAGE_GROUP, function(result){
+  var queryImage = '/disk_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+  $.getJSON(queryImage, function(result){
     if (0 != result['error_code']) {
         M.toast({html: 'query disk images fail:' + result['message']});
         return;
@@ -117,6 +117,7 @@ function finishReset(){
       )
     )
   );
+  N.WriteOperateLog('reset system of guest ' + instanceName + ' / ' + instanceID);
 }
 
 function checkResult(){

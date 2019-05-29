@@ -207,6 +207,7 @@ function modifyPool(){
           )
         )
       );
+      N.WriteOperateLog('modify storage pool ' + poolName);
     },
     error: function (jqXHR, status, error) {
       M.toast({html: 'request modify storage pool fail: ' + error, outDuration: 600});

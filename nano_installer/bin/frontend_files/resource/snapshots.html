@@ -344,6 +344,7 @@
            }
            M.toast({html: 'snapshot "' + name + '" created'})
            setTimeout(refresh, 500);
+           N.WriteOperateLog('create new snapshot ' + name + ' for guest ' + instanceID);
        }
       });
     }
@@ -372,6 +373,7 @@
            }
            M.toast({html: 'snapshot "' + name + '" restored'})
            setTimeout(refresh, 500);
+           N.WriteOperateLog('restore snapshot ' + name + ' for guest ' + instanceID);
        }
       });
     }
@@ -397,6 +399,7 @@
            }
            M.toast({html: 'snapshot "' + name + '" deleted'})
            setTimeout(refresh, 500);
+           N.WriteOperateLog('delete snapshot ' + name + ' for guest ' + instanceID);
        }
       });
     }

@@ -19,24 +19,6 @@
                 <a href="build_image.html" class="waves-effect waves-light blue-grey lighten-2 btn" id="btn-build"><i class="material-icons left">build</i></a>
                 <a href="upload_disk.html" class="waves-effect waves-light blue-grey lighten-2 btn" id="btn-upload"><i class="material-icons left">file_upload</i></a>
             </div>
-            <div class="col m2 push-m4">
-                <div class="input-field">
-                    <select>
-                        <option value="" disabled selected>Filter by Group</option>
-                        <option value="manager">manager</option>
-                        <option value="user">user</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col m2 push-m4">
-                <div class="input-field">
-                    <select>
-                        <option value="" disabled selected>Filter by Tag</option>
-                        <option value="linux">linux</option>
-                        <option value="windows">windows</option>
-                    </select>
-                </div>
-            </div>
         </div>
     </div>
     <div class="divider"></div>
@@ -52,6 +34,15 @@
             <a href="#" class="modal-close waves-effect waves-green btn-flat" id="confirm_link">Yes</a>
         </div>
     </div>
+    <div class="modal" id="modal-dialog">
+        <!--hide model -->
+        <div class="modal-content" id="modal-dialog-content">
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="modal-close waves-effect waves-green btn-flat"></a>
+            <a href="#" class="modal-close waves-effect waves-green btn-flat" id="modal-dialog-confirm"></a>
+        </div>
+    </div>
 </div>
 
 <!--JavaScript at end of body for optimized loading-->
@@ -59,17 +50,9 @@
 <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/nano.js"></script>
 <script>
-    N.ValidateSession();
     var texts = N.GetTexts();
-    $('#btn-build').append(texts.get(N.TagBuild));
-    $('#btn-upload').append(texts.get(N.TagUpload));
-    $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
-    $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
 
-    M.AutoInit();
 
-    var filterGroup;
-    var filterTag;
     function parseQueryString(){
       var url = window.location.search;
       var queryString = url.substring( url.indexOf('?') + 1 );
@@ -84,12 +67,6 @@
       });
       if (0 == params.length){
         return true;
-      }
-      if (params.has('group')){
-        filterGroup = params.get('group');
-      }
-      if (params.has('tags')){
-        filterTag = params.get('tags');
       }
       return true;
     }
@@ -107,16 +84,9 @@
     }
 
     function loadImages(){
-      var url = '/disk_image_search/';
-      if (filterGroup && filterTag){
-        url += '?group=' + filterGroup + '&tags=' + filterTag;
-      }else if (filterGroup){
-        url += '?group=' + filterGroup;
-      }else if (filterTag){
-        url += '?tags=' + filterTag;
-      }
+      var queryURL = '/disk_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
       $.getJSON(
-        url,
+        queryURL,
         function(result){
           if (0 != result['error_code']) {
             outputMessage(result['message']);
@@ -179,7 +149,7 @@
                 )
             ).append(
               $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('data-position', 'bottom').
-                attr('data-tooltip', texts.get(N.TagModify)).attr('onclick', 'modifyImage("' + image['id'] +'")').append(
+                attr('data-tooltip', texts.get(N.TagModify)).attr('onclick', 'confirmModifyImage("' + image['id'] +'")').append(
                   $('<i>').addClass('material-icons').text('mode_edit')
                 )
             ).append(
@@ -215,8 +185,9 @@
                M.toast({html: 'delete image fail: ' + result['message'], outDuration: 1000});
                return;
            }
-           M.toast({html: 'disk image "' + name + '" deleted'})
+           M.toast({html: 'disk image "' + name + '" deleted'});
            setTimeout(refresh, 1500);
+           N.WriteOperateLog('delete disk image ' + name + ' / ' + id);
        }
       });
     }
@@ -225,11 +196,139 @@
         window.location.href = '/disk_image_files/'+id;
     }
 
-    function modifyImage(id) {
-        M.toast({html: 'todo: mofidy image ' + id});
+    function confirmModifyImage(id) {
+      var queryURL = '/disk_images/' + id;
+      $.getJSON(
+        queryURL,
+        function(result){
+          if (0 != result['error_code']) {
+              M.toast({html: 'get image info fail: ' + result['message'], outDuration: 1000});
+            return;
+          }
+          if (!result['data']){
+            M.toast({html: 'no media info available'});
+            return;
+          }
+          var image = result['data'];
+          var imageName = image['name'];
+          var imageDescription = image['description'];
+          var imageTags = image['tags'];
+
+          var content = $('#modal-dialog-content').empty();
+          if (N.IsChinese()){
+            content.append(
+              $('<h4>').text('修改镜像信息')
+            );
+          }else{
+            content.append(
+              $('<h4>').text('Modify Image')
+            );
+          }
+          //name
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('input-field col m4 s12').append(
+                $('<label>').attr('for', 'image-name').text(texts.get(N.TagName))
+              ).append(
+                $('<input>').attr('type','text').attr('id', 'image-name').val(imageName)
+              )
+            )
+          );
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('input-field col m8 s12').append(
+                $('<label>').attr('for', 'image-description').text(texts.get(N.TagDescription))
+              ).append(
+                $('<textarea>').addClass('materialize-textarea').attr('id', 'image-description').val(imageDescription)
+              )
+            )
+          );
+          var tagList = $('<div>').addClass('row');
+          N.GetAllImageTags().forEach((tag)=>{
+            tagList.append(
+              $('<div>').addClass('col m3').append(
+                $('<label>').append(
+                  $('<input>').attr('type', 'checkbox').attr('name', 'image-tag').val(tag[0])
+                ).append(
+                  $('<span>').text(tag[1])
+                )
+              )
+            );
+          });
+          content.append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('col m2').append(
+                $('<label>').text(texts.get(N.TagTag))
+              )
+            )
+          ).append(
+            $('<div>').addClass('row').append(
+              $('<div>').addClass('col m8').append(
+                tagList
+              )
+            )
+          );
+          //check tags
+          imageTags.forEach((tag)=>{
+            $(':checkbox[name=image-tag][value=' + tag +']').prop('checked', true);
+          });
+          //show
+          M.updateTextFields();
+          $('#modal-dialog-confirm').attr('onclick', 'modifyImage("'+ id +'")');
+          var instance = M.Modal.getInstance($('#modal-dialog'));
+          instance.open();
+        }
+      );
     }
 
+    function modifyImage(imageID){
+      var imageName = $('#image-name').val();
+      if (!imageName){
+        M.toast({html: 'invalid image name'});
+        return;
+      }
+      var imageDescription = $('#image-description').val();
+      if (!imageDescription){
+        M.toast({html: 'input image description'});
+        return;
+      }
+
+      var imageTags = new Array();
+      $("input[name='image-tag']:checkbox:checked").each(function(){
+        imageTags.push($(this).val());
+      });
+      var request = new Object();
+      request.name = imageName;
+      request.description = imageDescription;
+      request.owner = N.GetCurrentUser();
+      request.group = N.GetCurrentGroup();
+      request.tags = imageTags;
+      $.ajax({
+       url: '/disk_images/' + imageID ,
+       type: "PUT",
+       dataType: "json",
+       data:JSON.stringify(request),
+       success: function (result) {
+           if (0 != result['error_code']) {
+               M.toast({html: 'modify image fail: ' + result['message'], outDuration: 1000});
+               return;
+           }
+           M.toast({html: 'image "' + imageID + '" modified'});
+           setTimeout(refresh, 500);
+           N.WriteOperateLog('modify disk image ' + imageName + ' / ' + imageID);
+       }
+      });
+
+    }
+
+
     $(function(){
+      N.ValidateSession();
+      $('#btn-build').append(texts.get(N.TagBuild));
+      $('#btn-upload').append(texts.get(N.TagUpload));
+      $('.modal-footer > a:first-child').text(texts.get(N.TagCancel));
+      $('.modal-footer > a:last-child').text(texts.get(N.TagConfirm));
+      M.AutoInit();
       M.Modal.init($('.modal'));
       parseQueryString();
       loadImages();

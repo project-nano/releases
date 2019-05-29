@@ -234,8 +234,9 @@
                M.toast({html: 'delete pool fail: ' + result['message'], outDuration: 1000});
                return;
            }
-           M.toast({html: 'compute pool "' + name + '" deleted'})
+           M.toast({html: 'compute pool "' + name + '" deleted'});
            setTimeout(refresh, 500);
+           N.WriteOperateLog('delete compute pool ' + name);
        }
       });
     }

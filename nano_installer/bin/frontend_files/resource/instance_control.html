@@ -70,6 +70,7 @@
 
 <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/nano.js"></script>
 <script type="module">
   import RFB from './js/novnc/core/rfb.js';
 
@@ -165,13 +166,13 @@
         var instanceID = result['data']['id'];
         $('#instance_name').text(instanceName);
         $('#shutdown_btn').bind("click", function(){
-          stopInstance(instanceName, instanceID);
+          N.StopInstance(instanceName, instanceID);
         });
         $('#reboot_btn').bind("click", function(){
-          restartInstance(instanceName, instanceID);
+          N.RestartInstance(instanceName, instanceID);
         });
         $('#reset_btn').bind("click", function(){
-          resetInstance(instanceName, instanceID);
+          N.ResetInstance(instanceName, instanceID);
         });
         // $('#insert_btn').attr('onclick', 'selectInsertMedia("'+ instanceName +'","' + instanceID + '")');
         // $('#eject_btn').attr('onclick', 'confirmEject("'+ instanceName +'", "' + instanceID + '")');
@@ -185,67 +186,12 @@
     );
   }
 
-  function restartInstance(name, id) {
-      $.ajax({
-          url:'/instances/' + id,
-          type: "DELETE",
-          data:JSON.stringify({
-              "reboot": true,
-              "force": false
-          }),
-          dataType: "json",
-          success: function (result) {
-              if (0 != result['error_code']) {
-                  M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
-                  return;
-              }
-              M.toast({html: 'instance "' + name + '" restarted'});;
-          }
-      });
-  }
-  function resetInstance(name, id) {
-      $.ajax({
-          url:'/instances/' + id,
-          type: "DELETE",
-          data:JSON.stringify({
-              "reboot": true,
-              "force": true,
-          }),
-          dataType: "json",
-          success: function (result) {
-              if (0 != result['error_code']) {
-                  M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
-                  return;
-              }
-              M.toast({html: 'instance "' + name + '" reset'});
-          }
-      });
-  }
-
-  function stopInstance(name, id) {
-      $.ajax({
-       url:'/instances/' + id,
-       type: "DELETE",
-       data:JSON.stringify({
-           "reboot": false,
-           "force": false
-       }),
-       dataType: "json",
-       success: function (result) {
-           if (0 != result['error_code']) {
-               M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
-               return;
-           }
-           M.toast({html: 'instance "' + name + '" stopped'});
-       }
-      });
-  }
-
   //insert media
   function selectInsertMedia(name, id){
     $('#insert_confirm_link').attr('onclick', 'insertMedia("' + name + '", "' + id +'")');
+    var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
     $.getJSON(
-      '/media_images/',
+      queryURL,
       function(result){
         if (0 != result['error_code']) {
             M.toast({html: 'fetch media fail: ' + result['message'], outDuration: 600});

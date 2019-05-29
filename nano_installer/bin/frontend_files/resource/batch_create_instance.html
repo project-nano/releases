@@ -368,8 +368,8 @@ function loadOptions(){
 
     M.FormSelect.init($('#version-options'));
   });
-  var IMAGE_GROUP = "manager";
-  $.getJSON("/disk_image_search?group=" + IMAGE_GROUP, function(result){
+  var queryImage = '/disk_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+  $.getJSON(queryImage, function(result){
     if (0 != result['error_code']) {
         M.toast({html: 'query disk images fail:' + result['message']});
         return;
@@ -771,7 +771,7 @@ function submitCreateRequest() {
 
     request.count = parseInt($('#guest-count').val());
     request.owner = N.GetCurrentUser();
-    request.group = 'manager';
+    request.group = N.GetCurrentGroup();
     request.pool = $('#pool-options').val();
     request.cores = Number($('input[name=cores]:checked').val());
     request.memory = Number($('input[name=memory]:checked').val());
@@ -811,6 +811,7 @@ function submitCreateRequest() {
     }else{
       request.auto_start = false;
     }
+    N.WriteOperateLog('try create ' + request.count + ' guest(es) in pool ' + request.pool);
     createGuest(request);
 }
 

@@ -208,6 +208,7 @@ function submitDeleteRequest(targets) {
     }
     var request = new Object();
     request.guest = targets;
+    N.WriteOperateLog('try delete ' + targets.length + ' guest(es)');
     deleteGuest(request);
 }
 

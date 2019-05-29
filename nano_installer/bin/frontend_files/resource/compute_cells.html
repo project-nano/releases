@@ -273,8 +273,9 @@
                M.toast({html: 'delete cell fail: ' + result['message'], outDuration: 1000});
                return;
            }
-           M.toast({html: 'compute cell "' + name + '" removed'})
+           M.toast({html: 'compute cell "' + name + '" removed'});
            setTimeout(refresh, 500);
+           N.WriteOperateLog('remove compute cell ' + name);
        }
       });
     }
@@ -294,6 +295,7 @@
             }
             M.toast({html: cellName + ' disabled'});
             setTimeout(refresh, 500);
+            N.WriteOperateLog('disable compute cell ' + cellName);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request disable cell fail: ' + error, outDuration: 600});
@@ -316,6 +318,7 @@
             }
             M.toast({html: cellName + ' enabled'});
             setTimeout(refresh, 500);
+            N.WriteOperateLog('enable compute cell ' + cellName);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request enable cell fail: ' + error, outDuration: 600});

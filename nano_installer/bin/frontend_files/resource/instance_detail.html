@@ -586,6 +586,7 @@
               M.toast({html: 'Guest name modified'});
             }
             $('#guest-name').text(newName);
+            N.WriteOperateLog('modify name of ' + guestName + ' to ' + newName);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify guest name fail: ' + error, outDuration: 600});
@@ -620,6 +621,7 @@
             M.toast({html: 'cores of guest modified'});
             $('#text_core').text(newCores);
             $('#current_core').text(newCores);
+            N.WriteOperateLog('change core of ' + instanceID + ' to ' + newCores);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify guest core fail: ' + error, outDuration: 600});
@@ -656,6 +658,7 @@
             var memoryDisplayed = newMemory + ' MiB'
             $('#text_memory').text(memoryDisplayed);
             $('#current_memory').text(memoryDisplayed);
+            N.WriteOperateLog('change memory of ' + instanceID + ' to ' + memoryDisplayed);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify memory fail: ' + error, outDuration: 600});
@@ -700,6 +703,7 @@
             var diskDisplayed = newDisk + ' GiB';
             ins['disks'][index] = diskInBytes;
             $('#text_disk_' + index).text(diskDisplayed);
+            N.WriteOperateLog('extend disk of ' + instanceID + ' to ' + diskDisplayed);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify disk size fail: ' + error, outDuration: 600});
@@ -716,6 +720,7 @@
 
     function shrinkDisk(index){
       var request = new Object();
+      N.WriteOperateLog('try shrink disk of ' + instanceID);
       $.ajax({
         url: '/guest/' + instanceID + '/disks/shrink/' + index,
         method: "PUT",
@@ -820,6 +825,7 @@
                 return;
             }
             M.toast({html: 'password modified'});
+            N.WriteOperateLog('modify guest password of ' + instanceID);            
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request change password fail: ' + error, outDuration: 600});

@@ -359,7 +359,6 @@
             M.toast({html: 'update dashboard fail:' + result['message']});
             return;
         }
-
         //success
         var status = result['data'];
         if (!status['start_time']){
@@ -428,9 +427,13 @@
       });
     }
 
-    initialCharts();
-    updateDashboard();
-    setInterval(updateDashboard, 2000);
+    $(function(){
+      initialCharts();
+      updateDashboard();
+      setInterval(updateDashboard, 2000);
+    });
+
+
   </script>
   </body>
 </html>

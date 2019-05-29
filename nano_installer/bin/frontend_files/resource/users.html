@@ -113,6 +113,7 @@
               ).append($('<td>'))
             )
           );
+          var currentUser = N.GetCurrentUser();
           result['data'].forEach((name) => {
             var content = $('<tr>');
             content.append(
@@ -131,12 +132,15 @@
                   $('<i>').addClass('material-icons').text('lock')
                 )
             );
-            operators.append(
-              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'showDeleteUser("'+ name +'")').append(
-                  $('<i>').addClass('material-icons').text('delete')
-                )
-            );
+            if (name != currentUser){
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'showDeleteUser("'+ name +'")').append(
+                    $('<i>').addClass('material-icons').text('delete')
+                  )
+              );
+            }
+
             content.append(operators);
             container.append(
               $('<div>').addClass('col m8 push-m2').append(
@@ -199,6 +203,7 @@
           }
           M.toast({html: 'user ' + username + ' created'});
           loadUsers();
+          N.WriteOperateLog('create new user ' + username );
         },
         "json"
       );
@@ -339,6 +344,7 @@
             return;
           }
           M.toast({html: 'user ' + name + ' modified'});
+          N.WriteOperateLog('modify user ' + name);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify user fail: ' + error, outDuration: 600});
@@ -410,6 +416,7 @@
             return;
           }
           M.toast({html: 'password of user ' + name + ' modified'});
+          N.WriteOperateLog('modify password of user ' + name);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify password fail: ' + error, outDuration: 600});
@@ -449,6 +456,7 @@
            }
            M.toast({html: 'user "' + name + '" deleted'})
            setTimeout(loadUsers, 500);
+           N.WriteOperateLog('delete user ' + name);
        }
       });
     }
@@ -575,6 +583,7 @@
           }
           M.toast({html: 'role ' + rolename + ' added'});
           loadRoles();
+          N.WriteOperateLog('add new role ' + rolename);
         },
         "json"
       );
@@ -627,6 +636,7 @@
           }
           M.toast({html: 'role ' + name + ' modified'});
           loadRoles();
+          N.WriteOperateLog('modify role ' + name);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify role fail: ' + error, outDuration: 600});
@@ -728,6 +738,7 @@
            }
            M.toast({html: 'role "' + name + '" removed'})
            setTimeout(loadRoles, 500);
+           N.WriteOperateLog('remove role ' + name);
        }
       });
     }
@@ -789,6 +800,7 @@
               ).append($('<td>'))
             )
           );
+          var currentGroup = N.GetCurrentGroup();
           result['data'].forEach((group) => {
             var content = $('<tr>');
             var groupName = group['name'];
@@ -815,12 +827,15 @@
                   $('<i>').addClass('material-icons').text('group')
                 )
             );
-            operators.append(
-              $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
-                attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'showRemoveGroup("'+ groupName +'")').append(
-                  $('<i>').addClass('material-icons').text('delete')
-                )
-            );
+            if (groupName != currentGroup){
+              operators.append(
+                $('<a>').attr('href', '#').addClass('blue-grey-text tooltipped').attr('data-position', 'bottom').
+                  attr('data-tooltip', texts.get(N.TagDelete)).attr('onclick', 'showRemoveGroup("'+ groupName +'")').append(
+                    $('<i>').addClass('material-icons').text('delete')
+                  )
+              );
+            }
+
             content.append(operators);
             container.append(
               $('<div>').addClass('col m8 push-m2').append(
@@ -873,6 +888,7 @@
           }
           M.toast({html: 'group ' + groupName + ' added'});
           loadGroups();
+          N.WriteOperateLog('add new group ' + groupName);
         },
         "json"
       );
@@ -930,6 +946,7 @@
           }
           M.toast({html: 'group ' + groupName + ' modified'});
           loadGroups();
+          N.WriteOperateLog('modify group ' + groupName);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request modify group fail: ' + error, outDuration: 600});
@@ -1070,6 +1087,7 @@
            }
            M.toast({html: 'group "' + name + '" removed'})
            setTimeout(loadGroups, 500);
+           N.WriteOperateLog('remove group ' + name);
        }
       });
     }
@@ -1249,6 +1267,7 @@
           }
           M.toast({html: 'new member ' + memberName + ' added'});
           showGroupMembers(groupName);
+          N.WriteOperateLog('add new member ' + memberName + ' to group ' + groupName);
         },
         "json"
       );
@@ -1277,6 +1296,7 @@
            }
            M.toast({html: 'group member "' + memberName + '" removed'})
            setTimeout(showGroupMembers(groupName), 500);
+           N.WriteOperateLog('remove member ' + memberName + ' from group ' + groupName);
        }
       });
     }

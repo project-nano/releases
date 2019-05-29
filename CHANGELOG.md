@@ -1,5 +1,85 @@
 # Change Log
 
+## [0.9.1] - 2019-05-29
+
+### Core 0.9.1
+
+#### Added
+
+- Modify media image
+
+- Get media image
+
+- Query media/disk image filter by owner and group
+
+- Add new API "GET /media_image_search/" for filtering media images by owner and group
+
+#### Changed
+
+- Refactor image server
+
+- The image name is unique in a group
+
+- Results of query disk image sorted by name
+
+- Check image and disk size before clone guest
+
+#### Fixed
+
+- Accumulate CPU usage to a null value
+
+- Return empty data when querying zone status
+
+- Use wrong CPU usage when computing real cell load
+
+### FrontEnd 0.9.1
+
+#### Added
+
+- Get media image
+
+- Query/Add/Remove operate log
+
+- Add version and online manual link to footer
+
+- Add new API "GET /media_image_search/" for filtering media images by owner and group
+
+- Modify disk/media images
+
+- Add operate logs in most pages
+
+#### Changed
+
+- Default landing page change to 'login.html'
+
+- Add group info in session
+
+- Bind resources to current user/group: Create instance/upload&build images
+
+- Media images filtered using the current user and group
+
+- Display the appropriate page according to the menu after login
+
+- Add padding space for sidenav
+
+- Move start/stop/restart/reset instance into nano.js
+
+### Cell 0.8.3
+
+#### Fixed
+
+- Read interface fail due to script code in ifcfg
+
+### Installer 0.1.9
+
+#### Added
+
+- Add 'all' option to install all modules
+
+#### Fixed
+
+- Read interface fail due to script code in ifcfg
+
 ## [0.8.2] - 2019-04-04
 
 ### Core 0.8.2

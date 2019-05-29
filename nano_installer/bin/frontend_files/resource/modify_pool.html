@@ -265,6 +265,7 @@ function modifyPool(){
           )
         )
       );
+      N.WriteOperateLog('modify compute pool ' + poolName);
     },
     error: function (jqXHR, status, error) {
       M.toast({html: 'request modify compute pool fail: ' + error, outDuration: 600});

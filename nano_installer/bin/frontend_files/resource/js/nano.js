@@ -159,8 +159,9 @@ N.TagNew = "new";
 N.TagLogin = "login";
 N.TagLogout = "logout";
 N.TagResetSystem = "reset_system";
-N.Batch = "batch";
-N.Operate = "operate";
+N.TagBatch = "batch";
+N.TagOperate = "operate";
+N.TagLog = "log";
 
 //Language name
 N.zh_CN = "zh_CN";
@@ -291,8 +292,9 @@ var zh_CN_text = new TextSet(new Map([
   [N.TagLogin, "登录"],
   [N.TagLogout, "注销"],
   [N.TagResetSystem, "重置系统"],
-  [N.Batch, "批量"],
-  [N.Operate, "操作"]
+  [N.TagBatch, "批量"],
+  [N.TagOperate, "操作"],
+  [N.TagLog, "日志"]
 ]));
 
 var en_US_text = new TextSet(new Map([
@@ -418,8 +420,9 @@ var en_US_text = new TextSet(new Map([
   [N.TagLogin, "Login"],
   [N.TagLogout, "Logout"],
   [N.TagResetSystem, "Reset System"],
-  [N.Batch, "Batch"],
-  [N.Operate, "Operate"]
+  [N.TagBatch, "Batch"],
+  [N.TagOperate, "Operate"],
+  [N.TagLog, "Log"]
 ]));
 
 //initial text sets
@@ -437,8 +440,22 @@ N._menu_defines = [
   ['instance', 'instances.html', 'cloud', N.TagInstance],
   ['image', 'images.html', 'content_copy', N.TagImage],
   ['media', 'medias.html', 'album', N.TagMedia],
-  ['user', 'users.html', 'people', N.TagUser]
+  ['user', 'users.html', 'people', N.TagUser],
+  ['log', 'logs.html', 'border_color', N.TagLog]
 ];
+
+N._image_tags = [
+  ['linux', 'Linux'],
+  ['windows', 'Windows'],
+  ['centos', 'Centos'],
+  ['ubuntu', 'Ubuntu'],
+  ['64bit', '64Bit'],
+  ['32bit', '32Bit']
+];
+
+N.GetAllImageTags = function(){
+  return this._image_tags;
+};
 
 N.SetLanguage = function(lang){
   if (lang != this.zh_CN & lang != this.en_US){
@@ -504,17 +521,20 @@ function _updateSession(sessionID){
 }
 
 function _logoutSession(){
+  N.WriteOperateLog('log out');
   localStorage.setItem(N._session_tag, "");
   var target = '/login.html';
   window.location.replace(target);
 }
 
-N.SaveSession = function(id, user, menu, timeout){
+N.SaveSession = function(id, user, group, menu, address, timeout){
   var session = new Object();
   session.id = id;
   session.user = user;
+  session.group = group;
   session.menu = menu;
   session.timeout = timeout;
+  session.address = address;
   localStorage.setItem(N._session_tag, JSON.stringify(session));
 }
 
@@ -525,6 +545,48 @@ N.GetCurrentUser = function(){
   }
   var session = JSON.parse(sessionString);
   return session.user;
+}
+
+N.GetCurrentGroup = function(){
+  var sessionString = localStorage.getItem(N._session_tag);
+  if (!sessionString || 0 == sessionString.length){
+    return null;
+  }
+  var session = JSON.parse(sessionString);
+  return session.group;
+}
+
+N.WriteOperateLog = function(operate){
+  var sessionString = localStorage.getItem(N._session_tag);
+  if (!sessionString || 0 == sessionString.length){
+    //no session available
+    _redirectToLogin();
+    return
+  }
+  var session = JSON.parse(sessionString);
+  if (!session.id){
+    _redirectToLogin();
+    return
+  }
+  var content = session.group + '.' + session.user;
+  if (session.address){
+    content += '('+ session.address +') : ' + operate;
+  }else{
+    content += ': ' + operate;
+  }
+  var request = new Object();
+  request.content = content;
+  $.post(
+    '/logs/',
+    JSON.stringify(request),
+    function(result){
+      if (0 != result['error_code']) {
+        M.toast({html: 'write log fail: ' + result['message']})
+        return;
+      }
+    },
+    "json"
+  );
 }
 
 N.ValidateSession = function(){
@@ -578,9 +640,35 @@ N.GetAllMenus = function(){
   return result;
 }
 
+N.GetMenuURL = function(name){
+  var result = undefined;
+  this._menu_defines.every(function(menuItem){
+    if(name == menuItem[0]){
+      result = menuItem[1];
+      return false;
+    }else{
+      return true;
+    }
+  });
+  return result;
+};
+
+N.SortMenu = function(menuList){
+  var sortedMenu = new Array();
+  var menuSet = new Set(menuList);
+  this._menu_defines.forEach((menu)=>{
+    var menuName = menu[0];
+    if (menuSet.has(menuName)){
+      sortedMenu.push(menuName);
+    }
+  });
+  return sortedMenu;
+};
+
 N.CreateMenuAndFooter = function(userName, menuList){
   var texts = this.GetTexts();
-  // var menu = $('<ul>').addClass('right');
+
+  //fixed sidenav
   var menu = $('<ul>').addClass('sidenav sidenav-fixed').append(
     $('<li>').addClass('brand-logo white-text blue-grey').append(
       $('<h4>').text('Nano')
@@ -588,6 +676,19 @@ N.CreateMenuAndFooter = function(userName, menuList){
       $('<div>').addClass('divider')
     )
   );
+  // $('head').append(
+  //   $('<style>').text(
+  //     `header, main {\n\
+  //       padding-left: 300px;\n\
+  //     }\n\
+  //     \n\
+  //     @media only screen and (max-width : 992px) {\n\
+  //       header, main {\n\
+  //         padding-left: 0;\n\
+  //       }\n\
+  //     }\n`
+  //   )
+  // )
 
 
   if (menuList){
@@ -608,15 +709,11 @@ N.CreateMenuAndFooter = function(userName, menuList){
               $('<i>').addClass('material-icons blue-grey-text').text(icon)
             )
           )
-        // ).append(
-        //   $('<li>').append(
-        //     $('<div>').addClass('divider')
-        //   )
         );
       }
     });
     menu.append(
-      $('<li>').addClass('no-padding').append(
+      $('<li>').append(
         menuItems
       )
     )
@@ -677,6 +774,7 @@ N.CreateMenuAndFooter = function(userName, menuList){
         }else{
           M.toast({html: 'User password modified'});
         }
+        N.WriteOperateLog('password modified');
       },
       error: function (jqXHR, status, error) {
         M.toast({html: 'request modify compute pool fail: ' + error, outDuration: 600});
@@ -794,11 +892,41 @@ N.CreateMenuAndFooter = function(userName, menuList){
   };
   langSwitch.click(onLanguageChanged);
 
-  var footerContainer = $('<div>').addClass('container').text('© 2018 Copyright Project Nano. All rights reserved.');
+  var footerContainer = $('<div>').addClass('container');
   var rightDiv = $('<div>').addClass('row');
+  var langLabel = $('<label>').addClass('white-text').append('English').append(
+    langSwitch).append(
+      $('<span>').addClass('lever')
+    ).append('中文');
+
+  const version = '0.9.1';
+  var rightText = 'Project Nano ' + version + ' ©2018-2019 ';
+
+  var rightContent = $('<div>').addClass('col m6 s12');
+  var manualLink = $('<a>').addClass('white-text').attr('href', 'https://nanocloud.readthedocs.io/projects/guide/zh_CN/latest/').attr('target', '_blank');
+  if (this.IsChinese()){
+    rightContent.append(
+      $('<span>').text(rightText + '版权所有.  ')
+    ).append(
+      manualLink.append(
+        $('<u>').text('在线文档')
+      )
+    )
+  }else{
+    rightContent.append(
+      $('<span>').text(rightText + 'all rights reserved.  ')
+    ).append(
+      manualLink.append(
+        $('<u>').text('Online Manual')
+      )
+    )
+  };
+
+  rightDiv.append(rightContent);
+
   if (userName){
     rightDiv.append(
-      $('<div>').addClass('col m3 push-m7').append(
+      $('<div>').addClass('col m3').append(
         $('<label>').addClass('white-text').text(texts.get(this.TagCurrent) + texts.get(this.TagUser) + ': ' + userName)
       ).append(
         $('<a>').addClass('btn-small btn-flat').click(showChangePasswordModal).append(
@@ -810,17 +938,20 @@ N.CreateMenuAndFooter = function(userName, menuList){
         )
       )
     );
+    rightDiv.append(
+      $('<div>').addClass('switch col m2').append(
+        langLabel
+      )
+    );
+  }else{
+    rightDiv.append(
+      $('<div>').addClass('switch col m3 push-m3').append(
+        langLabel
+      )
+    );
   }
-  rightDiv.append(
-    $('<div>').addClass('switch col m2 push-m8').append(
-      $('<label>').addClass('white-text').append('English').append(
-        langSwitch
-      ).append(
-        $('<span>').addClass('lever')
-      ).append('中文')
-    )
-  );
-  $('body').append(
+
+  pageBody.append(
     $('<footer>').addClass('page-footer blue-grey darken-3').append(
       $('<div>').addClass('footer-copyright').append(
         footerContainer.append(
@@ -828,5 +959,114 @@ N.CreateMenuAndFooter = function(userName, menuList){
         )
       )
     )
-  );
+  ).css('padding-left', '300px');
 }
+
+N.StartInstance = function(instanceName, instanceID, callbackFunc){
+  $.post('/instances/' + instanceID,
+  JSON.stringify({}),
+  function (result) {
+    N.WriteOperateLog('start instance ' + instanceName + ' / ' + instanceID);
+    if (0 != result['error_code']) {
+        M.toast({html: 'start instance fail: ' + result['message'], outDuration: 600});
+        return;
+    }
+    M.toast({html: 'instance "' + instanceName + '" started'});
+    if(callbackFunc){
+      setTimeout(callbackFunc, 3000);
+    }
+  },
+  "json");
+};
+
+N.StopInstance = function(instanceName, instanceID, callbackFunc){
+  $.ajax({
+   url:'/instances/' + instanceID,
+   type: "DELETE",
+   data:JSON.stringify({
+       "reboot": false,
+       "force": false
+   }),
+   dataType: "json",
+   success: function (result) {
+     N.WriteOperateLog('stop instance ' + instanceName + ' / ' + instanceID);
+     if (0 != result['error_code']) {
+         M.toast({html: 'stop instance fail: ' + result['message'], outDuration: 600});
+         return;
+     }
+     M.toast({html: 'instance "' + instanceName + '" stopped'});
+     if(callbackFunc){
+       setTimeout(callbackFunc, 3000);
+     }
+   }
+  });
+};
+
+N.ForceStopInstance = function(instanceName, instanceID, callbackFunc){
+  $.ajax({
+   url:'/instances/' + instanceID,
+   type: "DELETE",
+   data:JSON.stringify({
+       "reboot": false,
+       "force": true
+   }),
+   dataType: "json",
+   success: function (result) {
+     N.WriteOperateLog('force stop instance ' + instanceName + ' / ' + instanceID);
+     if (0 != result['error_code']) {
+         M.toast({html: 'force stop instance fail: ' + result['message'], outDuration: 600});
+         return;
+     }
+     M.toast({html: 'instance "' + instanceName + '" force stopped'});
+     if(callbackFunc){
+       setTimeout(callbackFunc, 2000);
+     }
+   }
+  });
+};
+
+N.RestartInstance = function(instanceName, instanceID, callbackFunc){
+  $.ajax({
+   url:'/instances/' + instanceID,
+   type: "DELETE",
+   data:JSON.stringify({
+       "reboot": true,
+       "force": false
+   }),
+   dataType: "json",
+   success: function (result) {
+     N.WriteOperateLog('restart instance ' + instanceName + ' / ' + instanceID);
+     if (0 != result['error_code']) {
+         M.toast({html: 'restart instance fail: ' + result['message'], outDuration: 600});
+         return;
+     }
+     M.toast({html: 'instance "' + instanceName + '" restarted'});
+     if(callbackFunc){
+       setTimeout(callbackFunc, 1500);
+     }
+   }
+  });
+};
+
+N.ResetInstance = function(instanceName, instanceID, callbackFunc){
+  $.ajax({
+   url:'/instances/' + instanceID,
+   type: "DELETE",
+   data:JSON.stringify({
+       "reboot": true,
+       "force": true
+   }),
+   dataType: "json",
+   success: function (result) {
+     N.WriteOperateLog('reset instance ' + instanceName + ' / ' + instanceID);
+     if (0 != result['error_code']) {
+         M.toast({html: 'reset instance fail: ' + result['message'], outDuration: 600});
+         return;
+     }
+     M.toast({html: 'instance "' + instanceName + '" reset'});
+     if(callbackFunc){
+       setTimeout(callbackFunc, 1500);
+     }
+   }
+  });
+};
