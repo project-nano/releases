@@ -202,6 +202,10 @@
             M.toast({html: 'update instance status fail:' + result['message']});
             return;
         }
+        if (!result['data']){
+          M.toast({html: 'no instance data available'});
+          return;
+        }
         var clearTarget = new Set();
         for(var instanceID of statusMap.keys()){
           clearTarget.add(instanceID);

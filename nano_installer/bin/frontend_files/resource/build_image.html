@@ -284,7 +284,7 @@ function loadPools(){
 }
 
 function loadInstances(poolName){
-  var queryURL = "/guest_search/?pool=" + poolName + '&owner=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+  var queryURL = "/guest_search/?pool=" + poolName + '&session=' + N.GetSessionID();
   $.getJSON(
     queryURL,
     function(result){

@@ -1,5 +1,70 @@
 # Change Log
 
+## [1.0.0] - 2019-07-14
+
+### Core 1.0.0
+
+#### Added
+
+- Set threshold of CPU/Disk IO/Network
+
+- Batch stop guests
+
+- Automatically synchronize the IP address in the TLS certificate when the IP changes
+
+#### Changed
+
+- Generate module name base on listen address
+
+- URL of guest operates change from '/guest/' to '/guests/'.
+
+- Guests/Images match with owner or group
+
+### Cell 1.0.0
+
+#### Added
+
+- Set threshold of CPU/Disk IO/Network
+
+#### Changed
+
+- Generate module name base on br0
+
+- Move to "github.com/project-nano"
+
+### FrontEnd 1.0.0
+
+#### Added
+
+- Create guests with QoS options
+
+- Modify CPU priority in guest detail
+
+- Set threshold of Disk/Network IO in guest detail
+
+- Batch stop guests
+
+- Enable get/update group visibility
+
+- Record failed login
+
+#### Changed
+
+- URL of guest operates change from '/guest/' to '/guests/'.
+
+- Search guest/media/disk images via session
+
+### Installer 1.0.0
+
+#### Added
+
+- Add 'Update' option to update all installed modules
+
+#### Changed
+
+- Change namespace of the reference library to "github.com/project-nano"
+
+
 ## [0.9.1] - 2019-05-29
 
 ### Core 0.9.1

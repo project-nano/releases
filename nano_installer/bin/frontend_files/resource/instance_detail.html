@@ -38,7 +38,7 @@
     <div class="divider"></div>
     <div class="section">
       <div class="row">
-        <div class="col m6 push-m2 s12">
+        <div class="col m8 push-m1 s12">
           <div class="row">
             <table class="striped">
               <tbody id="detail">
@@ -514,9 +514,136 @@
               ).append(
                 $('<td>')
               )
-            )
+            );
           }
+          if (ins.hasOwnProperty('qos')){
+            var qos = ins['qos'];
+            var priorityLabel, iopsLabel, bandwidthLabel, textUnlimit, priorityNames;
+            if(N.IsChinese()){
+              priorityLabel = 'CPU优先级';
+              iopsLabel = "磁盘读写限制(每秒)";
+              bandwidthLabel = "下/上行带宽";
+              textUnlimit = '无限制';
+              priorityNames = {
+                "high": "高优先",
+                "medium": "中优先",
+                "low": "低优先",
+              };
+            }else{
+              priorityLabel = 'CPU Priority';
+              iopsLabel = "Disk Read&Write(per second)";
+              bandwidthLabel = "Inbound/Outbound Bandwidth";
+              textUnlimit = "Unlimited";
+              priorityNames = {
+                "high": "High",
+                "medium": "Medium",
+                "low": "Low",
+              };
+            }
+            //priority
+            if(qos.hasOwnProperty('cpu_priority')){
+              var priority = qos['cpu_priority'];
+              container.append(
+                $('<tr>').append(
+                  $('<td>').append(
+                    $('<b>').text(priorityLabel)
+                  )
+                ).append(
+                  $('<td>').text(priorityNames[priority])
+                ).append(
+                  $('<td>').append(
+                    $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModifyPriority("' + priority + '")')
+                      .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
+                        $('<i>').addClass('material-icons').text('build')
+                    )
+                  )
+                )
+              );
+            }
+            //IOPS
+            {
+              var read = 0, write = 0;
+              if(qos.hasOwnProperty('write_iops')){
+                write = Number(qos['write_iops']);
+              }
+              if(qos.hasOwnProperty('read_iops')){
+                read = Number(qos['read_iops']);
+              }
+              var iops = Math.max(read, write);
+              var displayValue;
+              if(0 == iops){
+                displayValue = textUnlimit;
+              }else{
+                displayValue = iops + '';
+              }
+              var operators = $('<td>');
+              if (isRunning){
+                operators.append(lockICON.clone().attr('data-tooltip','Disabled when running'));
+              }else{
+                operators.append(
+                  $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModifyIOPS(' + iops + ')')
+                    .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
+                      $('<i>').addClass('material-icons').text('build')
+                  )
+                );
+              }
+              container.append(
+                $('<tr>').append(
+                  $('<td>').append(
+                    $('<b>').text(iopsLabel)
+                  )
+                ).append(
+                  $('<td>').text(displayValue)
+                ).append(
+                  operators
+                )
+              );
+            }
+            //inbound&outbound
+            {
+              var inbound = 0, outbound = 0;
+              if(qos.hasOwnProperty('receive_speed')){
+                inbound = Number(qos['receive_speed']);
+              }
+              if(qos.hasOwnProperty('send_speed')){
+                outbound = Number(qos['send_speed']);
+              }
+              var displayValue;
+              if(0 == inbound){
+                displayValue = textUnlimit;
+              }else if(inbound < (1 << (20 - 3))) {
+                displayValue = (inbound >> (10 - 3) ) + ' Kbps';
+              }else{
+                displayValue = (inbound >> (20 - 3) ) + ' Mbps';
+              }
 
+              if(0 == outbound){
+                displayValue += ' / ' + textUnlimit;
+              }else if(outbound < (1 << (20 - 3))){
+                displayValue += ' / ' +  (outbound >> (10 - 3) ) + ' Kbps';
+              }else{
+                displayValue += ' / ' +  (outbound >> (20 - 3) ) + ' Mbps';
+              }
+
+              container.append(
+                $('<tr>').append(
+                  $('<td>').append(
+                    $('<b>').text(bandwidthLabel)
+                  )
+                ).append(
+                  $('<td>').text(displayValue)
+                ).append(
+                  $('<td>').append(
+                    $('<a>').addClass('blue-grey-text tooltipped').attr('href', '#').attr('onclick', 'showModifyBandWidth(' + inbound + ', ' + outbound + ')')
+                      .attr('data-position', 'top').attr('data-tooltip', texts.get(N.TagChange)).append(
+                        $('<i>').addClass('material-icons').text('build')
+                    )
+                  )
+                )
+              );
+            }
+
+          }
           M.Tooltip.init($('.tooltipped'));
         }
       );
@@ -571,7 +698,7 @@
       var request = new Object();
       request.name = newName;
       $.ajax({
-        url: '/guest/' + instanceID + '/name/',
+        url: '/guests/' + instanceID + '/name/',
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -609,7 +736,7 @@
       var request = new Object();
       request.cores = newCores;
       $.ajax({
-        url: '/guest/' + instanceID + '/cores',
+        url: '/guests/' + instanceID + '/cores',
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -645,7 +772,7 @@
       var request = new Object();
       request.memory = memoryInBytes;
       $.ajax({
-        url: '/guest/' + instanceID + '/memory',
+        url: '/guests/' + instanceID + '/memory',
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -690,7 +817,7 @@
       var request = new Object();
       request.size = diskInBytes;
       $.ajax({
-        url: '/guest/' + instanceID + '/disks/resize/' + index,
+        url: '/guests/' + instanceID + '/disks/resize/' + index,
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -722,7 +849,7 @@
       var request = new Object();
       N.WriteOperateLog('try shrink disk of ' + instanceID);
       $.ajax({
-        url: '/guest/' + instanceID + '/disks/shrink/' + index,
+        url: '/guests/' + instanceID + '/disks/shrink/' + index,
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -740,7 +867,7 @@
     }
 
     function showPassword(){
-      var url = '/guest/' + instanceID + '/auth';
+      var url = '/guests/' + instanceID + '/auth';
       $.getJSON(
         url,
         function(result){
@@ -780,7 +907,7 @@
     }
 
     function showModifyPassword(){
-      var url = '/guest/' + instanceID + '/auth';
+      var url = '/guests/' + instanceID + '/auth';
       $.getJSON(
         url,
         function(result){
@@ -815,7 +942,7 @@
       request.user = user;
       request.password = password;
       $.ajax({
-        url: '/guest/' + instanceID + '/auth',
+        url: '/guests/' + instanceID + '/auth',
         method: "PUT",
         dataType: "json",
         data: JSON.stringify(request),
@@ -825,7 +952,7 @@
                 return;
             }
             M.toast({html: 'password modified'});
-            N.WriteOperateLog('modify guest password of ' + instanceID);            
+            N.WriteOperateLog('modify guest password of ' + instanceID);
         },
         error: function (jqXHR, status, error) {
           M.toast({html: 'request change password fail: ' + error, outDuration: 600});
@@ -833,7 +960,273 @@
       });
     }
 
+    function showModifyPriority(priority){
+      var title, current, label;
+      if (N.IsChinese()){
+        title = '修改CPU优先级';
+      }else{
+        title = 'Modify Priority';
+      }
+      var priorityData;
+      if(N.IsChinese()){
+        priorityData = [
+          ["high", "高", false],
+          ["medium", "中", true],
+          ["low", "低", false]
+        ];
+      }else{
+        priorityData = [
+          ["high", "High", false],
+          ["medium", "Medium", true],
+          ["low", "Low", false]
+        ];
+      }
+      var inputContainer = $('<div>').addClass('input-field');
+      priorityData.forEach((data)=>{
+        var value = data[0];
+        var label = data[1];
+        var isChecked = data[2];
+        var input = $('<input>').addClass('with-gap').attr('name', 'priority').attr('type', 'radio').val(value);
+        if(priority == value){
+          input.prop('checked', true);
+        }
+        inputContainer.append(
+          $('<div>').addClass('col m2').append(
+            $('<label>').append(
+              input
+            ).append(
+              $('<span>').text(label)
+            )
+          )
+        );
+      });
+
+      $('#modal-content').empty().append(
+        $('<h4>').text(title)
+      ).append(
+        $('<div>').addClass('row').append(inputContainer)
+      );
+      var modifyPriority = function(){
+        var request = new Object();
+        request.priority = $('input[name=priority]:checked').val();
+        var requestURL = '/guests/' + instanceID + '/qos/cpu/';
+        $.ajax({
+          url: requestURL,
+          method: "PUT",
+          dataType: "json",
+          data: JSON.stringify(request),
+          success: function (result) {
+              if (0 != result['error_code']) {
+                  M.toast({html: 'modify priority fail: ' + result['message'], outDuration: 600});
+                  return;
+              }
+              M.toast({html: 'priority modified'});
+              setTimeout(refresh, 500);
+              N.WriteOperateLog('modify CPU priority of ' + instanceID);
+          },
+          error: function (jqXHR, status, error) {
+            M.toast({html: 'request modify priority fail: ' + error, outDuration: 600});
+          }
+        });
+      }
+      $('#modal-confirm-button').unbind('click').click(modifyPriority);
+      M.Modal.getInstance($('#modal-container')).open();
+    }
+
+    function showModifyIOPS(currentIOPS){
+      var title;
+      if (N.IsChinese()){
+        title = '修改磁盘读写限制';
+      }else{
+        title = 'Modify Disk Read/Write Limit';
+      }
+      var onIOPSChanged = function(){
+        var currentValue = $('#iops').val();
+        if(0 == currentValue){
+          if(N.IsChinese()){
+            $('#iops-tip').text('无限制');
+          }else{
+            $('#iops-tip').text("No limit");
+          }
+        }else {
+          $('#iops-tip').text(currentValue + ' IOPS');
+        }
+      }
+      const minSize = 0, maxSize = 2000, moveStep = 10;
+
+      var inputContainer = $('<div>').addClass('input-field');
+      inputContainer.append(
+        $('<div>').addClass('row').append(
+          $('<div>').addClass('col m4 range-field').append(
+            $('<input>').attr('type', 'range').attr('id', 'iops')
+              .attr('min', minSize).attr('max', maxSize)
+              .attr('value', currentIOPS).attr('step', moveStep).click(onIOPSChanged)
+          )
+        ).append(
+          $('<div>').addClass('col m2').append(
+            $('<label>').append(
+              $('<span>').attr('id', 'iops-tip')
+            )
+          )
+        )
+      );
+
+      $('#modal-content').empty().append(
+        $('<h4>').text(title)
+      ).append(
+        $('<div>').addClass('row').append(inputContainer)
+      );
+      var modifyDiskIO = function(){
+        var request = new Object();
+        var iops = Number($('#iops').val());
+        request.write_iops = iops;
+        request.read_iops = iops;
+        var requestURL = '/guests/' + instanceID + '/qos/disk/';
+        $.ajax({
+          url: requestURL,
+          method: "PUT",
+          dataType: "json",
+          data: JSON.stringify(request),
+          success: function (result) {
+              if (0 != result['error_code']) {
+                  M.toast({html: 'modify IOPS fail: ' + result['message'], outDuration: 600});
+                  return;
+              }
+              M.toast({html: 'disk IOPS modified'});
+              setTimeout(refresh, 500);
+              N.WriteOperateLog('modify disk IOPS of ' + instanceID);
+          },
+          error: function (jqXHR, status, error) {
+            M.toast({html: 'request modify IOPS fail: ' + error, outDuration: 600});
+          }
+        });
+      }
+      $('#modal-confirm-button').unbind('click').click(modifyDiskIO);
+      onIOPSChanged();
+      M.Range.init($('input[type=range]'));
+      M.Modal.getInstance($('#modal-container')).open();
+    }
+
+    function showModifyBandWidth(currentInbound, currentOutbound){
+      var title, inboundLabel, outboundLabel;
+      if (N.IsChinese()){
+        title = '修改网络带宽限制';
+        inboundLabel = "下行带宽";
+        outboundLabel = "上行带宽";
+      }else{
+        title = 'Modify Network Bandwidth';
+        inboundLabel = "Inbound Bandwidth";
+        outboundLabel = "Outbound Bandwidth";
+      }
+
+      var onInboundChanged = function(){
+        var currentValue = $('#inbound').val();
+        if(0 == currentValue){
+          if(N.IsChinese()){
+            $('#inbound-tip').text('无限制');
+          }else{
+            $('#inbound-tip').text("Unlimited");
+          }
+        }else {
+          $('#inbound-tip').text(currentValue + ' Mbit/s');
+        }
+      }
+
+      var onOutboundChanged = function(){
+        var currentValue = $('#outbound').val();
+        if(0 == currentValue){
+          if(N.IsChinese()){
+            $('#outbound-tip').text('无限制');
+          }else{
+            $('#outbound-tip').text("Unlimited");
+          }
+        }else {
+          $('#outbound-tip').text(currentValue + ' Mbit/s');
+        }
+      }
+
+      const minSize = 0, maxSize = 20, moveStep = 1;
+      const mbitOffset = 20 - 3;
+      var inputContainer = $('<div>').addClass('input-field');
+      inputContainer.append(
+        $('<div>').addClass('row').append(
+          //label
+          $('<div>').addClass('col m2').append(
+            $('<label>').text(inboundLabel)
+          )
+        ).append(
+          $('<div>').addClass('col m3 range-field').append(
+            $('<input>').attr('type', 'range').attr('id', 'inbound')
+              .attr('min', minSize).attr('max', maxSize)
+              .attr('value', currentInbound >> mbitOffset).attr('step', moveStep).click(onInboundChanged)
+          )
+        ).append(
+          $('<div>').addClass('col m2').append(
+            $('<label>').append(
+              $('<span>').attr('id', 'inbound-tip')
+            )
+          )
+        )
+      ).append(
+        $('<div>').addClass('row').append(
+          //label
+          $('<div>').addClass('col m2').append(
+            $('<label>').text(outboundLabel)
+          )
+        ).append(
+          $('<div>').addClass('col m3 range-field').append(
+            $('<input>').attr('type', 'range').attr('id', 'outbound')
+              .attr('min', minSize).attr('max', maxSize)
+              .attr('value', currentOutbound >> mbitOffset).attr('step', moveStep).click(onOutboundChanged)
+          )
+        ).append(
+          $('<div>').addClass('col m2').append(
+            $('<label>').append(
+              $('<span>').attr('id', 'outbound-tip')
+            )
+          )
+        )
+      );
+
+      $('#modal-content').empty().append(
+        $('<h4>').text(title)
+      ).append(
+        inputContainer
+      );
+      var modifyBandWidth = function(){
+        var request = new Object();
+        const mps = 1 << (20 - 3);
+        request.receive_speed = $('#inbound').val()  * mps;
+        request.send_speed = $('#outbound').val()  * mps;
+        var requestURL = '/guests/' + instanceID + '/qos/network/';
+        $.ajax({
+          url: requestURL,
+          method: "PUT",
+          dataType: "json",
+          data: JSON.stringify(request),
+          success: function (result) {
+              if (0 != result['error_code']) {
+                  M.toast({html: 'modify bandwidth fail: ' + result['message'], outDuration: 600});
+                  return;
+              }
+              M.toast({html: 'disk bandwidth modified'});
+              setTimeout(refresh, 500);
+              N.WriteOperateLog('modify bandwidth of ' + instanceID);
+          },
+          error: function (jqXHR, status, error) {
+            M.toast({html: 'request modify bandwidth fail: ' + error, outDuration: 600});
+          }
+        });
+      }
+      $('#modal-confirm-button').unbind('click').click(modifyBandWidth);
+      onInboundChanged();
+      onOutboundChanged();
+      M.Range.init($('input[type=range]'));
+      M.Modal.getInstance($('#modal-container')).open();
+    }
+
     $(function(){
+
       M.Modal.init($('.modal'));
       var params = parseQueryString();
       if (!params.has('pool')){

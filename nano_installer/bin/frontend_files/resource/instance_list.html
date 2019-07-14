@@ -199,6 +199,7 @@
         enableButton.append('Batch Mode');
       }
       $('#batch_delete_button').remove();
+      $('#batch_stop_button').remove();
       $('#disable_batch_button').remove();
       panel.append(enableButton);
       batchModeEnabled = false;
@@ -213,19 +214,25 @@
       var deleteButton = $('<a>').addClass('waves-effect waves-light blue-grey lighten-2 btn').attr('id', 'batch_delete_button').attr('onclick', 'confirmBatchDelete()').append(
         $('<i>').addClass('material-icons left').text('delete')
       );
+      var stopButton = $('<a>').addClass('waves-effect waves-light blue-grey lighten-2 btn').attr('id', 'batch_stop_button').attr('onclick', 'confirmBatchStop()').append(
+        $('<i>').addClass('material-icons left').text('power_settings_new')
+      );
       var disableButton = $('<a>').addClass('waves-effect waves-light red lighten-2 btn').attr('id', 'disable_batch_button')
         .attr('onclick', 'disableBatchMode()').append(
           $('<i>').addClass('material-icons left').text('done')
       );
       if (N.IsChinese()){
         deleteButton.append('批量删除');
+        stopButton.append('批量停止');
         disableButton.append('完成批量处理');
       }else{
         deleteButton.append('Batch Delete');
+        stopButton.append('Batch Stop');
         disableButton.append('Exit Batch Mode');
       }
       $('#enable_batch_button').remove();
       panel.append(deleteButton);
+      panel.append(stopButton);
       panel.append(disableButton);
       batchModeEnabled = true;
       loadInstances();
@@ -270,7 +277,7 @@
       if (!poolName){
         return;
       }
-      var url = "/guest_search/?pool=" + poolName + '&owner=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var url = "/guest_search/?pool=" + poolName + '&session=' + N.GetSessionID();
       if (cellName){
         url += "&cell=" + cellName;
       }
@@ -552,7 +559,7 @@
 
     function selectMedia(name, id){
       $('#media_confirm_link').attr('onclick', 'startWithMedia("' + name + '", "' + id +'")');
-      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var queryURL = '/media_image_search/?session=' + N.GetSessionID();
       $.getJSON(
         queryURL,
         function(result){
@@ -629,7 +636,7 @@
     //insert media
     function selectInsertMedia(name, id){
       $('#insert_confirm_link').attr('onclick', 'insertMedia("' + name + '", "' + id +'")');
-      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var queryURL = '/media_image_search/?session=' + N.GetSessionID();
       $.getJSON(
         queryURL,
         function(result){
@@ -828,6 +835,53 @@
 
     function batchDeleteGuest(){
       var baseBatchDeleteURL = "batch_delete_instance.html";
+      var targets = new Array();
+      $("input[name='batch-target']:checkbox:checked").each(function(){
+        targets.push($(this).val());
+      });
+      if (0 === targets.length){
+        M.toast({html: 'Must select an instance'});
+        return;
+      }
+      var redirectURL = baseBatchDeleteURL + "?targets=" + encodeURIComponent(JSON.stringify(targets));
+      var cellName = $('#cell-options').val();
+      if (cellName){
+        redirectURL += '&cell=' + cellName;
+      }
+      var poolName = $('#pool-options').val();
+      if (poolName){
+        redirectURL += '&pool=' + poolName;
+      }
+      window.location.href = redirectURL;
+    }
+
+    function confirmBatchStop(){
+      var targets = new Array();
+      $("input[name='batch-target']:checkbox:checked").each(function(){
+        targets.push($(this).val());
+      });
+      if (0 === targets.length){
+        M.toast({html: 'Must select an instance'});
+        return;
+      }
+      var targetCount = targets.length;
+      var modal = M.Modal.getInstance($('#batch-modal'));
+      var content = $('#batch-modal-content').empty().append($('<h4>').text('Batch Stop Guest'));
+      if(N.IsChinese()){
+        content.append(
+          $('<div>').text('确认停止这' + targetCount + '个实例吗？')
+        );
+      }else{
+        content.append(
+          $('<div>').text('Are you sure to stop ' + targetCount + ' instance(s)?')
+        );
+      }
+      $('#batch-button-confirm').attr('onclick', 'batchStopGuest()');
+      modal.open();
+    }
+
+    function batchStopGuest(){
+      var baseBatchDeleteURL = "batch_stop_instance.html";
       var targets = new Array();
       $("input[name='batch-target']:checkbox:checked").each(function(){
         targets.push($(this).val());

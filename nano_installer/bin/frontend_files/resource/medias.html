@@ -65,7 +65,7 @@
     }
 
     function loadImages(){
-      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var queryURL = '/media_image_search/?session=' + N.GetSessionID();
       $.getJSON(
         queryURL,
         function(result){

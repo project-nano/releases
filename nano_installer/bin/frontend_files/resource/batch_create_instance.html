@@ -74,21 +74,31 @@
                 </div>
               </div>
               <div class="row">
-                <div class="input-field" id="system-disk-options">
+                <div class="input-field">
                   <div class="col m2">
                     <label id="system-disk-label"></label>
+                  </div>
+                  <div class="col m4 range-field">
+                    <input type="range" id="system-disk" onchange="onSystemDiskChanged()">
+                  </div>
+                  <div class="col m2">
+                    <label>
+                      <span id="system-disk-tip"></span>
+                    </label>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="input-field" id="data-disk-options">
+                <div class="input-field">
                   <div class="col m2">
                     <label id="data-disk-label"></label>
                   </div>
-                  <div class="col m1">
+                  <div class="col m4 range-field">
+                    <input type="range" id="data-disk" onchange="onDataDiskChanged()">
+                  </div>
+                  <div class="col m2">
                     <label>
-                      <input class="with-gap" name="data_disk" type="radio" value="0"/>
-                      <span>None</span>
+                      <span id="data-disk-tip"></span>
                     </label>
                   </div>
                 </div>
@@ -111,6 +121,62 @@
                     <option value="" id="blank-system-label"></option>
                   </select>
                 </div>
+              </div>
+              <!-- CPU Priority -->
+              <div class="row">
+                  <div class="input-field" id="priority-options">
+                      <div class="col m2">
+                          <label id="priority-label"></label>
+                      </div>
+                  </div>
+              </div>
+              <!-- IOPS -->
+              <div class="row">
+                  <div class="input-field">
+                      <div class="col m2">
+                          <label id="iops-label"></label>
+                      </div>
+                      <div class="col m4 range-field">
+                        <input type="range" id="iops" onchange="onIOPSChanged()">
+                      </div>
+                      <div class="col m2">
+                        <label>
+                          <span id="iops-tip"></span>
+                        </label>
+                      </div>
+                  </div>
+              </div>
+              <!-- inbound -->
+              <div class="row">
+                  <div class="input-field">
+                      <div class="col m2">
+                          <label id="inbound-label"></label>
+                      </div>
+                      <div class="col m3 range-field">
+                        <input type="range" id="inbound" onchange="onInboundChanged()">
+                      </div>
+                      <div class="col m2">
+                        <label>
+                          <span id="inbound-tip"></span>
+                        </label>
+                      </div>
+                  </div>
+              </div>
+              <!-- outbound -->
+              <div class="row">
+                  <div class="input-field">
+                      <div class="col m2">
+                          <label id="outbound-label"></label>
+                      </div>
+                      <div class="col m3 range-field">
+                        <input type="range" id="outbound" onchange="onOutboundChanged()">
+                      </div>
+                      <div class="col m2">
+                        <label>
+                          <span id="outbound-tip"></span>
+                        </label>
+                      </div>
+                  </div>
               </div>
               <div class="modal" id="confirm_modal">
                 <!--hide model -->
@@ -174,6 +240,64 @@ function mapValue(sizeInMB){
   }
 }
 
+function onSystemDiskChanged(){
+  var currentValue = $('#system-disk').val();
+  $('#system-disk-tip').text(currentValue + ' GiB');
+}
+
+function onDataDiskChanged(){
+  var currentValue = $('#data-disk').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#data-disk-tip').text('不使用');
+    }else{
+      $('#data-disk-tip').text("Don't use");
+    }
+  }else {
+    $('#data-disk-tip').text(currentValue + ' GiB');
+  }
+}
+
+
+function onIOPSChanged(){
+  var currentValue = $('#iops').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#iops-tip').text('无限制');
+    }else{
+      $('#iops-tip').text("No limit");
+    }
+  }else {
+    $('#iops-tip').text(currentValue + ' IOPS');
+  }
+}
+
+function onInboundChanged(){
+  var currentValue = $('#inbound').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#inbound-tip').text('无限制');
+    }else{
+      $('#inbound-tip').text("No limit");
+    }
+  }else {
+    $('#inbound-tip').text(currentValue + ' Mbit/s');
+  }
+}
+
+function onOutboundChanged(){
+  var currentValue = $('#outbound').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#outbound-tip').text('无限制');
+    }else{
+      $('#outbound-tip').text("No limit");
+    }
+  }else {
+    $('#outbound-tip').text(currentValue + ' Mbit/s');
+  }
+}
+
 function loadOptions(){
 
   $('#back-caption').append(texts.get(N.TagBack));
@@ -204,6 +328,10 @@ function loadOptions(){
     );
     $('#count-label').text('实例数量');
     $('#prefix-label').text('实例名前缀');
+    $('#priority-label').text('CPU优先级');
+    $('#iops-label').text('IOPS');
+    $('#inbound-label').text('下行带宽');
+    $('#outbound-label').text('上行带宽');
   }else{
     $('#rule-label').text('Rule of Instance name');
     $('#rule-options').append(
@@ -227,6 +355,10 @@ function loadOptions(){
     );
     $('#count-label').text('Instance Count');
     $('#prefix-label').text('Name Prefix');
+    $('#priority-label').text('CPU Priority');
+    $('#iops-label').text('IOPS');
+    $('#inbound-label').text('Inbound Bandwidth');
+    $('#outbound-label').text('Outbound Bandwidth');
   }
 
 
@@ -293,47 +425,77 @@ function loadOptions(){
 
   {
     //system disk
-    var diskData = [5*1024, 10*1024, 20*1024];
-    var option = $('#system-disk-options');
-    diskData.forEach((disk)=>{
-      var tag = mapValue(disk);
-      var input = $('<input>').addClass('with-gap').attr('name', 'system_disk').attr('type', 'radio').val(tag.Value);
-      if(5*1024 == disk){
-        input.prop('checked', true);
-      }
-      option.append(
-        $('<div>').addClass('col m1').append(
-          $('<label>').append(
-            input
-          ).append(
-            $('<span>').text(tag.Label)
-          )
-        )
-      );
-    });
+    const minSize = 5, maxSize = 60, moveStep = 1, defaultSize = minSize;
+    $('#system-disk').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onSystemDiskChanged();
   }
-
   {
     //data disk
-    var diskData = [1024, 2*1024, 4*1024, 8*1024];
-    var option = $('#data-disk-options');
-    diskData.forEach((disk)=>{
-      var tag = mapValue(disk);
-      var input = $('<input>').addClass('with-gap').attr('name', 'data_disk').attr('type', 'radio').val(tag.Value);
-      if(1024 == disk){
-        input.prop('checked', true);
-      }
-      option.append(
-        $('<div>').addClass('col m1').append(
-          $('<label>').append(
-            input
-          ).append(
-            $('<span>').text(tag.Label)
-          )
-        )
-      );
-    });
+    const minSize = 0, maxSize = 20, moveStep = 2, defaultSize = minSize;
+    $('#data-disk').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onDataDiskChanged();
   }
+
+
+    {
+      //priority
+      var priorityData;
+      if(N.IsChinese()){
+        priorityData = [
+          ["high", "高", false],
+          ["medium", "中", true],
+          ["low", "低", false]
+        ];
+      }else{
+        priorityData = [
+          ["high", "High", false],
+          ["medium", "Medium", true],
+          ["low", "Low", false]
+        ];
+      }
+      var option = $('#priority-options');
+      priorityData.forEach((data)=>{
+        var value = data[0];
+        var label = data[1];
+        var isChecked = data[2];
+        var input = $('<input>').addClass('with-gap').attr('name', 'priority').attr('type', 'radio').val(value);
+        if(isChecked){
+          input.prop('checked', true);
+        }
+        option.append(
+          $('<div>').addClass('col m2').append(
+            $('<label>').append(
+              input
+            ).append(
+              $('<span>').text(label)
+            )
+          )
+        );
+      });
+    }
+    {
+      //iops
+      const minSize = 0, maxSize = 2000, moveStep = 10, defaultSize = minSize;
+      $('#iops').attr('min', minSize).attr('max', maxSize)
+        .attr('value', defaultSize).attr('step', moveStep);
+      onIOPSChanged();
+    }
+    {
+      //inbound
+      const minSize = 0, maxSize = 20, moveStep = 1, defaultSize = minSize;
+      $('#inbound').attr('min', minSize).attr('max', maxSize)
+        .attr('value', defaultSize).attr('step', moveStep);
+      onInboundChanged();
+    }
+    {
+      //outsbound
+      const minSize = 0, maxSize = 20, moveStep = 1, defaultSize = minSize;
+      $('#outbound').attr('min', minSize).attr('max', maxSize)
+        .attr('value', defaultSize).attr('step', moveStep);
+      onOutboundChanged();
+    }
 
   $.getJSON("/compute_pools/", function(result){
     if (0 != result['error_code']) {
@@ -368,7 +530,7 @@ function loadOptions(){
 
     M.FormSelect.init($('#version-options'));
   });
-  var queryImage = '/disk_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+  var queryImage = '/disk_image_search/?session=' + N.GetSessionID();
   $.getJSON(queryImage, function(result){
     if (0 != result['error_code']) {
         M.toast({html: 'query disk images fail:' + result['message']});
@@ -784,8 +946,12 @@ function submitCreateRequest() {
 
     var info = versions.get(currentVersion);
     request.system = info.System;
+
+
+    const GiB = 1 << 30;
     request.disks = new Array();
-    request.disks.push(Number($('input[name=system_disk]:checked').val()));
+    var systemDisk = Number($('#system-disk').val()) * GiB;
+    request.disks.push(systemDisk);
     var sourceImage = $('#image-options').val();
     if ('' != sourceImage){
       request.from_image = sourceImage;
@@ -802,7 +968,7 @@ function submitCreateRequest() {
         request.cloud_init = ciConfig;
       }
     }
-    var dataDisk = Number($('input[name=data_disk]:checked').val());
+    var dataDisk = Number($('#data-disk').val()) * GiB;
     if (0 != dataDisk){
       request.disks.push(dataDisk);
     }
@@ -811,6 +977,27 @@ function submitCreateRequest() {
     }else{
       request.auto_start = false;
     }
+    {
+      var qos = new Object();
+      qos.cpu_priority = $('input[name=priority]:checked').val();
+      var iops = Number($('#iops').val());
+      if(0 != iops){
+          qos.write_iops = qos.read_iops = iops;
+      }
+      const mps = 1 << (20 - 3);
+      var inbound = Number($('#inbound').val());
+      if(0 != inbound){
+        //trans to byte
+        qos.receive_speed = inbound * mps;
+      }
+      var outbound = Number($('#outbound').val());
+      if(0 != outbound){
+        //trans to byte
+        qos.send_speed = outbound * mps;
+      }
+      request.qos = qos;
+    }
+    
     N.WriteOperateLog('try create ' + request.count + ' guest(es) in pool ' + request.pool);
     createGuest(request);
 }

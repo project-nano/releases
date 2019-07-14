@@ -162,6 +162,7 @@ N.TagResetSystem = "reset_system";
 N.TagBatch = "batch";
 N.TagOperate = "operate";
 N.TagLog = "log";
+N.TagVisibility = "visibility";
 
 //Language name
 N.zh_CN = "zh_CN";
@@ -294,7 +295,8 @@ var zh_CN_text = new TextSet(new Map([
   [N.TagResetSystem, "重置系统"],
   [N.TagBatch, "批量"],
   [N.TagOperate, "操作"],
-  [N.TagLog, "日志"]
+  [N.TagLog, "日志"],
+  [N.TagVisibility, "可见性"]
 ]));
 
 var en_US_text = new TextSet(new Map([
@@ -422,7 +424,8 @@ var en_US_text = new TextSet(new Map([
   [N.TagResetSystem, "Reset System"],
   [N.TagBatch, "Batch"],
   [N.TagOperate, "Operate"],
-  [N.TagLog, "Log"]
+  [N.TagLog, "Log"],
+  [N.TagVisibility, "Visibility"]
 ]));
 
 //initial text sets
@@ -441,7 +444,8 @@ N._menu_defines = [
   ['image', 'images.html', 'content_copy', N.TagImage],
   ['media', 'medias.html', 'album', N.TagMedia],
   ['user', 'users.html', 'people', N.TagUser],
-  ['log', 'logs.html', 'border_color', N.TagLog]
+  ['log', 'logs.html', 'border_color', N.TagLog],
+  ['visibility', 'visibility.html', 'visibility', N.TagVisibility]
 ];
 
 N._image_tags = [
@@ -554,6 +558,15 @@ N.GetCurrentGroup = function(){
   }
   var session = JSON.parse(sessionString);
   return session.group;
+}
+
+N.GetSessionID = function(){
+  var sessionString = localStorage.getItem(N._session_tag);
+  if (!sessionString || 0 == sessionString.length){
+    return null;
+  }
+  var session = JSON.parse(sessionString);
+  return session.id;
 }
 
 N.WriteOperateLog = function(operate){
@@ -899,8 +912,8 @@ N.CreateMenuAndFooter = function(userName, menuList){
       $('<span>').addClass('lever')
     ).append('中文');
 
-  const version = '0.9.1';
-  var rightText = 'Project Nano ' + version + ' ©2018-2019 ';
+  const version = '1.0.0';
+  var rightText = 'Project Nano ' + version + ' © 2018~2019 ';
 
   var rightContent = $('<div>').addClass('col m6 s12');
   var manualLink = $('<a>').addClass('white-text').attr('href', 'https://nanocloud.readthedocs.io/projects/guide/zh_CN/latest/').attr('target', '_blank');

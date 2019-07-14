@@ -613,7 +613,7 @@
 
     function selectMedia(name, id){
       $('#media_confirm_link').attr('onclick', 'startWithMedia("' + name + '", "' + id +'")');
-      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var queryURL = '/media_image_search/?session=' + N.GetSessionID();
       $.getJSON(
         queryURL,
         function(result){
@@ -662,7 +662,7 @@
     //insert media
     function selectInsertMedia(name, id){
       $('#insert_confirm_link').attr('onclick', 'insertMedia("' + name + '", "' + id +'")');
-      var queryURL = '/media_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+      var queryURL = '/media_image_search/?session=' + N.GetSessionID();
       $.getJSON(
         queryURL,
         function(result){

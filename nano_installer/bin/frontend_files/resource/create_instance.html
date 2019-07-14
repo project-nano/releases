@@ -34,70 +34,16 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field">
+                        <div class="input-field" id="core-options">
                             <div class="col m2">
                                 <label id="core-label"></label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="cores" type="radio" checked value="1"/>
-                                    <span>1</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="cores" type="radio" value="2"/>
-                                    <span>2</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="cores" type="radio" value="4"/>
-                                    <span>4</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="cores" type="radio" value="8"/>
-                                    <span>8</span>
-                                </label>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field">
+                        <div class="input-field" id="memory-options">
                             <div class="col m2">
                                 <label id="memory-label"></label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="memory" type="radio" value="536870912"/>
-                                    <span>512M</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="memory" type="radio" checked value="1073741824"/>
-                                    <span>1G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="memory" type="radio" value="2147483648"/>
-                                    <span>2G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="memory" type="radio" value="4294967296"/>
-                                    <span>4G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="memory" type="radio" value="8589934592"/>
-                                    <span>8G</span>
-                                </label>
                             </div>
                         </div>
                     </div>
@@ -117,23 +63,13 @@
                             <div class="col m2">
                                 <label id="system-disk-label"></label>
                             </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="system_disk" type="radio" value="5368709120" checked/>
-                                    <span>5G</span>
-                                </label>
+                            <div class="col m4 range-field">
+                              <input type="range" id="system-disk" onchange="onSystemDiskChanged()">
                             </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="system_disk" type="radio" value="10737418240"/>
-                                    <span>10G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="system_disk" type="radio" value="21474836480"/>
-                                    <span>20G</span>
-                                </label>
+                            <div class="col m2">
+                              <label>
+                                <span id="system-disk-tip"></span>
+                              </label>
                             </div>
                         </div>
                     </div>
@@ -142,35 +78,13 @@
                             <div class="col m2">
                                 <label id="data-disk-label"></label>
                             </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="data_disk" type="radio" value="0"/>
-                                    <span>None</span>
-                                </label>
+                            <div class="col m4 range-field">
+                              <input type="range" id="data-disk" onchange="onDataDiskChanged()">
                             </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="data_disk" type="radio" checked value="1073741824"/>
-                                    <span>1G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="data_disk" type="radio" value="2147483648"/>
-                                    <span>2G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="data_disk" type="radio" value="4294967296"/>
-                                    <span>4G</span>
-                                </label>
-                            </div>
-                            <div class="col m1">
-                                <label>
-                                    <input class="with-gap" name="data_disk" type="radio" value="8589934592"/>
-                                    <span>8G</span>
-                                </label>
+                            <div class="col m2">
+                              <label>
+                                <span id="data-disk-tip"></span>
+                              </label>
                             </div>
                         </div>
                     </div>
@@ -191,6 +105,62 @@
                             <select name="from_image" id="image-options" onchange="onImageChanged()">
                                 <option value="" id="blank-system-label"></option>
                             </select>
+                        </div>
+                    </div>
+                    <!-- CPU Priority -->
+                    <div class="row">
+                        <div class="input-field" id="priority-options">
+                            <div class="col m2">
+                                <label id="priority-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- IOPS -->
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m2">
+                                <label id="iops-label"></label>
+                            </div>
+                            <div class="col m4 range-field">
+                              <input type="range" id="iops" onchange="onIOPSChanged()">
+                            </div>
+                            <div class="col m2">
+                              <label>
+                                <span id="iops-tip"></span>
+                              </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- inbound -->
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m2">
+                                <label id="inbound-label"></label>
+                            </div>
+                            <div class="col m3 range-field">
+                              <input type="range" id="inbound" onchange="onInboundChanged()">
+                            </div>
+                            <div class="col m2">
+                              <label>
+                                <span id="inbound-tip"></span>
+                              </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- outbound -->
+                    <div class="row">
+                        <div class="input-field">
+                            <div class="col m2">
+                                <label id="outbound-label"></label>
+                            </div>
+                            <div class="col m3 range-field">
+                              <input type="range" id="outbound" onchange="onOutboundChanged()">
+                            </div>
+                            <div class="col m2">
+                              <label>
+                                <span id="outbound-tip"></span>
+                              </label>
+                            </div>
                         </div>
                     </div>
                     <div class="modal" id="confirm_modal">
@@ -243,8 +213,202 @@ var versions = new Map(
   ]
 );
 
+function mapValue(sizeInMB){
+  var size = sizeInMB * 1048576;
+  if(sizeInMB >= 1024){
+    var sizeInGB = sizeInMB / 1024;
+    return {Label: sizeInGB + 'G', Value: size};
+  }else{
+    return {Label: sizeInMB + 'M', Value: size};
+  }
+}
+
+function onSystemDiskChanged(){
+  var currentValue = $('#system-disk').val();
+  $('#system-disk-tip').text(currentValue + ' GiB');
+}
+
+function onDataDiskChanged(){
+  var currentValue = $('#data-disk').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#data-disk-tip').text('不使用');
+    }else{
+      $('#data-disk-tip').text("Don't use");
+    }
+  }else {
+    $('#data-disk-tip').text(currentValue + ' GiB');
+  }
+}
+
+function onIOPSChanged(){
+  var currentValue = $('#iops').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#iops-tip').text('无限制');
+    }else{
+      $('#iops-tip').text("No limit");
+    }
+  }else {
+    $('#iops-tip').text(currentValue + ' IOPS');
+  }
+}
+
+function onInboundChanged(){
+  var currentValue = $('#inbound').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#inbound-tip').text('无限制');
+    }else{
+      $('#inbound-tip').text("No limit");
+    }
+  }else {
+    $('#inbound-tip').text(currentValue + ' Mbit/s');
+  }
+}
+
+function onOutboundChanged(){
+  var currentValue = $('#outbound').val();
+  if(0 == currentValue){
+    if(N.IsChinese()){
+      $('#outbound-tip').text('无限制');
+    }else{
+      $('#outbound-tip').text("No limit");
+    }
+  }else {
+    $('#outbound-tip').text(currentValue + ' Mbit/s');
+  }
+}
 
 function loadOptions(){
+  {
+    //labels
+    if(N.IsChinese()){
+      $('#priority-label').text('CPU优先级');
+      $('#iops-label').text('IOPS');
+      $('#inbound-label').text('下行带宽');
+      $('#outbound-label').text('上行带宽');
+    }else{
+      $('#priority-label').text('CPU Priority');
+      $('#iops-label').text('IOPS');
+      $('#inbound-label').text('Inbound Bandwidth');
+      $('#outbound-label').text('Outbound Bandwidth');
+    }
+  }
+  {
+    //cores
+    var coreData = [1, 2, 4, 8];
+    var option = $('#core-options');
+    coreData.forEach((core)=>{
+      var input = $('<input>').addClass('with-gap').attr('name', 'cores').attr('type', 'radio').val(core);
+      if(1 == core){
+        input.prop('checked', true);
+      }
+      option.append(
+        $('<div>').addClass('col m1').append(
+          $('<label>').append(
+            input
+          ).append(
+            $('<span>').text(core)
+          )
+        )
+      );
+    });
+  }
+  {
+    //memory options
+    var memoryData = [512, 1024, 2*1024, 4*1024, 8*1024];
+    var option = $('#memory-options');
+    memoryData.forEach((memory)=>{
+      var tag = mapValue(memory);
+      var input = $('<input>').addClass('with-gap').attr('name', 'memory').attr('type', 'radio').val(tag.Value);
+      if(1024 == memory){
+        input.prop('checked', true);
+      }
+      option.append(
+        $('<div>').addClass('col m1').append(
+          $('<label>').append(
+            input
+          ).append(
+            $('<span>').text(tag.Label)
+          )
+        )
+      );
+    });
+  }
+
+  {
+    //system disk
+    const minSize = 5, maxSize = 60, moveStep = 1, defaultSize = minSize;
+    $('#system-disk').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onSystemDiskChanged();
+  }
+  {
+    //data disk
+    const minSize = 0, maxSize = 20, moveStep = 2, defaultSize = minSize;
+    $('#data-disk').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onDataDiskChanged();
+  }
+
+  {
+    //priority
+    var priorityData;
+    if(N.IsChinese()){
+      priorityData = [
+        ["high", "高", false],
+        ["medium", "中", true],
+        ["low", "低", false]
+      ];
+    }else{
+      priorityData = [
+        ["high", "High", false],
+        ["medium", "Medium", true],
+        ["low", "Low", false]
+      ];
+    }
+    var option = $('#priority-options');
+    priorityData.forEach((data)=>{
+      var value = data[0];
+      var label = data[1];
+      var isChecked = data[2];
+      var input = $('<input>').addClass('with-gap').attr('name', 'priority').attr('type', 'radio').val(value);
+      if(isChecked){
+        input.prop('checked', true);
+      }
+      option.append(
+        $('<div>').addClass('col m2').append(
+          $('<label>').append(
+            input
+          ).append(
+            $('<span>').text(label)
+          )
+        )
+      );
+    });
+  }
+  {
+    //iops
+    const minSize = 0, maxSize = 2000, moveStep = 10, defaultSize = minSize;
+    $('#iops').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onIOPSChanged();
+  }
+  {
+    //inbound
+    const minSize = 0, maxSize = 20, moveStep = 1, defaultSize = minSize;
+    $('#inbound').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onInboundChanged();
+  }
+  {
+    //outsbound
+    const minSize = 0, maxSize = 20, moveStep = 1, defaultSize = minSize;
+    $('#outbound').attr('min', minSize).attr('max', maxSize)
+      .attr('value', defaultSize).attr('step', moveStep);
+    onOutboundChanged();
+  }
   $.getJSON("/compute_pools/", function(result){
     if (0 != result['error_code']) {
         M.toast({html: 'query compute pools fail:' + result['message']});
@@ -278,7 +442,7 @@ function loadOptions(){
 
     M.FormSelect.init($('#version-options'));
   });
-  var queryImage = '/disk_image_search/?user=' + N.GetCurrentUser() + '&group=' + N.GetCurrentGroup();
+  var queryImage = '/disk_image_search/?session=' + N.GetSessionID();
   $.getJSON(queryImage, function(result){
     if (0 != result['error_code']) {
         M.toast({html: 'query disk images fail:' + result['message']});
@@ -649,6 +813,7 @@ function submitConfig() {
         $('#submit_button').click();
         return
     }
+    const GiB = 1 << 30;
     var request = new Object();
     request.name = $('#instance_name').val();
     //verify name
@@ -679,7 +844,8 @@ function submitConfig() {
     var info = versions.get(currentVersion);
     request.system = info.System;
     request.disks = new Array();
-    request.disks.push(Number($('input[name=system_disk]:checked').val()));
+    var systemDisk = Number($('#system-disk').val()) * GiB;
+    request.disks.push(systemDisk);
     var sourceImage = $('#image-options').val();
     if ('' != sourceImage){
       request.from_image = sourceImage;
@@ -696,7 +862,7 @@ function submitConfig() {
         request.cloud_init = ciConfig;
       }
     }
-    var dataDisk = Number($('input[name=data_disk]:checked').val());
+    var dataDisk = Number($('#data-disk').val()) * GiB;
     if (0 != dataDisk){
       request.disks.push(dataDisk);
     }
@@ -704,6 +870,26 @@ function submitConfig() {
       request.auto_start = true;
     }else{
       request.auto_start = false;
+    }
+    {
+      var qos = new Object();
+      qos.cpu_priority = $('input[name=priority]:checked').val();
+      var iops = Number($('#iops').val());
+      if(0 != iops){
+          qos.write_iops = qos.read_iops = iops;
+      }
+      const mps = 1 << (20 - 3);
+      var inbound = Number($('#inbound').val());
+      if(0 != inbound){
+        //trans to byte
+        qos.receive_speed = inbound * mps;
+      }
+      var outbound = Number($('#outbound').val());
+      if(0 != outbound){
+        //trans to byte
+        qos.send_speed = outbound * mps;
+      }
+      request.qos = qos;
     }
     createGuest(request);
 }
