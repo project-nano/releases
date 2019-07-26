@@ -24,14 +24,12 @@ Blueprint for REST API: https://nanoen.docs.apiary.io/
 
 ## Why Nano?
 
-- **Simple**.Simple to learn and easy to use, what you see is what you get.
-- **Robust**.Dynamic status monitor, automated exception handling, seamless resource scale-out, keep service available at any time.
-- **Intelligent**.From network configuration to service migration, all dirty work handled by the automated process
-- **Flexible**.Open API and fully-functional demo source code, shape anything you want.
-- **Free**.No trial, no resource limit, use it whatever you like.
-- **Security**.From instance monitoring to full encryption of data transmission, dynamic protection against data leakage and illegal access
-
-
+- **Simple**: Simple to learn and easy to use，out-of-the-box without any external dependencies.
+- **Robust**: The concurrent transaction with automated error handling and resource recycling, cooperating with the failover feature, aim for reliable service.
+- **Intelligent**: From network discovery to instance assemble, all dirty work handled by the automated process.
+- **Scalable**: Start on a single server, and grow up to tens of thousands of physical nodes in few clicks.
+- **Flexible**: Open-sourced with complete REST API,  easy to customize anything you want.
+- **Security**: Authenticated instance monitoring and encrypted data transmission, everything shields from data leakage and illegal access.
 
 **Features (1.0.0)**
 
@@ -102,3 +100,15 @@ All modules of Nano are compiled binary without any external library dependency,
 
 It highly recommends that executing the installer and selecting “4” to upgrade all modules automatically. The installer will check which module installed need to update, and stop and restart a running module automated.
 
+## Projects used in Nano
+
+- https://materializecss.com/
+- https://github.com/julienschmidt/httprouter
+- https://github.com/sevlyar/go-daemon
+- https://github.com/xtaci/kcp-go
+- https://github.com/novnc/noVNC
+- https://github.com/libvirt/libvirt-go
+- https://github.com/vishvananda/netlink
+- https://github.com/shirou/gopsutil
+- https://github.com/krolaw/dhcp4
+- https://github.com/amoghe/go-crypt
