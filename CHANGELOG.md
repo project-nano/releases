@@ -1,5 +1,71 @@
 # Change Log
 
+## [1.1.0] - 2020-01-02
+
+### Core 1.1.1
+
+#### Added 
+
+- API signature verify
+- Add go mod
+- Add DNS to API '/address_pools/'(query address pool list)
+- Add CreateTime/MAC address to instance/guest
+
+#### Changed
+
+- Call core API via prefix '/api/v1/'
+- Change "/media_image_files/:id" to "/media_images/:id/file/"
+- Change "/disk_image_files/:id" to "/disk_images/:id/file/"
+
+#### Fixed
+
+- Search guest in an empty cell return a proper result
+- Properly return a pending error of instance when get status
+
+### Cell 1.1.1
+
+#### Added
+
+- Add go mod
+
+#### Changed
+
+- Call core API via prefix '/api/v1/'
+- Change "/media_image_files/:id" to "/media_images/:id/file/"
+- Change "/disk_image_files/:id" to "/disk_images/:id/file/"
+- Reset system before initialization change from error to a warning
+- Reduce log for DHCP warning
+- Network detect interval change to two minutes after established some IP
+- Add CreateTime/MAC address to instance
+
+### FrontEnd 1.1.3
+
+#### Added
+
+- Add signature when call Core API
+- Add go mod
+- Add web_root option to "frontend.cfg" for hosting portal files
+- Add cors_enable option to "frontend.cfg" for CORS control
+
+#### Changed
+
+- Call core API via prefix '/api/v1/'
+- Change "/media_image_files/:id" to "/media_images/:id/file/"
+- Change "/disk_image_files/:id" to "/disk_images/:id/file/"
+- A new portal completely was rewritten using React
+- Web pages move from 'resource' to 'web_root'
+
+#### Fixed
+
+- Visibility interface broken
+- Query logs missing and wrong order    
+
+### Installer 1.1.0
+
+#### Changed
+
+- Change directory of frontend portal files from 'resource' to 'web_root'
+
 ## [1.0.0] - 2019-07-14
 
 ### Core 1.0.0
