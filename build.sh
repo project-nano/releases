@@ -16,4 +16,4 @@ tar zcfv $TARGET $SOURCE
 echo new package $TARGET created
 sha1sum $TARGET > $HASH
 echo hash $HASH genereated
-
+echo build package success
