@@ -1,9 +1,27 @@
 #!/bin/bash
-BinPath=nano_installer/bin
+InstallerPath=nano_installer
+BinPath=$InstallerPath/bin
 Core=core
 Cell=cell
 FrontEnd=frontend
 WebRoot=web_root
+Installer=installer
+
+InstallerSource=../$Installer/$Installer
+InstallerTarget=$InstallerPath/$Installer
+if [ ! -f "$InstallerSource" ]; then
+        echo $InstallerSource not exists
+        exit 1
+fi
+
+cp $InstallerSource $InstallerTarget
+
+if [ $? -ne 0 ]; then
+        echo fetch $InstallerSource fail
+        exit 1
+fi
+
+echo $InstallerSource copied to $InstallerTarget
 
 CoreSource=../$Core/$Core
 CoreTarget=$BinPath/$Core
