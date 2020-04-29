@@ -1,2 +1,4 @@
 *.tar.gz
 .idea/
+nano_installer.sha1sum
+nano_installer.tar.gz
