@@ -1,5 +1,28 @@
 # Change Log
 
+## [1.2.0] - 2020-04-29
+
+### Added
+
+- Manage cell storage path
+- Manage system template
+- Reset monitor secret
+- Sync instance number when inconsistent
+- Add forcibly update option to installer
+
+### Changed
+
+- Optimize interactive on web dialog
+- Optimize dashboard display on mobile device
+- Using vga as default video device
+- Installer check firewalld before installation
+
+### Fixed
+
+- Huge memory occupied when uploading images cause OOM kill in 1.1.0
+- Change guest password with wrong user
+- Out of memory when monitorint guest resource if no qga installed
+
 ## [1.1.0] - 2020-01-02
 
 ### Core 1.1.1
