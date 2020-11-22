@@ -1,5 +1,30 @@
 # Change Log
 
+## [1.3.0] - 2020-11-22
+
+### Added
+
+- Manage security policy of instance
+- Manage security policy group
+- Sync disk/media images from local path
+- Create instances with security policy
+
+### Changed
+
+- Optimize the strategy and error output of computing pool allocation
+- Optimize the control page of the instance
+
+### Fixed
+
+- Return an explicit error when login with a user does not belong to any group
+- Remove from the group when deleting a user
+- Return an explicit error when resize disk fail after creating a new image
+- Return an explicit error when resize volume fail
+- Optimize output of image size in IO Scheduler 
+- Consistent checking of instance quantity is not working
+- Can't send ctrl+alt+delete in the control page on v1.2.0 
+- Images list crashed when no tags available
+
 ## [1.2.0] - 2020-04-29
 
 ### Added
