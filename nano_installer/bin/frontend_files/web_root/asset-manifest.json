@@ -1,29 +1,29 @@
 {
   "files": {
-    "main.css": "/static/css/main.dfd6ecea.chunk.css",
-    "main.js": "/static/js/main.3b6cadc5.chunk.js",
-    "main.js.map": "/static/js/main.3b6cadc5.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.c9f9e7d8.js",
-    "runtime-main.js.map": "/static/js/runtime-main.c9f9e7d8.js.map",
+    "main.css": "/static/css/main.92970355.chunk.css",
+    "main.js": "/static/js/main.95df5458.chunk.js",
+    "main.js.map": "/static/js/main.95df5458.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.6ed7819b.js",
+    "runtime-main.js.map": "/static/js/runtime-main.6ed7819b.js.map",
     "static/css/2.d0176e96.chunk.css": "/static/css/2.d0176e96.chunk.css",
-    "static/js/2.b2bef4fd.chunk.js": "/static/js/2.b2bef4fd.chunk.js",
-    "static/js/2.b2bef4fd.chunk.js.map": "/static/js/2.b2bef4fd.chunk.js.map",
+    "static/js/2.adad68ab.chunk.js": "/static/js/2.adad68ab.chunk.js",
+    "static/js/2.adad68ab.chunk.js.map": "/static/js/2.adad68ab.chunk.js.map",
     "index.html": "/index.html",
-    "precache-manifest.b75c7828e9fdce0900abd286b159c128.js": "/precache-manifest.b75c7828e9fdce0900abd286b159c128.js",
+    "precache-manifest.59b87c3662299441a424e43e910ce067.js": "/precache-manifest.59b87c3662299441a424e43e910ce067.js",
     "service-worker.js": "/service-worker.js",
     "static/css/2.d0176e96.chunk.css.map": "/static/css/2.d0176e96.chunk.css.map",
-    "static/css/main.dfd6ecea.chunk.css.map": "/static/css/main.dfd6ecea.chunk.css.map",
-    "static/js/2.b2bef4fd.chunk.js.LICENSE": "/static/js/2.b2bef4fd.chunk.js.LICENSE",
-    "static/js/main.3b6cadc5.chunk.js.LICENSE": "/static/js/main.3b6cadc5.chunk.js.LICENSE",
+    "static/css/main.92970355.chunk.css.map": "/static/css/main.92970355.chunk.css.map",
+    "static/js/2.adad68ab.chunk.js.LICENSE.txt": "/static/js/2.adad68ab.chunk.js.LICENSE.txt",
+    "static/js/main.95df5458.chunk.js.LICENSE.txt": "/static/js/main.95df5458.chunk.js.LICENSE.txt",
     "static/media/login_background.jpg": "/static/media/login_background.327add31.jpg",
     "static/media/nano_white.svg": "/static/media/nano_white.a92c198a.svg",
     "static/media/sidebar.jpg": "/static/media/sidebar.18c01f03.jpg"
   },
   "entrypoints": [
-    "static/js/runtime-main.c9f9e7d8.js",
+    "static/js/runtime-main.6ed7819b.js",
     "static/css/2.d0176e96.chunk.css",
-    "static/js/2.b2bef4fd.chunk.js",
-    "static/css/main.dfd6ecea.chunk.css",
-    "static/js/main.3b6cadc5.chunk.js"
+    "static/js/2.adad68ab.chunk.js",
+    "static/css/main.92970355.chunk.css",
+    "static/js/main.95df5458.chunk.js"
   ]
 }
