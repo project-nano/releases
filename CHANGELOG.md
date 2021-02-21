@@ -1,5 +1,17 @@
 # Change Log
 
+## [1.3.1] - 2020-02-21
+
+### Added 
+
+- Set auto start in guest detail
+- Search and pagination in instance list
+- Installer print Nano version when start
+
+### Changed
+
+- Display hosting cell IP instead of name if available
+
 ## [1.3.0] - 2020-11-22
 
 ### Added
