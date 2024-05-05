@@ -1,5 +1,74 @@
 # Change Log
 
+## [1.4.0] - 2024-05-05
+
+### 新增
+
+- Core: 配置文件"domain.cfg"增加选项timeout，设置超时时间，单位为秒，默认值10
+- Cell: 配置文件"data/instance.data"新增选项max_guest设置当前节点允许承载的最大云主机数量，默认值100
+- Cell: 配置文件"domain.cfg"新增选项timeout，设置操作超时时间，单位为秒，默认值10
+- FrontEnd: 配置文件"frontend.cfg"新增选项max_cores用于设置创建云主机的最大核心数，默认值24
+- FrontEnd: 配置文件"frontend.cfg"新增选项max_memory用于设置创建云主机的最大内存容量(GB)，默认值32
+- FrontEnd: 配置文件"frontend.cfg"新增选项max_disk用于设置创建云主机的最大磁盘容量(GB)，默认值64
+- FrontEnd: 登录页面增加系统错误提示
+- FrontEnd: package.json新增参数service.host/service.port用于设置跨域时的后端服务地址
+- FrontEnd: 未添加资源节点时进行提示
+
+### 变更
+
+- Cell: 云主机存在快照时，拒绝创建磁盘镜像
+- Cell: 允许删除根快照和活动快照
+- Cell: 启动时同步网络资源
+- Cell: 启动时校验存储卷
+- Cell: 磁盘卷锁定时拒绝启动云主机
+- FrontEnd: 切换到yarn编译
+- FrontEnd: 更新版权日期
+- FrontEnd: 仅允许.iso文件上传为光盘镜像
+- FrontEnd: 仅允许.qcow2文件上传为磁盘镜像
+- FrontEnd: 新建云主机时优化参数配置界面，允许从Frontend接口读取用户自定最大值
+- FrontEnd: 新建云主机时，默认选择第一个资源池和系统模板
+
+### 修正
+
+- Core: 搜索云主机时未按创建者和所属组进行过滤
+- Cell: 删除快照失败导致模块崩溃
+- Cell: 缺少参数导致缩小卷失败
+
+### Added
+
+- Core: Add option 'timeout' to configure file "domain.cfg", default value is 10 seconds
+- Cell: Add option 'max_guest' to configure file "data/instance.data", default value is 100
+- Cell: Add option 'timeout' to configure file "domain.cfg", default value is 10 seconds
+- FrontEnd: Add option "max_cores" to configure file "frontend.cfg", default value is 24
+- FrontEnd: Add option "max_memory" in GB to configure file "frontend.cfg", default value is 32
+- FrontEnd: Add option "max_disk" in GB to configure file "frontend.cfg", default value is 64
+- FrontEnd: Prompt on login page when system error
+- FrontEnd: Add service.host/service.port to 'package.json' to configure CORS backend connnection
+- FrontEnd: Prompt add first resource node if not available
+
+### Changed
+
+- Cell: Refuse to create disk image when snapshots available
+- Cell: Allow to delete root and active snapshot
+- Cell: Sync network resources when startup
+- Cell: Validate storage volumes when startup
+- Cell: Refuse to start instance when volumes locked
+- FrontEnd: Migrate to yarn
+- FrontEnd: Copyright updated to current year
+- FrontEnd: Only allow '.iso' files to upload for media images
+- FrontEnd: Only allow '.qcow2' files to upload for disk images
+- FrontEnd: Read cores/memory/disk limit via frontend on page of creating instances
+- FrontEnd: Optimize core/memory/disk configure in creating page
+- FrontEnd: Using first pool by default when creating instance
+- FrontEnd: Using first system template by default when creating instance
+
+### Fixed
+
+- Core: Search guests not filter by owner and group
+- Cell: crash when delete snapshot failed
+- Cell: shrink volume fail when parameter omitted
+
+
 ## [1.3.1] - 2020-02-21
 
 ### Added 

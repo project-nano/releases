@@ -1,2 +1,4 @@
+.idea
+.vscode
 *.tar.gz
-.idea/
+*.sha1sum
