@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.4.1] - 2024-07-16
+
+### 修正
+
+- Cell: qemu-img参数错误导致新建云主机时构建磁盘卷失败
+
+### Fixed
+
+- Cell: Resize volume fail with wrong qemu-img parameters when creating new instance
+
 ## [1.4.0] - 2024-05-05
 
 ### 新增
